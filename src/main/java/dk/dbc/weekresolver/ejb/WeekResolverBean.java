@@ -69,8 +69,25 @@ public class WeekResolverBean {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
         switch( catalogueCode.toLowerCase() ) {
-            case "bpf": return "1946"; // Todo: calculate date+2weeks untill we have the final logic
+            case "bpf": return CalculateCalendarWeekCode(date);
             default: throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
+    }
+
+    /**
+     *
+     * @param date
+     * @return a string with the weekcode
+     */
+    private String CalculateCalendarWeekCode(final LocalDate date) {
+        LOGGER.info("Using calender week as weekcode");
+
+        // Get the week number using formatter 'week-of-week-based-year'. Per ISO-8601 a week starts on monday
+        // so this number is compatible with the danish weeknumber system.
+        //
+        // Todo: Untill we have better specifications, this calculator returns the weeknumber of the given date
+        //       plus 2 weeks
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("w");
+        return date.plusWeeks(2).format(formatter);
     }
 }
