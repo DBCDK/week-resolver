@@ -1,11 +1,13 @@
 package dk.dbc.weekresolver.rest;
 
 import dk.dbc.weekresolver.ejb.WeekResolverBean;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+
 import java.util.HashSet;
 import java.util.Set;
 
