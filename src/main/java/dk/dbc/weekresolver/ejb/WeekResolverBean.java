@@ -10,10 +10,7 @@ import java.time.format.DateTimeParseException;
 
 import javax.ejb.Stateless;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -38,7 +35,7 @@ public class WeekResolverBean {
      */
     @GET
     @Path("v1/date/{catalogueCode}/{date}")
-    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode,
                               @PathParam("date") final String date) throws DateTimeParseException, UnsupportedOperationException {
         LOGGER.trace("getWeekCode() method called");
@@ -54,7 +51,7 @@ public class WeekResolverBean {
 
         // Return calculated weekcode
         LOGGER.info("getWeekCode returning: {}", weekCode);
-        return Response.ok(weekCode).build();
+        return Response.ok(weekCode, MediaType.APPLICATION_JSON).build();
     }
 
     /**
