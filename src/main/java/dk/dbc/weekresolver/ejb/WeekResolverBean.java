@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 
 @Stateless
-@Path("")
+@Path("/api")
 public class WeekResolverBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverBean.class);
     private static final JSONBContext jsonbContext = new JSONBContext();
@@ -33,7 +33,7 @@ public class WeekResolverBean {
      * todo: implement !
      */
     @GET
-    @Path("api/v1/date/{type}/{date}")
+    @Path("v1/date/{type}/{date}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getWeekId(@PathParam("type") final String dateType,
                               @PathParam("date") final String date) throws ParseException {
