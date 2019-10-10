@@ -50,7 +50,7 @@ public class WeekResolverBean {
         LocalDate dateForRequestedWeekCode = LocalDate.parse(date, formatter);
 
         // Todo: Calculate the weekcode, here needs to be added logic based on input from ACC.
-        //       Throw ParseException if the catalougecode is unknown or unsupported
+        //       Throw ParseException if the cataloguecode is unknown or unsupported
         final String weekCode = String.format("No week id implemented yet for catalogueCode: %s date:%s", catalogueCode, dateForRequestedWeekCode);
 
         // Return calculated weekcode
