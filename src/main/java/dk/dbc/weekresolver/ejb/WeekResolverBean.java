@@ -16,13 +16,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import java.text.SimpleDateFormat;
 
-
 @Stateless
 @Path("")
 public class WeekResolverBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverBean.class);
     private static final JSONBContext jsonbContext = new JSONBContext();
-
 
     /**
      * Get week id based on type(to be elaborated) and a date.

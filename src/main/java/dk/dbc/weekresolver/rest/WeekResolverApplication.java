@@ -32,4 +32,3 @@ public class WeekResolverApplication extends Application {
         return Classes;
     }
 }
-
