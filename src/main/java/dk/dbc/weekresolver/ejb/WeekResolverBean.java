@@ -33,14 +33,14 @@ public class WeekResolverBean {
      * @param date (yyyy-MM-dd)
      * @return a HTTP 200 with the week-code as a string
      * @throws DateTimeParseException if specified date is not parseable
-     * @throws ParseException if the specified cataloguecode is unkown or unsupported
+     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
      *
      */
     @GET
     @Path("v1/date/{catalogueCode}/{date}")
     @Consumes(MediaType.APPLICATION_JSON)
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode,
-                              @PathParam("date") final String date) throws DateTimeParseException, ParseException {
+                              @PathParam("date") final String date) throws DateTimeParseException, UnsupportedOperationException {
         LOGGER.trace("getWeekCode() method called");
         LOGGER.info("Week-code requested for catalogueCode={} and date={}", catalogueCode, date);
 
@@ -49,12 +49,28 @@ public class WeekResolverBean {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate dateForRequestedWeekCode = LocalDate.parse(date, formatter);
 
-        // Todo: Calculate the weekcode, here needs to be added logic based on input from ACC.
-        //       Throw ParseException if the cataloguecode is unknown or unsupported
-        final String weekCode = String.format("No week id implemented yet for catalogueCode: %s date:%s", catalogueCode, dateForRequestedWeekCode);
+        // Calculate the weekcode
+        final String weekCode = CalculateWeekCodeForCatalogueCode(catalogueCode, dateForRequestedWeekCode);
 
         // Return calculated weekcode
         LOGGER.info("getWeekCode returning: {}", weekCode);
         return Response.ok(weekCode).build();
+    }
+
+    /**
+     * Calculate the weekcode for the given date depending on the cataloguecode
+     * @param catalogueCode
+     * @param date
+     * @return a string with the weekcode
+     * @throws ParseException if the cataloguecode is not supported
+     */
+    private String CalculateWeekCodeForCatalogueCode(final String catalogueCode, final LocalDate date)
+        throws UnsupportedOperationException {
+        LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
+
+        switch( catalogueCode.toLowerCase() ) {
+            case "bpf": return "1946"; // Todo: calculate date+2weeks untill we have the final logic
+            default: throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
+        }
     }
 }
