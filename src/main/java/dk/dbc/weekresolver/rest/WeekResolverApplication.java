@@ -17,15 +17,19 @@ import java.util.Set;
 public class WeekResolverApplication extends Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverApplication.class);
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        final Set<Class<?>> classes = new HashSet<>();
-        classes.add(WeekResolverBean.class);
-        classes.add(StatusBean.class);
-        for (Class<?> clazz : classes) {
+    private static final Set<Class<?>> Classes = new HashSet<>();
+
+    public WeekResolverApplication() {
+        Classes.add(WeekResolverBean.class);
+        Classes.add(StatusBean.class);
+        for (Class<?> clazz : Classes) {
             LOGGER.info("Registered {} resource", clazz.getName());
         }
-        return classes;
+    }
+
+    @Override
+    public Set<Class<?>> getClasses() {
+        return Classes;
     }
 }
 

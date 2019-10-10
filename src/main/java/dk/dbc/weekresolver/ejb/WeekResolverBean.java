@@ -36,7 +36,7 @@ public class WeekResolverBean {
      */
     @GET
     @Path("api/v1/date/{type}/{date}")
-    @Consumes(MediaType.APPLICATION_OCTET_STREAM)
+    @Consumes(MediaType.APPLICATION_JSON)
     public Response getWeekId(@PathParam("type") final String dateType,
                               @PathParam("date") final String date) throws ParseException {
         LOGGER.trace("getWeekId() method called");
