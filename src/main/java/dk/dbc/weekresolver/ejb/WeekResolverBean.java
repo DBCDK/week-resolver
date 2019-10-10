@@ -85,6 +85,7 @@ public class WeekResolverBean {
         // Todo: Untill we have better specifications, this calculator returns the weeknumber of the given date
         //       plus 2 weeks
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("w");
-        return date.plusWeeks(2).format(formatter);
+        int weeknumber = Integer.parseInt(date.plusWeeks(2).format(formatter));
+        return String.format("%02d", weeknumber);
     }
 }
