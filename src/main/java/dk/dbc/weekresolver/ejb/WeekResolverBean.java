@@ -1,20 +1,24 @@
 package dk.dbc.weekresolver.ejb;
 
-
 import dk.dbc.jsonb.JSONBContext;
-import java.io.IOException;
+
 import java.text.ParseException;
-import java.util.Date;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 import javax.ejb.Stateless;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import java.text.SimpleDateFormat;
 
 @Stateless
 @Path("/api")
@@ -25,27 +29,32 @@ public class WeekResolverBean {
     /**
      * Get week id based on type(to be elaborated) and a date.
      *
-     * @param dateType   (todo: add types of week)
+     * @param catalogueCode
      * @param date (yyyy-MM-dd)
-     * @return a HTTP 200 with the week-id as a string
-     * @throws ParseException if specified date is not parseable
+     * @return a HTTP 200 with the week-code as a string
+     * @throws DateTimeParseException if specified date is not parseable
+     * @throws ParseException if the specified cataloguecode is unkown or unsupported
      *
-     * todo: implement !
      */
     @GET
-    @Path("v1/date/{type}/{date}")
+    @Path("v1/date/{catalogueCode}/{date}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response getWeekId(@PathParam("type") final String dateType,
-                              @PathParam("date") final String date) throws ParseException {
-        LOGGER.trace("getWeekId() method called");
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            Date d = sdf.parse(date);
-            final String weekId = String.format("No week id implemented yet for type: %s date:%s", dateType, d);
-            LOGGER.info("getWeekId called. Returning:{}",weekId);
-            return Response.ok(weekId).build();
-        } finally {
+    public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode,
+                              @PathParam("date") final String date) throws DateTimeParseException, ParseException {
+        LOGGER.trace("getWeekCode() method called");
+        LOGGER.info("Week-code requested for catalogueCode={} and date={}", catalogueCode, date);
 
-        }
+        // Todo: We are not entirely sure that this is the dateformat we want to use.
+        //       Adjust when clients are better known.
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateForRequestedWeekCode = LocalDate.parse(date, formatter);
+
+        // Todo: Calculate the weekcode, here needs to be added logic based on input from ACC.
+        //       Throw ParseException if the catalougecode is unknown or unsupported
+        final String weekCode = String.format("No week id implemented yet for catalogueCode: %s date:%s", catalogueCode, dateForRequestedWeekCode);
+
+        // Return calculated weekcode
+        LOGGER.info("getWeekCode returning: {}", weekCode);
+        return Response.ok(weekCode).build();
     }
 }
