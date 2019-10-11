@@ -77,39 +77,40 @@ public class WeekResolverBean {
         throws UnsupportedOperationException {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
-        WeekResolverResult result;
+        // Pick the weeknumber calculator needed by the given cataloguecode.
+        // Do note that the calculator must calculate weeknumber AND year, since the rules for selecting a
+        // weeknumber may result in a weeknumber BEFORE or AFTER the calendar week, thus possibly referring
+        // to the next or previous year.
+        WeekResolverResult result = new WeekResolverResult();
         switch( catalogueCode.toLowerCase() ) {
             case "bpf":
-                result = CalculateCalendarWeekCode(date);
+                result = CalculateCalendarWeekAndYear(date);
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
 
-        // Update result with cataloguecode and the resulting weekcode
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY");
+        // Update the result object with the cataloguecode in uppercase and the resulting weekcode. It is very
+        // unlikely that 'year' will be anything but 4 digits, but if so, this will break.
         result.CatalogueCode = catalogueCode.toUpperCase();
-        result.WeekCode = result.CatalogueCode + date.format(formatter) + String.format("%02d", result.WeekNumber);
+        result.WeekCode = result.CatalogueCode + result.Year + String.format("%02d", result.WeekNumber);
         LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", catalogueCode, result.WeekCode);
         return result;
     }
 
     /**
-     *
-     * @param date
-     * @return a string with the weekcode
+     * Calculate the year and weeknumber for cataloguecodes using strict ISO weeknumbers
+     * @param date Date for the requested weeknumber and year
+     * @return a WeekResolverResult with WeekNumber and Year initialized
      */
-    private WeekResolverResult CalculateCalendarWeekCode(final LocalDate date) {
-        LOGGER.info("Using calender week as weekcode");
+    private WeekResolverResult CalculateCalendarWeekAndYear(final LocalDate date) {
+        LOGGER.info("Using calender week and week-based-year");
 
         // Get the week number using formatter 'week-of-week-based-year'. Per ISO-8601 a week starts on monday
         // so this number is compatible with the danish weeknumber system.
-        //
-        // Todo: Untill we have better specifications, this calculator returns the weeknumber of the given date
-        //       plus 2 weeks
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("w");
         WeekResolverResult result = new WeekResolverResult();
-        result.WeekNumber = Integer.parseInt(date.plusWeeks(2).format(formatter));
+        result.WeekNumber = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w")));
+        result.Year = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY")));
         return result;
     }
 }

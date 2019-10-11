@@ -10,8 +10,11 @@ package dk.dbc.weekresolver.rest;
  */
 public class WeekResolverResult {
 
-    // ISO week number
+    // Week number
     public int WeekNumber;
+
+    // Year
+    public int Year;
 
     // The given cataloguecode, in upper case
     public String CatalogueCode;
