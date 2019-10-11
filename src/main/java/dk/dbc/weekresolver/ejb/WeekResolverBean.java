@@ -17,6 +17,8 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import dk.dbc.jsonb.JSONBException;
+import dk.dbc.weekresolver.rest.WeekResolverResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,13 +36,15 @@ public class WeekResolverBean {
      * @return a HTTP 200 with the week-code as a string
      * @throws DateTimeParseException if specified date is not parseable
      * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
+     * @throws JSONBException if valid json could not be generated
      *
      */
     @GET
     @Path("v1/date/{catalogueCode}/{date}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode,
-                              @PathParam("date") final String date) throws DateTimeParseException, UnsupportedOperationException {
+            @PathParam("date") final String date)
+            throws DateTimeParseException, UnsupportedOperationException, JSONBException {
         LOGGER.trace("getWeekCode() method called");
         LOGGER.info("Week-code requested for catalogueCode={} and date={}", catalogueCode, date);
 
@@ -50,11 +54,11 @@ public class WeekResolverBean {
         LocalDate dateForRequestedWeekCode = LocalDate.parse(date, formatter);
 
         // Calculate the weekcode
-        final String weekCode = CalculateWeekCodeForCatalogueCode(catalogueCode, dateForRequestedWeekCode);
+        final WeekResolverResult result = CalculateWeekCodeForCatalogueCode(catalogueCode, dateForRequestedWeekCode);
 
         // Return calculated weekcode
-        LOGGER.info("getWeekCode returning: {}", weekCode);
-        return Response.ok(weekCode, MediaType.APPLICATION_JSON).build();
+        LOGGER.info("getWeekCode returning: {}", result);
+        return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -64,14 +68,25 @@ public class WeekResolverBean {
      * @return a string with the weekcode
      * @throws ParseException if the cataloguecode is not supported
      */
-    private String CalculateWeekCodeForCatalogueCode(final String catalogueCode, final LocalDate date)
+    private WeekResolverResult CalculateWeekCodeForCatalogueCode(final String catalogueCode, final LocalDate date)
         throws UnsupportedOperationException {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
+        WeekResolverResult result;
         switch( catalogueCode.toLowerCase() ) {
-            case "bpf": return CalculateCalendarWeekCode(date);
-            default: throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
+            case "bpf":
+                result = CalculateCalendarWeekCode(date);
+                break;
+            default:
+                throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
+
+        // Update result with cataloguecode and the resulting weekcode
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY");
+        result.CatalogueCode = catalogueCode.toUpperCase();
+        result.WeekCode = result.CatalogueCode + date.format(formatter) + result.WeekCode;
+        LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", catalogueCode, result.WeekCode);
+        return result;
     }
 
     /**
@@ -79,7 +94,7 @@ public class WeekResolverBean {
      * @param date
      * @return a string with the weekcode
      */
-    private String CalculateCalendarWeekCode(final LocalDate date) {
+    private WeekResolverResult CalculateCalendarWeekCode(final LocalDate date) {
         LOGGER.info("Using calender week as weekcode");
 
         // Get the week number using formatter 'week-of-week-based-year'. Per ISO-8601 a week starts on monday
@@ -88,7 +103,9 @@ public class WeekResolverBean {
         // Todo: Untill we have better specifications, this calculator returns the weeknumber of the given date
         //       plus 2 weeks
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("w");
-        int weeknumber = Integer.parseInt(date.plusWeeks(2).format(formatter));
-        return String.format("%02d", weeknumber);
+        WeekResolverResult result = new WeekResolverResult();
+        result.WeekNumber = Integer.parseInt(date.plusWeeks(2).format(formatter));
+        result.WeekCode = String.format("%02d", result.WeekNumber);
+        return result;
     }
 }
