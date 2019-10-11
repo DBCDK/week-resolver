@@ -89,7 +89,7 @@ public class WeekResolverBean {
         // Update result with cataloguecode and the resulting weekcode
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYYY");
         result.CatalogueCode = catalogueCode.toUpperCase();
-        result.WeekCode = result.CatalogueCode + date.format(formatter) + result.WeekCode;
+        result.WeekCode = result.CatalogueCode + date.format(formatter) + String.format("%02d", result.WeekNumber);
         LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", catalogueCode, result.WeekCode);
         return result;
     }
@@ -110,7 +110,6 @@ public class WeekResolverBean {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("w");
         WeekResolverResult result = new WeekResolverResult();
         result.WeekNumber = Integer.parseInt(date.plusWeeks(2).format(formatter));
-        result.WeekCode = String.format("%02d", result.WeekNumber);
         return result;
     }
 }
