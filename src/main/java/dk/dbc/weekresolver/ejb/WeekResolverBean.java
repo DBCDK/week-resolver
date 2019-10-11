@@ -56,7 +56,7 @@ public class WeekResolverBean {
         // Do note that the calculator must calculate weeknumber AND year, since the rules for selecting a
         // weeknumber may result in a weeknumber BEFORE or AFTER the calendar week, thus possibly referring
         // to the next or previous year.
-        WeekResolverResult result = new WeekResolverResult();
+        WeekResolverResult result;
         switch( catalogueCode.toLowerCase() ) {
             case "bpf":
                 result = CalculateCalendarWeekAndYear(date);
