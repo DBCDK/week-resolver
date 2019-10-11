@@ -32,6 +32,8 @@ public class WeekResolverBeanTest {
     public void TestCatalogueCodeBPF() {
         WeekResolverBean b = new WeekResolverBean();
 
+        Assertions.assertDoesNotThrow(() -> b.getWeekCode("bpf", "2019-11-29"));
+
         WeekResolverResult result = b.getWeekCode("bpf", "2019-11-29");
         Assertions.assertEquals(result.WeekNumber, 48);
         Assertions.assertEquals(result.Year, 2019);
