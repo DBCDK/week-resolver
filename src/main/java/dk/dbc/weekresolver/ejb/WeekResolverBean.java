@@ -21,7 +21,7 @@ public class WeekResolverBean {
     /**
      * Get week id based on type(to be elaborated) and a date.
      *
-     * @param catalogueCode
+     * @param catalogueCode Cataloguecode
      * @param date (yyyy-MM-dd)
      * @return a HTTP 200 with the week-code as a string
      * @throws DateTimeParseException if specified date is not parseable

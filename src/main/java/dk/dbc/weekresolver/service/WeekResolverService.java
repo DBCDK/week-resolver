@@ -26,12 +26,11 @@ public class WeekResolverService {
     /**
      * Get week id based on type(to be elaborated) and a date.
      *
-     * @param catalogueCode
-     * @param date          (yyyy-MM-dd)
+     * @param catalogueCode Cataloguecode
+     * @param date (yyyy-MM-dd)
      * @return a HTTP 200 with the week-code as a string
      * @throws DateTimeParseException        if specified date is not parseable
      * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
-     * @throws JSONBException                if valid json could not be generated
      */
     @GET
     @Path("v1/date/{catalogueCode}/{date}")
