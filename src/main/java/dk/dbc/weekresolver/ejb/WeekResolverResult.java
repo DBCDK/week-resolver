@@ -3,7 +3,7 @@
  *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
  */
 
-package dk.dbc.weekresolver.rest;
+package dk.dbc.weekresolver.ejb;
 
 /**
  * Result data from resolving a weeknumber by use of a specific catalogue code
