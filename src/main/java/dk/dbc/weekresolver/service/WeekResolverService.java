@@ -17,6 +17,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
+import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 
 @Path("/api")
@@ -26,6 +27,23 @@ public class WeekResolverService {
 
     @EJB
     WeekResolverBean weekResolver;
+
+    /**
+     * Get week id based on catalogueCode and the current date
+     *
+     * @param catalogueCode Cataloguecode
+     * @return a HTTP 200 with the week-code as a string
+     * @throws DateTimeParseException        if specified date is not parseable (should not be possible)
+     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
+     */
+    @GET
+    @Path("v1/date/{catalogueCode}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode) {
+        LOGGER.trace("getWeekCode() method called");
+
+        return getWeekCode(catalogueCode, LocalDate.now().toString());
+    }
 
     /**
      * Get week id based on catalogueCode and a date.
@@ -41,7 +59,7 @@ public class WeekResolverService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode,
                                 @PathParam("date") final String date) {
-        LOGGER.trace("getWeekCode() method called");
+        LOGGER.trace("getWeekCode() method called with specific date");
 
         WeekResolverResult result;
         try {
