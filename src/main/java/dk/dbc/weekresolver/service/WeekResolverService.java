@@ -9,6 +9,7 @@ import dk.dbc.weekresolver.ejb.WeekResolverResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -22,6 +23,9 @@ import java.time.format.DateTimeParseException;
 public class WeekResolverService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverService.class);
     private static final JSONBContext jsonbContext = new JSONBContext();
+
+    @EJB
+    WeekResolverBean weekResolver;
 
     /**
      * Get week id based on type(to be elaborated) and a date.
@@ -39,7 +43,6 @@ public class WeekResolverService {
                                 @PathParam("date") final String date) {
         LOGGER.trace("getWeekCode() method called");
 
-        WeekResolverBean weekResolver = new WeekResolverBean();
         WeekResolverResult result;
         try {
             result = weekResolver.getWeekCode(catalogueCode, date);

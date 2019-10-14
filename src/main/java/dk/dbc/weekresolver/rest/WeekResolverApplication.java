@@ -28,7 +28,6 @@ public class WeekResolverApplication extends Application {
     private static final Set<Class<?>> Classes = new HashSet<>();
 
     public WeekResolverApplication() {
-        Classes.add(WeekResolverBean.class);
         Classes.add(WeekResolverService.class);
         Classes.add(StatusBean.class);
         for (Class<?> clazz : Classes) {
