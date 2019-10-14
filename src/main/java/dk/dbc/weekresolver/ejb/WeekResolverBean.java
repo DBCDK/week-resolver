@@ -22,8 +22,6 @@ public class WeekResolverBean {
     private String catalogueCode;
 
     public WeekResolverBean forDate(String date) throws DateTimeParseException {
-        // Todo: We are not entirely sure that this is the dateformat we want to use.
-        //       Adjust when clients are better known.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.date = LocalDate.parse(date, formatter);
         return this;
