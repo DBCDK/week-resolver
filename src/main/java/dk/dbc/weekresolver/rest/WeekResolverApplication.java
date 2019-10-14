@@ -5,7 +5,6 @@
 
 package dk.dbc.weekresolver.rest;
 
-import dk.dbc.weekresolver.ejb.WeekResolverBean;
 import dk.dbc.weekresolver.service.WeekResolverService;
 
 import org.slf4j.Logger;
@@ -25,18 +24,20 @@ import java.util.Set;
 public class WeekResolverApplication extends Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverApplication.class);
 
-    private static final Set<Class<?>> Classes = new HashSet<>();
+    private static final Set<Class<?>> classes = new HashSet<>();
+    static {
+        classes.add(WeekResolverService.class);
+        classes.add(StatusBean.class);
+    }
 
     public WeekResolverApplication() {
-        Classes.add(WeekResolverService.class);
-        Classes.add(StatusBean.class);
-        for (Class<?> clazz : Classes) {
+        for (Class<?> clazz : classes) {
             LOGGER.info("Registered {} resource", clazz.getName());
         }
     }
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Classes;
+        return classes;
     }
 }
