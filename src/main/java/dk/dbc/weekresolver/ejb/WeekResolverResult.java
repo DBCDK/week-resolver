@@ -10,15 +10,40 @@ package dk.dbc.weekresolver.ejb;
  */
 public class WeekResolverResult {
 
-    // Week number
-    public int WeekNumber;
+    private int weekNumber;
+    private int year;
+    private String catalogueCode;
+    private String weekCode;
 
-    // Year
-    public int Year;
+    public int getWeekNumber() {
+        return weekNumber;
+    }
 
-    // The given cataloguecode, in upper case
-    public String CatalogueCode;
+    public void setWeekNumber(int weekNumber) {
+        this.weekNumber = weekNumber;
+    }
 
-    // The resulting weekcode ready for insertion into records
-    public String WeekCode;
+    public int getYear() {
+        return year;
+    }
+
+    public void setYear(int year) {
+        this.year = year;
+    }
+
+    public String getCatalogueCode() {
+        return catalogueCode;
+    }
+
+    public void setCatalogueCode(String catalogueCode) {
+        this.catalogueCode = catalogueCode;
+    }
+
+    public String getWeekCode() {
+        return weekCode;
+    }
+
+    public void setWeekCode(String weekCode) {
+        this.weekCode = weekCode;
+    }
 }

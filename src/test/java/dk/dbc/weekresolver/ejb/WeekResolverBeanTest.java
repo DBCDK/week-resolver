@@ -39,15 +39,15 @@ public class WeekResolverBeanTest {
         assertDoesNotThrow(() -> b.getWeekCode("bpf", "2019-11-29"));
 
         WeekResolverResult result = b.getWeekCode("bpf", "2019-11-29");
-        assertThat(result.WeekNumber, is(48));
-        assertThat(result.Year, is(2019));
-        assertThat(result.CatalogueCode, is("BPF"));
-        assertThat(result.WeekCode, is("BPF201948"));
+        assertThat(result.getWeekNumber(), is(48));
+        assertThat(result.getYear(), is(2019));
+        assertThat(result.getCatalogueCode(), is("BPF"));
+        assertThat(result.getWeekCode(), is("BPF201948"));
 
         result = b.getWeekCode("bpf", "2019-12-29");
-        assertThat(result.WeekNumber, is(1));
-        assertThat(result.Year, is(2020));
-        assertThat(result.CatalogueCode, is("BPF"));
-        assertThat(result.WeekCode, is("BPF202001"));
+        assertThat(result.getWeekNumber(), is(1));
+        assertThat(result.getYear(), is(2020));
+        assertThat(result.getCatalogueCode(), is("BPF"));
+        assertThat(result.getWeekCode(), is("BPF202001"));
     }
 }

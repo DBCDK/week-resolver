@@ -67,9 +67,9 @@ public class WeekResolverBean {
 
         // Update the result object with the cataloguecode in uppercase and the resulting weekcode. It is very
         // unlikely that 'year' will be anything but 4 digits, but if so, this will break.
-        result.CatalogueCode = catalogueCode.toUpperCase();
-        result.WeekCode = result.CatalogueCode + result.Year + String.format("%02d", result.WeekNumber);
-        LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", catalogueCode, result.WeekCode);
+        result.setCatalogueCode(catalogueCode.toUpperCase());
+        result.setWeekCode(result.getCatalogueCode() + result.getYear() + String.format("%02d", result.getWeekNumber()));
+        LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", catalogueCode, result.getWeekCode());
         return result;
     }
 
@@ -84,8 +84,8 @@ public class WeekResolverBean {
         // Get the week number using formatter 'week-of-week-based-year'. Per ISO-8601 a week starts on monday
         // so this number is compatible with the danish weeknumber system.
         WeekResolverResult result = new WeekResolverResult();
-        result.WeekNumber = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w")));
-        result.Year = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY")));
+        result.setWeekNumber(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w"))));
+        result.setYear(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY"))));
         return result;
     }
 }
