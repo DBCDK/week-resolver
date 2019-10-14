@@ -18,38 +18,29 @@ import org.slf4j.LoggerFactory;
 public class WeekResolverBean {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverBean.class);
 
-    /**
-     * Get week id based on type(to be elaborated) and a date.
-     *
-     * @param catalogueCode Cataloguecode
-     * @param date (yyyy-MM-dd)
-     * @return a HTTP 200 with the week-code as a string
-     * @throws DateTimeParseException if specified date is not parseable
-     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
-     *
-     */
-    public WeekResolverResult getWeekCode(final String catalogueCode, final String date)
-            throws DateTimeParseException, UnsupportedOperationException {
-        LOGGER.info("Week-code requested for catalogueCode={} and date={}", catalogueCode, date);
+    private LocalDate date;
+    private String catalogueCode;
 
+    public WeekResolverBean forDate(String date) throws DateTimeParseException {
         // Todo: We are not entirely sure that this is the dateformat we want to use.
         //       Adjust when clients are better known.
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDate dateForRequestedWeekCode = LocalDate.parse(date, formatter);
+        this.date = LocalDate.parse(date, formatter);
+        return this;
+    }
 
-        // Calculate the weekcode
-        return CalculateWeekCodeForCatalogueCode(catalogueCode, dateForRequestedWeekCode);
+    public WeekResolverBean withCatalogueCode(String catalogueCode) {
+        this.catalogueCode = catalogueCode;
+        return this;
     }
 
     /**
      * Calculate the weekcode for the given date depending on the cataloguecode
-     * @param catalogueCode
-     * @param date
+     *
      * @return a string with the weekcode
      * @throws UnsupportedOperationException if the cataloguecode is not supported
      */
-    private WeekResolverResult CalculateWeekCodeForCatalogueCode(final String catalogueCode, final LocalDate date)
-        throws UnsupportedOperationException {
+    public WeekResolverResult getWeekCode() throws UnsupportedOperationException {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
         // Pick the weeknumber calculator needed by the given cataloguecode.
@@ -57,7 +48,7 @@ public class WeekResolverBean {
         // weeknumber may result in a weeknumber BEFORE or AFTER the calendar week, thus possibly referring
         // to the next or previous year.
         WeekResolverResult result;
-        switch( catalogueCode.toLowerCase() ) {
+        switch (catalogueCode.toLowerCase()) {
             case "bpf":
                 result = CalculateCalendarWeekAndYear(date);
                 break;
@@ -75,6 +66,7 @@ public class WeekResolverBean {
 
     /**
      * Calculate the year and weeknumber for cataloguecodes using strict ISO weeknumbers
+     *
      * @param date Date for the requested weeknumber and year
      * @return a WeekResolverResult with WeekNumber and Year initialized
      */

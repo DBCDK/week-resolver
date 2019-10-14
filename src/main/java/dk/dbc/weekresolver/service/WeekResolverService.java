@@ -28,7 +28,7 @@ public class WeekResolverService {
     WeekResolverBean weekResolver;
 
     /**
-     * Get week id based on type(to be elaborated) and a date.
+     * Get week id based on catalogueCode and a date.
      *
      * @param catalogueCode Cataloguecode
      * @param date (yyyy-MM-dd)
@@ -45,7 +45,10 @@ public class WeekResolverService {
 
         WeekResolverResult result;
         try {
-            result = weekResolver.getWeekCode(catalogueCode, date);
+            result = weekResolver
+                    .forDate(date)
+                    .withCatalogueCode(catalogueCode)
+                    .getWeekCode();
         }
         catch( UnsupportedOperationException unsupportedOperationException) {
             LOGGER.error("Unsupported cataloguecode {}", catalogueCode);
