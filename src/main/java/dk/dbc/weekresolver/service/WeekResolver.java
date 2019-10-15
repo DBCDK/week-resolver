@@ -15,8 +15,8 @@ import org.slf4j.LoggerFactory;
 public class WeekResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolver.class);
 
-    private LocalDate date;
-    private String catalogueCode;
+    private LocalDate date = LocalDate.now();
+    private String catalogueCode = "";
 
     public WeekResolver withDate(String date) throws DateTimeParseException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
