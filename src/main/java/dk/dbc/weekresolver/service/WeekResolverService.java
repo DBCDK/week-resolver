@@ -3,13 +3,9 @@ package dk.dbc.weekresolver.service;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 
-import dk.dbc.weekresolver.ejb.WeekResolverBean;
-import dk.dbc.weekresolver.ejb.WeekResolverResult;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ejb.EJB;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
@@ -25,8 +21,8 @@ public class WeekResolverService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverService.class);
     private static final JSONBContext jsonbContext = new JSONBContext();
 
-    @EJB
-    WeekResolverBean weekResolver;
+    //@EJB
+    //WeekResolverBean weekResolver;
 
     /**
      * Get week id based on catalogueCode and the current date
@@ -63,10 +59,10 @@ public class WeekResolverService {
 
         WeekResolverResult result;
         try {
-            result = weekResolver
-                    .forDate(date)
+            result = new WeekResolver()
+                    .withDate(date)
                     .withCatalogueCode(catalogueCode)
-                    .getWeekCode();
+                    .build();
         }
         catch( UnsupportedOperationException unsupportedOperationException) {
             LOGGER.error("Unsupported cataloguecode {}", catalogueCode);

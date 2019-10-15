@@ -3,31 +3,28 @@
  *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
  */
 
-package dk.dbc.weekresolver.ejb;
+package dk.dbc.weekresolver.service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
-import javax.ejb.Stateless;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Stateless
-public class WeekResolverBean {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverBean.class);
+public class WeekResolver {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolver.class);
 
     private LocalDate date;
     private String catalogueCode;
 
-    public WeekResolverBean forDate(String date) throws DateTimeParseException {
+    public WeekResolver withDate(String date) throws DateTimeParseException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.date = LocalDate.parse(date, formatter);
         return this;
     }
 
-    public WeekResolverBean withCatalogueCode(String catalogueCode) {
+    public WeekResolver withCatalogueCode(String catalogueCode) {
         this.catalogueCode = catalogueCode;
         return this;
     }
@@ -38,7 +35,7 @@ public class WeekResolverBean {
      * @return a string with the weekcode
      * @throws UnsupportedOperationException if the cataloguecode is not supported
      */
-    public WeekResolverResult getWeekCode() throws UnsupportedOperationException {
+    public WeekResolverResult build() throws UnsupportedOperationException {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
         // Pick the weeknumber calculator needed by the given cataloguecode.
