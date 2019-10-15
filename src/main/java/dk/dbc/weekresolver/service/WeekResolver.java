@@ -18,7 +18,7 @@ public class WeekResolver {
     private LocalDate date = LocalDate.now();
     private String catalogueCode = "";
 
-    public WeekResolver withDate(String date) {
+    public WeekResolver withDate(String date) throws DateTimeParseException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.date = LocalDate.parse(date, formatter);
         return this;
