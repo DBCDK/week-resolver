@@ -1,4 +1,4 @@
-package dk.dbc.weekresolver.ejb;
+package dk.dbc.weekresolver.service;
 
 import dk.dbc.weekresolver.service.WeekResolver;
 import dk.dbc.weekresolver.service.WeekResolverResult;
@@ -44,15 +44,15 @@ public class WeekResolverTest {
         assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
 
         WeekResolverResult result = b.withDate("2019-11-29").build();
-        assertThat(result.getWeekNumber(), is(48));
+        assertThat(result.getWeekNumber(), is(50));
         assertThat(result.getYear(), is(2019));
         assertThat(result.getCatalogueCode(), is("BPF"));
-        assertThat(result.getWeekCode(), is("BPF201948"));
+        assertThat(result.getWeekCode(), is("BPF201950"));
 
         result = b.withDate("2019-12-29").build();
-        assertThat(result.getWeekNumber(), is(1));
+        assertThat(result.getWeekNumber(), is(3));
         assertThat(result.getYear(), is(2020));
         assertThat(result.getCatalogueCode(), is("BPF"));
-        assertThat(result.getWeekCode(), is("BPF202001"));
+        assertThat(result.getWeekCode(), is("BPF202003"));
     }
 }
