@@ -12,7 +12,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.time.format.DateTimeParseException;
 
-public class WeekResolverBeanTest {
+public class WeekResolverTest {
 
     @Test
     public void TestInvalidCatalogueCode() {
