@@ -5,6 +5,10 @@
 
 package dk.dbc.weekresolver.service;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+
 /**
  * Result data from resolving a weeknumber by use of a specific catalogue code
  */
@@ -14,6 +18,7 @@ public class WeekResolverResult {
     private int year;
     private String catalogueCode;
     private String weekCode;
+    private LocalDate date;
 
     public int getWeekNumber() {
         return weekNumber;
@@ -45,5 +50,26 @@ public class WeekResolverResult {
 
     public void setWeekCode(String weekCode) {
         this.weekCode = weekCode;
+    }
+
+    public LocalDate getDate() { return date; }
+
+    public void setDate(LocalDate date) { this.date = date; }
+
+    public WeekResolverResult withDate(LocalDate date) {
+        this.date = date;
+        return this;
+    }
+
+    public WeekResolverResult withCatalogueCode(String catalogueCode) {
+        this.catalogueCode = catalogueCode;
+        return this;
+    }
+
+    public WeekResolverResult build() {
+        setWeekNumber(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w"))));
+        setYear(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY"))));
+        setWeekCode(getCatalogueCode() + getYear() + String.format("%02d", getWeekNumber()));
+        return this;
     }
 }

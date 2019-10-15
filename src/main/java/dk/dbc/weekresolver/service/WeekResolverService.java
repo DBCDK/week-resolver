@@ -74,7 +74,7 @@ public class WeekResolverService {
         }
 
         // Return calculated weekcode
-        LOGGER.info("getWeekCode returning: {}", result);
+        LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
         try {
             return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
         }

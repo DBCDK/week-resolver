@@ -18,7 +18,7 @@ public class WeekResolver {
     private LocalDate date = LocalDate.now();
     private String catalogueCode = "";
 
-    public WeekResolver withDate(String date) throws DateTimeParseException {
+    public WeekResolver withDate(String date) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         this.date = LocalDate.parse(date, formatter);
         return this;
@@ -38,41 +38,41 @@ public class WeekResolver {
     public WeekResolverResult build() throws UnsupportedOperationException {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
-        // Pick the weeknumber calculator needed by the given cataloguecode.
-        // Do note that the calculator must calculate weeknumber AND year, since the rules for selecting a
-        // weeknumber may result in a weeknumber BEFORE or AFTER the calendar week, thus possibly referring
-        // to the next or previous year.
-        WeekResolverResult result;
+        // Adjust date to match the given cataloguecode
+        LocalDate forwardDate;
         switch (catalogueCode.toLowerCase()) {
             case "bpf":
-                result = CalculateCalendarWeekAndYear(date);
+                forwardDate = date.plusWeeks(2);
                 break;
             default:
                 throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
 
-        // Update the result object with the cataloguecode in uppercase and the resulting weekcode. It is very
-        // unlikely that 'year' will be anything but 4 digits, but if so, this will break.
-        result.setCatalogueCode(catalogueCode.toUpperCase());
-        result.setWeekCode(result.getCatalogueCode() + result.getYear() + String.format("%02d", result.getWeekNumber()));
-        LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", catalogueCode, result.getWeekCode());
-        return result;
+        // Adjust the expected release date for christmas, easter and other non-working days
+        LocalDate adjustedDate = getDateAdjustedForRestrictions(forwardDate);
+
+        // Build final result
+        WeekResolverResult result = new WeekResolverResult()
+                .withDate(adjustedDate)
+                .withCatalogueCode(catalogueCode.toUpperCase());
+        return result.build();
     }
 
     /**
-     * Calculate the year and weeknumber for cataloguecodes using strict ISO weeknumbers
-     *
-     * @param date Date for the requested weeknumber and year
-     * @return a WeekResolverResult with WeekNumber and Year initialized
+     * Calculate the next possible date for release of this record, taking into account
+     * christmas, easter and other restricted dates as well as manually added restricted dates.
+     * @param expectedDate The calendar date expected as release date by simple forward adjusting today's date
+     * @return The actual release date
      */
-    private WeekResolverResult CalculateCalendarWeekAndYear(final LocalDate date) {
-        LOGGER.info("Using calender week and week-based-year");
+    private LocalDate getDateAdjustedForRestrictions(LocalDate expectedDate) {
+        LOGGER.info("Expected release date is {}", expectedDate);
 
-        // Get the week number using formatter 'week-of-week-based-year'. Per ISO-8601 a week starts on monday
-        // so this number is compatible with the danish weeknumber system.
-        WeekResolverResult result = new WeekResolverResult();
-        result.setWeekNumber(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w"))));
-        result.setYear(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY"))));
-        return result;
+        // Todo, make sure that the date choosen is a working day
+        // 1) Adjust for easter, christmas and a few other selected dayes
+        // 2) Adjust for manually added restrictions
+        LocalDate adjustedDate = expectedDate;
+
+        LOGGER.info("Adjusted release date {}", adjustedDate);
+        return adjustedDate;
     }
 }
