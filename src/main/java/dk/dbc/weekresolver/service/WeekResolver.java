@@ -95,6 +95,29 @@ public class WeekResolver {
     }
 
     /**
+     * Adjust the given date so that if the day-of-week is before shiftday, no adjustments is done, otherwise
+     * the date is pushed to the next monday, in effect adding a week to the calculated week number
+     * the date is pushed to the
+     * @param expectedDate The date we expect this record to be published
+     * @param DayOfWeek shiftday The day of week whereafter the date should be pushed to the next week
+     * @return
+     */
+    private LocalDate getDateAdjustedForShiftday(LocalDate expectedDate, DayOfWeek shiftday) {
+        if( expectedDate.getDayOfWeek().getValue() < shiftday.getValue() ) {
+            LOGGER.info("Day of week is {} which is before shiftday {}. No adjustments are done for shiftday", expectedDate, shiftday);
+            return expectedDate;
+        }
+
+        // Spin forward untill next monday
+        LocalDate adjustedDate = expectedDate;
+        while( adjustedDate.getDayOfWeek() != DayOfWeek.MONDAY ) {
+            adjustedDate = adjustedDate.plusDays(1);
+        }
+        LOGGER.info("Expected release date was {}, shiftday-adjusted release date is {}", expectedDate, adjustedDate);
+        return adjustedDate;
+    }
+
+    /**
      * Calculate the next possible date for release of this record, taking into account
      * christmas, easter and other restricted dates as well as manually added restricted dates.
      * @param expectedDate The calendar date expected as release date by simple forward adjusting today's date
