@@ -14,10 +14,21 @@ import java.time.format.DateTimeParseException;
  */
 public class WeekResolverResult {
 
+    // Calculated week number
     private int weekNumber;
+
+    // Calculated year
     private int year;
+
+    // Given cataloguecode, always in upper case
     private String catalogueCode;
+
+    // Calculated weekcode
     private String weekCode;
+
+    // The first possible date of release, adjusted for weeks into the future, shiftday and closing days
+    // This is the date that is used to give the weeknumber and year - NOT the date that should be used
+    // for other date fields, it only relates to the weekcode being calculated
     private LocalDate date;
 
     public int getWeekNumber() {
