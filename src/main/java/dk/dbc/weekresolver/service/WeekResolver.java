@@ -85,7 +85,7 @@ public class WeekResolver {
         }
 
         // Adjust the expected release date for christmas, easter and other non-working days
-        LocalDate adjustedDate = getDateAdjustedForRestrictions(forwardDate);
+        LocalDate adjustedDate = getDateAdjustedForRestrictions(forwardDate, true);
 
         // Build final result
         WeekResolverResult result = new WeekResolverResult()
@@ -98,13 +98,13 @@ public class WeekResolver {
      * Calculate the next possible date for release of this record, taking into account
      * christmas, easter and other restricted dates as well as manually added restricted dates.
      * @param expectedDate The calendar date expected as release date by simple forward adjusting today's date
+     * @param allowEndOfYearWeeks If set to true, then week 52 and 53 is allowed, otherwise the day is adjusted past these
      * @return The actual release date
      */
-    private LocalDate getDateAdjustedForRestrictions(LocalDate expectedDate) {
+    private LocalDate getDateAdjustedForRestrictions(LocalDate expectedDate, boolean allowEndOfYearWeeks) {
         LocalDate adjustedDate = expectedDate;
 
-        // Adjust for known closing days
-        // = 1. maj
+        // 1. maj
         if( adjustedDate.getMonth() == Month.MAY && adjustedDate.getDayOfMonth() == 1 ) {
             adjustedDate = adjustedDate.plusDays(1);
 
@@ -113,11 +113,13 @@ public class WeekResolver {
                 adjustedDate = adjustedDate.plusDays(1);
             }
         }
-        // = Grundlovsdag
+
+        // Grundlovsdag
         if( adjustedDate.getMonth() == Month.JUNE  && adjustedDate.getDayOfMonth() == 5 ) {
             adjustedDate = adjustedDate.plusDays(1);
         }
-        // = Christmas
+
+        // Christmas
         if( adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 24 ) {
             adjustedDate = adjustedDate.plusDays(1);
         }
@@ -130,12 +132,22 @@ public class WeekResolver {
         if( adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 27 && adjustedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
             adjustedDate = adjustedDate.plusDays(1);
         }
-        // Todo: Adjust for week 52 and 53, which never is used!
-        // = New years eve
-        if( adjustedDate.getMonth() == Month.DECEMBER  && adjustedDate.getDayOfMonth() == 31 ) {
-            adjustedDate = adjustedDate.plusDays(1);
+
+        // djust for week 52 and 53, which never is used!
+        if( allowEndOfYearWeeks ) {
+            // New years eve
+            if (adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 31) {
+                adjustedDate = adjustedDate.plusDays(1);
+            }
+        } else {
+            // Spin past week 52 and 53
+            DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w");
+            while( Integer.parseInt(adjustedDate.format(weekCodeFormatter)) == 52 || Integer.parseInt(adjustedDate.format(weekCodeFormatter)) == 53 ) {
+                adjustedDate = adjustedDate.plusDays(1);
+            }
         }
-        // = 1. January
+
+        // 1. January
         if( adjustedDate.getMonth() == Month.JANUARY && adjustedDate.getDayOfMonth() == 1 ) {
             adjustedDate = adjustedDate.plusDays(1);
 
@@ -145,7 +157,7 @@ public class WeekResolver {
             }
         }
 
-        // Adjust for weekends
+        // Weekends
         if( adjustedDate.getDayOfWeek() == DayOfWeek.SATURDAY ) {
             adjustedDate = adjustedDate.plusDays(1);
         }
