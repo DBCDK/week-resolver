@@ -99,7 +99,7 @@ public class WeekResolver {
      * the date is pushed to the next monday, in effect adding a week to the calculated week number
      * the date is pushed to the
      * @param expectedDate The date we expect this record to be published
-     * @param DayOfWeek shiftday The day of week whereafter the date should be pushed to the next week
+     * @param shiftday The day of week whereafter the date should be pushed to the next week
      * @return
      */
     private LocalDate getDateAdjustedForShiftday(LocalDate expectedDate, DayOfWeek shiftday) {
