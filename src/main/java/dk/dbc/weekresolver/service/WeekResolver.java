@@ -74,153 +74,210 @@ public class WeekResolver {
     public WeekResolverResult build() throws UnsupportedOperationException {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
-        // Adjust date to match the given cataloguecode
-        LocalDate forwardDate;
+        // Automated systems may request weekcodes on Weekend days.
+        // Push the date forward to the comming monday
+        LocalDate expectedDate = date;
+        if( expectedDate.getDayOfWeek() == DayOfWeek.SATURDAY ) {
+            expectedDate = expectedDate.plusDays(2);
+            LOGGER.info("Date {} is a saturday. Moving date to next monday {}", date, expectedDate);
+        }
+        if( expectedDate.getDayOfWeek() == DayOfWeek.SUNDAY ) {
+            expectedDate = expectedDate.plusDays(1);
+            LOGGER.info("Date {} is a sunday. Moving date to next monday {}", date, expectedDate);
+        }
+
+        // Algorithm:
+        //   step 1: take date and add [0,1,2] weeks
+        //   step 2: if closingday then add 1 week
+        //   step 3: if shiftday => add 1 week
+        //
+        // Allthough it is a cornercase, we need to check that a shifted date does not end up
+        // being a closing day.., 1. may and 5. june could in rare cases give this result. So:
+        //
+        //   step 4: while day is a closingday => add 1 week
+
+        // Select shiftday, weeks to add and week 52-53 behaviour
+        int addWeeks;
+        DayOfWeek shiftDay;
+        boolean allowEndOfYearWeeks;
         switch (catalogueCode.toUpperCase()) {
+
             case "DPF":
-                forwardDate = date.plusWeeks(2);
+                addWeeks = 2;
+                shiftDay = DayOfWeek.FRIDAY;
+                allowEndOfYearWeeks = true;
                 break;
+
+            // Todo: Add every known cataloguecode
+
             default:
                 throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
 
-        // Adjust the expected release date for christmas, easter and other non-working days
-        LocalDate adjustedDate = getDateAdjustedForRestrictions(forwardDate, true);
+        // Step 1: add the selected number of weeks
+        expectedDate = expectedDate.plusWeeks(addWeeks);
+        LOGGER.info("date shifted {} week(s) {}", addWeeks, expectedDate);
+
+        // Step 2: Is this a closing day ?
+        if( isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
+            expectedDate = expectedDate.plusWeeks(1);
+            LOGGER.info("date shifted 1 week due to closing day to {}", expectedDate);
+        }
+
+        // Step 3: Is this the shiftday ?
+        if( expectedDate.getDayOfWeek() == shiftDay ) {
+            expectedDate = expectedDate.plusWeeks(1);
+            LOGGER.info("date shifted 1 week due to shiftday to {}", expectedDate);
+        }
+
+        // Step 4: Make sure the resulting date is not also a closing day
+        while( isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
+            expectedDate = expectedDate.plusWeeks(1);
+            LOGGER.info("date shifted 1 week due to final date being a closing day {}", expectedDate);
+        }
 
         // Build final result
+        LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w"))));
         WeekResolverResult result = new WeekResolverResult()
-                .withDate(adjustedDate)
+                .withDate(expectedDate)
                 .withCatalogueCode(catalogueCode.toUpperCase());
         return result.build();
     }
 
     /**
-     * Adjust the given date so that if the day-of-week is before shiftday, no adjustments is done, otherwise
-     * the date is pushed to the next monday, in effect adding a week to the calculated week number
-     * the date is pushed to the
-     * @param expectedDate The date we expect this record to be published
-     * @param shiftday The day of week whereafter the date should be pushed to the next week
-     * @return
+     * Check if the given date is a closed date
+     * @param expectedDate The calendar date expected as release date
+     * @param allowEndOfYearWeeks If set to true, then week 52 and 53 is allowed, otherwise these days are also closing days
+     * @return True if the date is a closing day, otherwise false
      */
-    private LocalDate getDateAdjustedForShiftday(LocalDate expectedDate, DayOfWeek shiftday) {
-        if( expectedDate.getDayOfWeek().getValue() < shiftday.getValue() ) {
-            LOGGER.info("Day of week is {} which is before shiftday {}. No adjustments are done for shiftday", expectedDate, shiftday);
-            return expectedDate;
+    private boolean isClosingDay(LocalDate expectedDate, boolean allowEndOfYearWeeks) {
+
+        // 1. maj and pinched friday
+        if( expectedDate.getMonth() == Month.MAY && expectedDate.getDayOfMonth() == 1 ) {
+            LOGGER.info("{} is 1. may", expectedDate);
+            return true;
+        }
+        if( expectedDate.getMonth() == Month.MAY && expectedDate.getDayOfMonth() == 2 && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
+            LOGGER.info("{} is pinched friday after 1. may", expectedDate);
+            return true;
         }
 
-        // Spin forward untill next monday
-        LocalDate adjustedDate = expectedDate;
-        while( adjustedDate.getDayOfWeek() != DayOfWeek.MONDAY ) {
-            adjustedDate = adjustedDate.plusDays(1);
+        // Grundlovsdag and pinched friday
+        if( expectedDate.getMonth() == Month.JUNE  && expectedDate.getDayOfMonth() == 5 ) {
+            LOGGER.info("{} is constitution day (grundlovsdag)", expectedDate);
+            return true;
         }
-        LOGGER.info("Expected release date was {}, shiftday-adjusted release date is {}", expectedDate, adjustedDate);
-        return adjustedDate;
+        if( expectedDate.getMonth() == Month.JUNE && expectedDate.getDayOfMonth() == 6 && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
+            LOGGER.info("{} is pinched friday af constitution day (grundlovsdag)", expectedDate);
+            return true;
+        }
+
+        // Christmas and pinched friday
+        if( expectedDate.getMonth() == Month.DECEMBER && expectedDate.getDayOfMonth() == 24 ||
+                expectedDate.getMonth() == Month.DECEMBER && expectedDate.getDayOfMonth() == 25 ||
+                expectedDate.getMonth() == Month.DECEMBER && expectedDate.getDayOfMonth() == 26) {
+            LOGGER.info("{} is a christmas day", expectedDate);
+            return true;
+        }
+        if( expectedDate.getMonth() == Month.DECEMBER && expectedDate.getDayOfMonth() == 27 && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
+            LOGGER.info("{} is pinched friday after christmas", expectedDate);
+            return true;
+        }
+
+        // Check for week 52 and 53, which never is used!
+        if( allowEndOfYearWeeks ) {
+            // New years eve
+            if (expectedDate.getMonth() == Month.DECEMBER && expectedDate.getDayOfMonth() == 31) {
+                LOGGER.info("{} is new years eve", expectedDate);
+                return true;
+            }
+        } else {
+            // Check for week 52 or 53
+            DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w");
+            if( Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 52 || Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 53 ) {
+                LOGGER.info("{} is within week 52 or 53", expectedDate);
+                return true;
+            }
+        }
+
+        // 1. January and pinched friday
+        if( expectedDate.getMonth() == Month.JANUARY && expectedDate.getDayOfMonth() == 1 ) {
+            LOGGER.info("{} is 1. jan (hangover day)", expectedDate);
+            return true;
+        }
+        if( expectedDate.getMonth() == Month.JANUARY && expectedDate.getDayOfMonth() == 2 && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
+            LOGGER.info("{} is pinched friday after 1. jan (hangover day for older people)", expectedDate);
+            return true;
+        }
+
+        // Check for easter, pentecost and ascension day
+        if( isEasterAndRelatedClosingDay(expectedDate) ) {
+            LOGGER.info("{} is within easter, pentecost or ascension day", expectedDate);
+            return true;
+        }
+
+        // Not a closing day
+        LOGGER.info("{} is not a closing day", expectedDate);
+        return false;
     }
 
     /**
-     * Calculate the next possible date for release of this record, taking into account
-     * christmas, easter and other restricted dates as well as manually added restricted dates.
-     * @param expectedDate The calendar date expected as release date by simple forward adjusting today's date
-     * @param allowEndOfYearWeeks If set to true, then week 52 and 53 is allowed, otherwise the day is adjusted past these
-     * @return The actual release date
+     * Check if the given date is a date within the easter or related closing days
+     * (pentecost, ascension Day)
+     * @param expectedDate The date to check
+     * @return True if the date is within the easter, pentecost or ascension days, otherwise false
      */
-    private LocalDate getDateAdjustedForRestrictions(LocalDate expectedDate, boolean allowEndOfYearWeeks) {
-        LocalDate adjustedDate = expectedDate;
-
-        // 1. maj
-        if( adjustedDate.getMonth() == Month.MAY && adjustedDate.getDayOfMonth() == 1 ) {
-            adjustedDate = adjustedDate.plusDays(1);
-
-            // Check for pinched friday
-            if( adjustedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
-                adjustedDate = adjustedDate.plusDays(1);
-            }
-        }
-
-        // Grundlovsdag
-        if( adjustedDate.getMonth() == Month.JUNE  && adjustedDate.getDayOfMonth() == 5 ) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-
-        // Christmas
-        if( adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 24 ) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-        if( adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 25 ) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-        if( adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 26 ) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-        if( adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 27 && adjustedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-
-        // djust for week 52 and 53, which never is used!
-        if( allowEndOfYearWeeks ) {
-            // New years eve
-            if (adjustedDate.getMonth() == Month.DECEMBER && adjustedDate.getDayOfMonth() == 31) {
-                adjustedDate = adjustedDate.plusDays(1);
-            }
-        } else {
-            // Spin past week 52 and 53
-            DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w");
-            while( Integer.parseInt(adjustedDate.format(weekCodeFormatter)) == 52 || Integer.parseInt(adjustedDate.format(weekCodeFormatter)) == 53 ) {
-                adjustedDate = adjustedDate.plusDays(1);
-            }
-        }
-
-        // 1. January
-        if( adjustedDate.getMonth() == Month.JANUARY && adjustedDate.getDayOfMonth() == 1 ) {
-            adjustedDate = adjustedDate.plusDays(1);
-
-            // Check for pinched friday
-            if( adjustedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
-                adjustedDate = adjustedDate.plusDays(1);
-            }
-        }
-
-        // Weekends
-        if( adjustedDate.getDayOfWeek() == DayOfWeek.SATURDAY ) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-        if( adjustedDate.getDayOfWeek() == DayOfWeek.SUNDAY ) {
-            adjustedDate = adjustedDate.plusDays(1);
-        }
-
-        // Adjust for easter
-        adjustedDate = getDateAdjustedForEaster(adjustedDate);
-
-        // Return adjusted date
-        LOGGER.info("Expected release date was {}, adjusted release date is {}", expectedDate, adjustedDate);
-        return adjustedDate;
-    }
-
-    private LocalDate getDateAdjustedForEaster(LocalDate expectedDate) {
+    private boolean isEasterAndRelatedClosingDay(LocalDate expectedDate) {
 
         // Locate easter sunday for current year
         Optional<LocalDate> optionalSunday = EasterSundays.stream().filter(x -> x.getYear() == expectedDate.getYear()).findFirst();
         if( !optionalSunday.isPresent() ) {
-            LOGGER.warn("Request for date in the far-off past or future, date will not be adjusted for easter");
-            return expectedDate;
+            LOGGER.warn("Request for date in the far-off past or future, date will not be checked for easter");
+            return false;
         }
         LocalDate easterSunday = optionalSunday.get();
         LOGGER.info("Easter sunday for {} is {}", expectedDate.getYear(), easterSunday);
 
         // Check if the expected date is before Maundy Thursday
-        if( expectedDate.isBefore(easterSunday.minusDays(3)) ) {
-            LOGGER.info("{} is before {} (Maundy Thursday)", expectedDate, easterSunday.minusDays(3));
-            return expectedDate;
+        if( expectedDate.isAfter(easterSunday.minusDays(4)) && expectedDate.isBefore(easterSunday.plusDays(2)) ) {
+            LOGGER.info("{} is within easter", expectedDate);
+            return true;
         }
 
-        // Check if the expected date is after or equal to the monday _after_ 2nd day of Easter
-        if( expectedDate.isAfter(easterSunday.plusDays(7)) ) {
-            LOGGER.info("{} is after {} (2nd day of Easter)", expectedDate, easterSunday.minusDays(3));
-            return expectedDate;
+        // Pentecost. First sunday after 50 days after easter sunday
+        LocalDate pentecost =  easterSunday.plusDays(50);
+        while( pentecost.getDayOfWeek() != DayOfWeek.SUNDAY ) {
+            pentecost = pentecost.plusDays(1);
+        }
+        if( expectedDate == pentecost.plusDays(1) ) { // Check for withsun
+            LOGGER.info("{} is withsun", expectedDate);
+            return true;
         }
 
-        // Expected date is somewhere in the easter period. Set the date to the monday after 2nd day of easter
-        LOGGER.info("{} is in the easter/post-easter period, bringing date forward to next monday {}", expectedDate, easterSunday.plusDays(8));
-        return easterSunday.plusDays(8);
+        // Ascension day. 40 days after easter sunday. Check also for pinched freday
+        LocalDate ascensionDay = easterSunday.plusDays(40);
+        if( expectedDate == ascensionDay ) {
+            LOGGER.info("{} is ascension day", expectedDate);
+            return true;
+        }
+        if( expectedDate == ascensionDay.plusDays(1) && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY) {
+            LOGGER.info("{} is pinched friday after ascension day");
+            return true;
+        }
+
+        // Check for 'store bededag', cheeck in tounge english name 'payersday'
+        LocalDate prayersDay = easterSunday.plusDays(26);
+        if( expectedDate == prayersDay ) {
+            LOGGER.info("{} is prayers day ('store bededag')", expectedDate);
+            return true;
+        }
+        if( expectedDate == prayersDay.plusDays(1) && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY) {
+            LOGGER.info("{} is pinched friday after prayers day ('store bededag')");
+            return true;
+        }
+
+        // Expected date is somewhere in the easter period.
+        LOGGER.info("{} is not easter, pentecost or ascension day", expectedDate);
+        return false;
     }
 }
