@@ -44,10 +44,10 @@ public class WeekResolverTest {
         assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
 
         WeekResolverResult result = b.withDate("2019-11-29").build();
-        assertThat(result.getWeekNumber(), is(50));
+        assertThat(result.getWeekNumber(), is(51));
         assertThat(result.getYear(), is(2019));
         assertThat(result.getCatalogueCode(), is("DPF"));
-        assertThat(result.getWeekCode(), is("BPF201950"));
+        assertThat(result.getWeekCode(), is("DPF201951"));
 
         result = b.withDate("2019-12-29").build();
         assertThat(result.getWeekNumber(), is(3));
@@ -98,7 +98,7 @@ public class WeekResolverTest {
         assertThat(b.withDate("2019-04-23").build().getWeekCode(), is("DPF201919"));
 
         // 26. apr. = friday => + 2 weeks = 10. may., week 19
-        // Not closed but not shiftday = 20
-        assertThat(b.withDate("2019-04-23").build().getWeekCode(), is("DPF201920"));
+        // Not closed but shiftday = 20
+        assertThat(b.withDate("2019-04-26").build().getWeekCode(), is("DPF201920"));
     }
 }
