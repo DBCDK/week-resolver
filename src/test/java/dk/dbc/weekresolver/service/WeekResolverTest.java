@@ -32,27 +32,27 @@ public class WeekResolverTest {
     public void TestValidCatalogueCodeLowerCase() {
         WeekResolver b = new WeekResolver()
                 .withDate("2019-11-29");
-        assertDoesNotThrow(() -> b.withCatalogueCode("bpf").build());
-        assertDoesNotThrow(() -> b.withCatalogueCode("BPF").build());
+        assertDoesNotThrow(() -> b.withCatalogueCode("dpf").build());
+        assertDoesNotThrow(() -> b.withCatalogueCode("DPF").build());
     }
 
     @Test
     public void TestCatalogueCodeBPF() {
         WeekResolver b = new WeekResolver()
-                .withCatalogueCode("bpf");
+                .withCatalogueCode("dpf");
 
         assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
 
         WeekResolverResult result = b.withDate("2019-11-29").build();
         assertThat(result.getWeekNumber(), is(50));
         assertThat(result.getYear(), is(2019));
-        assertThat(result.getCatalogueCode(), is("BPF"));
+        assertThat(result.getCatalogueCode(), is("DPF"));
         assertThat(result.getWeekCode(), is("BPF201950"));
 
         result = b.withDate("2019-12-29").build();
         assertThat(result.getWeekNumber(), is(3));
         assertThat(result.getYear(), is(2020));
-        assertThat(result.getCatalogueCode(), is("BPF"));
-        assertThat(result.getWeekCode(), is("BPF202003"));
+        assertThat(result.getCatalogueCode(), is("DPF"));
+        assertThat(result.getWeekCode(), is("DPF202003"));
     }
 }

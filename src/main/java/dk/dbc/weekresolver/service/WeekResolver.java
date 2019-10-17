@@ -76,8 +76,8 @@ public class WeekResolver {
 
         // Adjust date to match the given cataloguecode
         LocalDate forwardDate;
-        switch (catalogueCode.toLowerCase()) {
-            case "bpf":
+        switch (catalogueCode.toUpperCase()) {
+            case "DPF":
                 forwardDate = date.plusWeeks(2);
                 break;
             default:
