@@ -265,7 +265,7 @@ public class WeekResolver {
             return true;
         }
 
-        // Check for 'store bededag', cheek in tounge english name 'prayers day'
+        // Check for 'store bededag', tounge-in-cheek english name 'prayers day'
         LocalDate prayersDay = easterSunday.plusDays(26);
         if( expectedDate == prayersDay ) {
             LOGGER.info("{} is prayers day ('store bededag')", expectedDate);
