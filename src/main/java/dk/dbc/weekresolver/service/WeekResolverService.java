@@ -25,7 +25,7 @@ public class WeekResolverService {
     //WeekResolverBean weekResolver;
 
     /**
-     * Get week id based on catalogueCode and the current date
+     * Endpoint for getting the week code based on catalogueCode and todays date
      *
      * @param catalogueCode Cataloguecode
      * @return a HTTP 200 with the week-code as a string
@@ -38,11 +38,11 @@ public class WeekResolverService {
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode) {
         LOGGER.trace("getWeekCode() method called");
 
-        return getWeekCode(catalogueCode, LocalDate.now().toString());
+        return getWeekCodeFromDate(catalogueCode, LocalDate.now().toString());
     }
 
     /**
-     * Get week id based on catalogueCode and a date.
+     * Endpoint for getting the week code based on catalogueCode and a date.
      *
      * @param catalogueCode Cataloguecode
      * @param date (yyyy-MM-dd)
@@ -57,7 +57,18 @@ public class WeekResolverService {
                                 @PathParam("date") final String date) {
         LOGGER.trace("getWeekCode() method called with specific date");
 
+        return getWeekCode(date, catalogueCode);
+    }
+
+    /**
+     * Get week id based on catalogCode and a date
+     * @param date
+     * @param catalogueCode
+     * @return
+     */
+    private Response getWeekCodeFromDate(final String date, final String catalogueCode) {
         WeekResolverResult result;
+
         try {
             result = new WeekResolver()
                     .withDate(date)
