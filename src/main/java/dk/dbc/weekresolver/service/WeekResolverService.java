@@ -57,7 +57,7 @@ public class WeekResolverService {
                                 @PathParam("date") final String date) {
         LOGGER.trace("getWeekCode() method called with specific date");
 
-        return getWeekCode(date, catalogueCode);
+        return getWeekCodeFromDate (date, catalogueCode);
     }
 
     /**
