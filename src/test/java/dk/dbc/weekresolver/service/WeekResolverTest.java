@@ -16,7 +16,6 @@ import java.time.format.DateTimeParseException;
 
 public class WeekResolverTest {
     final static String zone = "Europe/Copenhagen";
-    final static SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd");
 
     @Test
     public void TestInvalidCatalogueCode() {
