@@ -1,9 +1,10 @@
 package dk.dbc.weekresolver.service;
 
-import dk.dbc.weekresolver.service.WeekResolver;
-import dk.dbc.weekresolver.service.WeekResolverResult;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.Date;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -15,6 +16,7 @@ import java.time.format.DateTimeParseException;
 
 public class WeekResolverTest {
     final static String zone = "Europe/Copenhagen";
+    final static SimpleDateFormat df = new SimpleDateFormat("YYYY-MM-dd");
 
     @Test
     public void TestInvalidCatalogueCode() {
@@ -39,7 +41,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestCatalogueCodeBPF() {
+    public void TestCatalogueCodeBPF() throws ParseException {
         WeekResolver b = new WeekResolver(zone)
                 .withCatalogueCode("dpf");
 
@@ -56,6 +58,9 @@ public class WeekResolverTest {
         assertThat(result.getYear(), is(2020));
         assertThat(result.getCatalogueCode(), is("dpf"));
         assertThat(result.getWeekCode(), is("dpf202003"));
+        LocalDate localDate = LocalDate.of(2020, 1, 13);
+        Date  d = Date.from(localDate.atStartOfDay(ZoneId.of(zone)).toInstant());
+        assertThat(result.getDate(), is(d));
     }
 
     @Test

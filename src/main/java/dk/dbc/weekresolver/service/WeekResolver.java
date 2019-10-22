@@ -13,6 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -144,7 +145,12 @@ public class WeekResolver {
 
         // Build final result
         LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w"))));
-        WeekResolverResult result = WeekResolverResult.create(expectedDate,zoneId,catalogueCode);
+
+        int weekNumber=Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w")));
+        int year=Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY")));
+        String weekCode=catalogueCode+year+String.format("%02d", weekNumber);
+        Date date = Date.from(expectedDate.atStartOfDay(zoneId).toInstant());
+        WeekResolverResult result = WeekResolverResult.create(date, weekNumber, year, weekCode, catalogueCode);
         return result;
     }
 

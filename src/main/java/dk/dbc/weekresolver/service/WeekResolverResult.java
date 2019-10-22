@@ -5,12 +5,7 @@
 
 package dk.dbc.weekresolver.service;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.Date;
-import java.util.TimeZone;
 
 /**
  * Result data from resolving a weeknumber by use of a specific catalogue code
@@ -36,16 +31,16 @@ public class WeekResolverResult {
 
     public WeekResolverResult() {}
 
-    private WeekResolverResult(LocalDate localDate, ZoneId zoneId, String catalogueCode) {
-        this.date = Date.from(localDate.atStartOfDay(zoneId).toInstant());
-        this.weekNumber=Integer.parseInt(localDate.format(DateTimeFormatter.ofPattern("w")));
-        this.year=Integer.parseInt(localDate.format(DateTimeFormatter.ofPattern("YYYY")));
-        this.weekCode=catalogueCode+year+String.format("%02d", weekNumber);
+    private WeekResolverResult(Date date, int weekNumber, int year, String weekCode, String catalogueCode) {
+        this.date = date;
+        this.weekNumber=weekNumber;
+        this.year=year;
+        this.weekCode=weekCode;
         this.catalogueCode=catalogueCode;
     }
 
-    public static WeekResolverResult create(LocalDate localDate, ZoneId zoneId, String catalogueCode) {
-        return new WeekResolverResult(localDate, zoneId, catalogueCode);
+    public static WeekResolverResult create(Date date, int weekNumber, int year, String weekCode, String catalogueCode) {
+        return new WeekResolverResult(date, weekNumber, year, weekCode, catalogueCode);
     }
 
     public int getWeekNumber() {
