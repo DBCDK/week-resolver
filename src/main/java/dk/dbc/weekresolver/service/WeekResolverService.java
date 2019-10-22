@@ -3,6 +3,9 @@ package dk.dbc.weekresolver.service;
 import dk.dbc.jsonb.JSONBContext;
 import dk.dbc.jsonb.JSONBException;
 
+import java.time.ZoneId;
+import javax.inject.Inject;
+import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,6 +24,9 @@ public class WeekResolverService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverService.class);
     private static final JSONBContext jsonbContext = new JSONBContext();
 
+    @Inject
+    @ConfigProperty(name = "TZ")
+    String timeZone;
     //@EJB
     //WeekResolverBean weekResolver;
 
@@ -70,7 +76,7 @@ public class WeekResolverService {
         WeekResolverResult result;
 
         try {
-            result = new WeekResolver()
+            result = new WeekResolver(timeZone)
                     .withDate(date)
                     .withCatalogueCode(catalogueCode)
                     .build();
