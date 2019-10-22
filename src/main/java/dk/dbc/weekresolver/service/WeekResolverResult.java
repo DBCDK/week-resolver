@@ -6,14 +6,16 @@
 package dk.dbc.weekresolver.service;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.Date;
+import java.util.TimeZone;
 
 /**
  * Result data from resolving a weeknumber by use of a specific catalogue code
  */
 public class WeekResolverResult {
-
     // Calculated week number
     private int weekNumber;
 
@@ -26,61 +28,42 @@ public class WeekResolverResult {
     // Calculated weekcode
     private String weekCode;
 
+
     // The first possible date of release, adjusted for weeks into the future, shiftday and closing days
     // This is the date that is used to give the weeknumber and year - NOT the date that should be used
     // for other date fields, it only relates to the weekcode being calculated
-    private LocalDate date;
+    private Date date;
+
+    public WeekResolverResult() {}
+
+    private WeekResolverResult(LocalDate localDate, ZoneId zoneId, String catalogueCode) {
+        this.date = Date.from(localDate.atStartOfDay(zoneId).toInstant());
+        this.weekNumber=Integer.parseInt(localDate.format(DateTimeFormatter.ofPattern("w")));
+        this.year=Integer.parseInt(localDate.format(DateTimeFormatter.ofPattern("YYYY")));
+        this.weekCode=catalogueCode+year+String.format("%02d", weekNumber);
+        this.catalogueCode=catalogueCode;
+    }
+
+    public static WeekResolverResult create(LocalDate localDate, ZoneId zoneId, String catalogueCode) {
+        return new WeekResolverResult(localDate, zoneId, catalogueCode);
+    }
 
     public int getWeekNumber() {
         return weekNumber;
-    }
-
-    public void setWeekNumber(int weekNumber) {
-        this.weekNumber = weekNumber;
     }
 
     public int getYear() {
         return year;
     }
 
-    public void setYear(int year) {
-        this.year = year;
+    public Date getDate() {
+        return date;
     }
 
     public String getCatalogueCode() {
         return catalogueCode;
     }
 
-    public void setCatalogueCode(String catalogueCode) {
-        this.catalogueCode = catalogueCode;
-    }
+    public String getWeekCode() { return weekCode; }
 
-    public String getWeekCode() {
-        return weekCode;
-    }
-
-    public void setWeekCode(String weekCode) {
-        this.weekCode = weekCode;
-    }
-
-    public LocalDate getDate() { return date; }
-
-    public void setDate(LocalDate date) { this.date = date; }
-
-    public WeekResolverResult withDate(LocalDate date) {
-        this.date = date;
-        return this;
-    }
-
-    public WeekResolverResult withCatalogueCode(String catalogueCode) {
-        this.catalogueCode = catalogueCode;
-        return this;
-    }
-
-    public WeekResolverResult build() {
-        setWeekNumber(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w"))));
-        setYear(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY"))));
-        setWeekCode(getCatalogueCode() + getYear() + String.format("%02d", getWeekNumber()));
-        return this;
-    }
 }
