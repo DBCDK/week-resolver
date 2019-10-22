@@ -4,13 +4,19 @@ Service to hand out specific week codes for any given date.
 To build:
 ```bash
 mvn verify
-docker build -t docker-io.dbc.dk/weekresolver:dev -f $(pwd)/target/docker/Dockerfile .
+docker build -t docker-io.dbc.dk/weekresolver:dev \ 
+    -f $(pwd)/target/docker/Dockerfile .
 ```
 
 Local run:
 ```bash
 
-docker run -it -p 8080:8080 -e JAVA_MAX_HEAP_SIZE=5G --name test --rm docker-io.dbc.dk/weekresolver:dev
+docker run -it -p 8080:8080 \
+    -e JAVA_MAX_HEAP_SIZE=5G  \
+    -e TZ=Europe/Copenhagen \
+    --name test \
+    --rm \
+    docker-io.dbc.dk/weekresolver:dev
 ```
 
 
