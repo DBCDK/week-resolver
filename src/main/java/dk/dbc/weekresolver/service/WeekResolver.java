@@ -8,10 +8,12 @@ package dk.dbc.weekresolver.service;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,6 +25,7 @@ public class WeekResolver {
 
     private LocalDate date = LocalDate.now();
     private String catalogueCode = "";
+    private ZoneId zoneId;
 
     // Easter sundays (source https://ugenr.dk)
     private static List<LocalDate> EasterSundays = new ArrayList<LocalDate>();
@@ -52,6 +55,10 @@ public class WeekResolver {
         EasterSundays.add(LocalDate.parse("2038-04-25"));
         EasterSundays.add(LocalDate.parse("2039-04-10"));
         EasterSundays.add(LocalDate.parse("2040-04-01"));
+    }
+
+    public WeekResolver(String timezone) {
+        this.zoneId = ZoneId.of(timezone);
     }
 
     public WeekResolver withDate(String date) throws DateTimeParseException {
@@ -138,10 +145,13 @@ public class WeekResolver {
 
         // Build final result
         LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w"))));
-        WeekResolverResult result = new WeekResolverResult()
-                .withDate(expectedDate)
-                .withCatalogueCode(catalogueCode.toUpperCase());
-        return result.build();
+
+        int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w")));
+        int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY")));
+        String weekCode = catalogueCode+year+String.format("%02d", weekNumber);
+        Date date = Date.from(expectedDate.atStartOfDay(zoneId).toInstant());
+        WeekResolverResult result = WeekResolverResult.create(date, weekNumber, year, weekCode, catalogueCode);
+        return result;
     }
 
     /**
