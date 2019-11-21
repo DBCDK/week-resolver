@@ -107,4 +107,26 @@ public class WeekResolverTest {
         // Not closed but shiftday = 20
         assertThat(b.withDate("2019-04-26").build().getWeekCode(), is("DPF201920"));
     }
+
+    @Test
+    public void TestCatalogueCodeFPF() throws ParseException {
+
+        // This code has the same configuration as DPF, so just check that the code is accepted
+        WeekResolver b = new WeekResolver(zone)
+                .withCatalogueCode("FPF");
+
+        assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
+        assertThat(b.withDate("2019-11-29").build().getCatalogueCode(), is("FPF"));
+    }
+
+    @Test
+    public void TestCatalogueCodeGPF() throws ParseException {
+
+        // This code has the same configuration as DPF, so just check that the code is accepted
+        WeekResolver b = new WeekResolver(zone)
+                .withCatalogueCode("GPF");
+
+        assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
+        assertThat(b.withDate("2019-11-29").build().getCatalogueCode(), is("GPF"));
+    }
 }

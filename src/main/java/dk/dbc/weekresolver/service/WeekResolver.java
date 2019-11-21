@@ -110,6 +110,8 @@ public class WeekResolver {
         switch (catalogueCode.toUpperCase()) {
 
             case "DPF":
+            case "FPF":
+            case "GPF":
                 addWeeks = 2;
                 shiftDay = DayOfWeek.FRIDAY;
                 allowEndOfYearWeeks = true;
