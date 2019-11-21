@@ -38,4 +38,11 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         assertThat(w1.getWeekNumber(), is(2));
     }
 
+    @Test
+    void getWeekCode_todaysDate() throws WeekresolverConnectorException {
+        LOGGER.info("Using this url:{}", weekresolverServiceBaseUrl);
+        WeekresolverConnector connector = new WeekresolverConnector(httpClient, weekresolverServiceBaseUrl);
+        WeekResolverResult w = connector.getWeekCode("DPF");
+        assertThat(w.getCatalogueCode(), is("DPF"));
+    }
 }
