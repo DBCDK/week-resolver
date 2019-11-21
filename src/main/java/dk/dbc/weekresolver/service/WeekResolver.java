@@ -148,9 +148,9 @@ public class WeekResolver {
 
         int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w")));
         int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY")));
-        String weekCode = catalogueCode+year+String.format("%02d", weekNumber);
+        String weekCode = catalogueCode.toUpperCase() + year + String.format("%02d", weekNumber);
         Date date = Date.from(expectedDate.atStartOfDay(zoneId).toInstant());
-        WeekResolverResult result = WeekResolverResult.create(date, weekNumber, year, weekCode, catalogueCode);
+        WeekResolverResult result = WeekResolverResult.create(date, weekNumber, year, weekCode, catalogueCode.toUpperCase());
         return result;
     }
 

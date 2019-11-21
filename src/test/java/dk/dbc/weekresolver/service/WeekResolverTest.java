@@ -49,14 +49,14 @@ public class WeekResolverTest {
         WeekResolverResult result = b.withDate("2019-11-29").build();
         assertThat(result.getWeekNumber(), is(51));
         assertThat(result.getYear(), is(2019));
-        assertThat(result.getCatalogueCode(), is("dpf"));
-        assertThat(result.getWeekCode(), is("dpf201951"));
+        assertThat(result.getCatalogueCode(), is("DPF"));
+        assertThat(result.getWeekCode(), is("DPF201951"));
 
         result = b.withDate("2019-12-29").build();
         assertThat(result.getWeekNumber(), is(3));
         assertThat(result.getYear(), is(2020));
-        assertThat(result.getCatalogueCode(), is("dpf"));
-        assertThat(result.getWeekCode(), is("dpf202003"));
+        assertThat(result.getCatalogueCode(), is("DPF"));
+        assertThat(result.getWeekCode(), is("DPF202003"));
         LocalDate localDate = LocalDate.of(2020, 1, 13);
         Date  d = Date.from(localDate.atStartOfDay(ZoneId.of(zone)).toInstant());
         assertThat(result.getDate(), is(d));
