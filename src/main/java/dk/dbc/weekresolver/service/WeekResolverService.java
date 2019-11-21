@@ -43,7 +43,7 @@ public class WeekResolverService {
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode) {
         LOGGER.trace("getWeekCode() method called");
 
-        return getWeekCodeFromDate(catalogueCode, LocalDate.now().toString());
+        return getWeekCodeFromDate(LocalDate.now().toString(), catalogueCode);
     }
 
     /**

@@ -49,14 +49,14 @@ public class WeekResolverTest {
         WeekResolverResult result = b.withDate("2019-11-29").build();
         assertThat(result.getWeekNumber(), is(51));
         assertThat(result.getYear(), is(2019));
-        assertThat(result.getCatalogueCode(), is("dpf"));
-        assertThat(result.getWeekCode(), is("dpf201951"));
+        assertThat(result.getCatalogueCode(), is("DPF"));
+        assertThat(result.getWeekCode(), is("DPF201951"));
 
         result = b.withDate("2019-12-29").build();
         assertThat(result.getWeekNumber(), is(3));
         assertThat(result.getYear(), is(2020));
-        assertThat(result.getCatalogueCode(), is("dpf"));
-        assertThat(result.getWeekCode(), is("dpf202003"));
+        assertThat(result.getCatalogueCode(), is("DPF"));
+        assertThat(result.getWeekCode(), is("DPF202003"));
         LocalDate localDate = LocalDate.of(2020, 1, 13);
         Date  d = Date.from(localDate.atStartOfDay(ZoneId.of(zone)).toInstant());
         assertThat(result.getDate(), is(d));
@@ -106,5 +106,27 @@ public class WeekResolverTest {
         // 26. apr. = friday => + 2 weeks = 10. may., week 19
         // Not closed but shiftday = 20
         assertThat(b.withDate("2019-04-26").build().getWeekCode(), is("DPF201920"));
+    }
+
+    @Test
+    public void TestCatalogueCodeFPF() throws ParseException {
+
+        // This code has the same configuration as DPF, so just check that the code is accepted
+        WeekResolver b = new WeekResolver(zone)
+                .withCatalogueCode("FPF");
+
+        assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
+        assertThat(b.withDate("2019-11-29").build().getCatalogueCode(), is("FPF"));
+    }
+
+    @Test
+    public void TestCatalogueCodeGPF() throws ParseException {
+
+        // This code has the same configuration as DPF, so just check that the code is accepted
+        WeekResolver b = new WeekResolver(zone)
+                .withCatalogueCode("GPF");
+
+        assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
+        assertThat(b.withDate("2019-11-29").build().getCatalogueCode(), is("GPF"));
     }
 }
