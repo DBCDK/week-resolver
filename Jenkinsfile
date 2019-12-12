@@ -10,7 +10,7 @@ pipeline {
         GITLAB_PRIVATE_TOKEN = credentials("metascrum-gitlab-api-token")
     }
     triggers {
-        pollSCM("H/03 * * * *")
+        githubPush()
         // This project uses the docker.dbc.dk/payara5-micro container
         upstream('/Docker-payara5-bump-trigger')
     }
