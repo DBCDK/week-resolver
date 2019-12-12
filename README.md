@@ -24,3 +24,5 @@ Endpoint curl example:
 ```bash
 curl localhost:8080/api/v1/date/bpf/2019-12-29
 ```
+
+## Testing
