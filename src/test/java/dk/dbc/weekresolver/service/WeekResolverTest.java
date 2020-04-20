@@ -22,7 +22,7 @@ public class WeekResolverTest {
         WeekResolver b = new WeekResolver(zone)
                 .withDate("2019-11-29")
                 .withCatalogueCode("qxz");
-        assertThrows(UnsupportedOperationException.class,() -> b.build());
+        assertThrows(UnsupportedOperationException.class, () -> b.build());
     }
 
     @Test
@@ -58,7 +58,7 @@ public class WeekResolverTest {
         assertThat(result.getCatalogueCode(), is("DPF"));
         assertThat(result.getWeekCode(), is("DPF202003"));
         LocalDate localDate = LocalDate.of(2020, 1, 13);
-        Date  d = Date.from(localDate.atStartOfDay(ZoneId.of(zone)).toInstant());
+        Date d = Date.from(localDate.atStartOfDay(ZoneId.of(zone)).toInstant());
         assertThat(result.getDate(), is(d));
     }
 
@@ -128,5 +128,37 @@ public class WeekResolverTest {
 
         assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
         assertThat(b.withDate("2019-11-29").build().getCatalogueCode(), is("GPF"));
+    }
+
+    /* Below here is compressed tests for the remaining weekcodes */
+
+    @Test
+    public void TestCatalogueCodeEMO() throws ParseException {
+
+        // EMO:
+        //   - current week number + 1
+        //   - No handling of closing days
+        //   - Allow end of year weeks
+        WeekResolver b = new WeekResolver(zone).withCatalogueCode("EMO");
+        assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
+        assertThat(b.withDate("2019-11-29").build().getWeekCode(), is("EMO201950")); // friday, week 48 = 50
+        assertThat(b.withDate("2019-12-26").build().getWeekCode(), is("EMO202001")); // wednesday, week 52 = 01
+        assertThat(b.withDate("2020-04-09").build().getWeekCode(), is("EMO202016")); // thursday, week 15 = 16
+        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMO202020")); // friday, week 18 = 20
+    }
+
+    @Test
+    public void TestCatalogueCodeEMS() throws ParseException {
+
+        // EMS:
+        //   - current week number + 1
+        //   - No handling of closing days
+        //   - Allow end of year weeks
+        WeekResolver b = new WeekResolver(zone).withCatalogueCode("EMS");
+        assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
+        assertThat(b.withDate("2019-11-29").build().getWeekCode(), is("EMS201950")); // friday, week 48 = 50
+        assertThat(b.withDate("2019-12-26").build().getWeekCode(), is("EMS202001")); // wednesday, week 52 = 01
+        assertThat(b.withDate("2020-04-09").build().getWeekCode(), is("EMS202016")); // thursday, week 15 = 16
+        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMS202020")); // friday, week 18 = 20
     }
 }
