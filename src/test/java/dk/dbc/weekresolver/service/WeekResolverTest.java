@@ -141,10 +141,11 @@ public class WeekResolverTest {
         //   - Allow end of year weeks
         WeekResolver b = new WeekResolver(zone).withCatalogueCode("EMO");
         assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
-        assertThat(b.withDate("2019-11-29").build().getWeekCode(), is("EMO201950")); // friday, week 48 = 50
+        assertThat(b.withDate("2019-11-23").build().getWeekCode(), is("EMO201948")); // saturday, week 47 = 48
+        assertThat(b.withDate("2019-11-24").build().getWeekCode(), is("EMO201949")); // sunday, week 47 = 49
         assertThat(b.withDate("2019-12-26").build().getWeekCode(), is("EMO202001")); // wednesday, week 52 = 01
         assertThat(b.withDate("2020-04-09").build().getWeekCode(), is("EMO202016")); // thursday, week 15 = 16
-        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMO202020")); // friday, week 18 = 20
+        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMO202019")); // friday may 1.st (closing day ignored), week 18 = 19
     }
 
     @Test
@@ -156,9 +157,10 @@ public class WeekResolverTest {
         //   - Allow end of year weeks
         WeekResolver b = new WeekResolver(zone).withCatalogueCode("EMS");
         assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
-        assertThat(b.withDate("2019-11-29").build().getWeekCode(), is("EMS201950")); // friday, week 48 = 50
+        assertThat(b.withDate("2019-11-23").build().getWeekCode(), is("EMS201948")); // saturday, week 47 = 48
+        assertThat(b.withDate("2019-11-24").build().getWeekCode(), is("EMS201949")); // sunday, week 47 = 49
         assertThat(b.withDate("2019-12-26").build().getWeekCode(), is("EMS202001")); // wednesday, week 52 = 01
         assertThat(b.withDate("2020-04-09").build().getWeekCode(), is("EMS202016")); // thursday, week 15 = 16
-        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMS202020")); // friday, week 18 = 20
+        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMs202019")); // friday may 1.st (closing day ignored), week 18 = 19
     }
 }
