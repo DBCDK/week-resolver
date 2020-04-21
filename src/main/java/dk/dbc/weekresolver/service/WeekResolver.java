@@ -135,7 +135,7 @@ public class WeekResolver {
         LOGGER.info("date shifted {} week(s) {}", addWeeks, expectedDate);
 
         // Step 2: Is this a closing day ?
-        if( isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
+        if( !ignoreClosingDays && isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
             expectedDate = expectedDate.plusWeeks(1);
             LOGGER.info("date shifted 1 week due to closing day to {}", expectedDate);
         }
@@ -147,7 +147,7 @@ public class WeekResolver {
         }
 
         // Step 4: Make sure the resulting date is not also a closing day
-        while( isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
+        while( ignoreClosingDays && isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
             expectedDate = expectedDate.plusWeeks(1);
             LOGGER.info("date shifted 1 week due to final date being a closing day {}", expectedDate);
         }
