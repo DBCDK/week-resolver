@@ -137,6 +137,7 @@ public class WeekResolverTest {
 
         // EMO:
         //   - current week number + 1
+        //   - Shiftday is sunday
         //   - No handling of closing days
         //   - Allow end of year weeks
         WeekResolver b = new WeekResolver(zone).withCatalogueCode("EMO");
@@ -153,6 +154,7 @@ public class WeekResolverTest {
 
         // EMS:
         //   - current week number + 1
+        //   - Shiftday is sunday
         //   - No handling of closing days
         //   - Allow end of year weeks
         WeekResolver b = new WeekResolver(zone).withCatalogueCode("EMS");
@@ -161,6 +163,6 @@ public class WeekResolverTest {
         assertThat(b.withDate("2019-11-24").build().getWeekCode(), is("EMS201949")); // sunday, week 47 = 49
         assertThat(b.withDate("2019-12-26").build().getWeekCode(), is("EMS202001")); // wednesday, week 52 = 01
         assertThat(b.withDate("2020-04-09").build().getWeekCode(), is("EMS202016")); // thursday, week 15 = 16
-        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMs202019")); // friday may 1.st (closing day ignored), week 18 = 19
+        assertThat(b.withDate("2020-05-01").build().getWeekCode(), is("EMS202019")); // friday may 1.st (closing day ignored), week 18 = 19
     }
 }
