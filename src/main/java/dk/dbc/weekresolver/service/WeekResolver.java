@@ -84,14 +84,41 @@ public class WeekResolver {
         // Automated systems may request weekcodes on Weekend days.
         // Push the date forward to the comming monday
         LocalDate expectedDate = date;
-        if( expectedDate.getDayOfWeek() == DayOfWeek.SATURDAY ) {
+        if(expectedDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
             expectedDate = expectedDate.plusDays(2);
             LOGGER.info("Date {} is a saturday. Moving date to next monday {}", date, expectedDate);
         }
-        if( expectedDate.getDayOfWeek() == DayOfWeek.SUNDAY ) {
+        if(expectedDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
             expectedDate = expectedDate.plusDays(1);
             LOGGER.info("Date {} is a sunday. Moving date to next monday {}", date, expectedDate);
         }
+
+        // SSelect configuration of weekcode calculation
+        switch (catalogueCode.toUpperCase()) {
+
+            case "DPF":
+            case "FPF":
+            case "GPF":
+                return BuildForConfiguration(expectedDate, 2, DayOfWeek.FRIDAY, true, false);
+
+            // Todo: Add every known cataloguecode
+
+            default:
+                throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
+        }
+    }
+
+    /**
+     * Calculate the weekcode for the given date with the given configuration
+     *
+     * @param expectedDate The initial date for which the weekcode should be calculated
+     * @param addWeeks The number of weeks to add to the actual week number
+     * @param shiftDay The day of the week where the current week number should shift to the next week
+     * @param allowEndOfYearWeeks If true then allow weekcodes for the last weeks of the year (christmas period)
+     * @param ignoreClosingDays If true then ignore closing days when calculating the weekcode
+     * @return a string with the weekcode
+     */
+    private WeekResolverResult BuildForConfiguration(LocalDate expectedDate, int addWeeks, DayOfWeek shiftDay, boolean allowEndOfYearWeeks, boolean ignoreClosingDays) {
 
         // Algorithm:
         //   step 1: take date and add [0,1,2] weeks
@@ -102,26 +129,6 @@ public class WeekResolver {
         // being a closing day.., 1. may and 5. june could in rare cases give this result. So:
         //
         //   step 4: while day is a closingday => add 1 week
-
-        // Select shiftday, weeks to add and week 52-53 behaviour
-        int addWeeks;
-        DayOfWeek shiftDay;
-        boolean allowEndOfYearWeeks;
-        switch (catalogueCode.toUpperCase()) {
-
-            case "DPF":
-            case "FPF":
-            case "GPF":
-                addWeeks = 2;
-                shiftDay = DayOfWeek.FRIDAY;
-                allowEndOfYearWeeks = true;
-                break;
-
-            // Todo: Add every known cataloguecode
-
-            default:
-                throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
-        }
 
         // Step 1: add the selected number of weeks
         expectedDate = expectedDate.plusWeeks(addWeeks);
