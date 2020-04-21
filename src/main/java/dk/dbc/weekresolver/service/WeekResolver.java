@@ -15,6 +15,7 @@ import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -81,27 +82,19 @@ public class WeekResolver {
     public WeekResolverResult build() throws UnsupportedOperationException {
         LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
 
-        // Automated systems may request weekcodes on Weekend days.
-        // Push the date forward to the comming monday
+        // Get the current date
         LocalDate expectedDate = date;
-        if(expectedDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
-            expectedDate = expectedDate.plusDays(2);
-            LOGGER.info("Date {} is a saturday. Moving date to next monday {}", date, expectedDate);
-        }
-        if(expectedDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
-            expectedDate = expectedDate.plusDays(1);
-            LOGGER.info("Date {} is a sunday. Moving date to next monday {}", date, expectedDate);
-        }
 
-        // SSelect configuration of weekcode calculation
+        // Select configuration of weekcode calculation
         switch (catalogueCode.toUpperCase()) {
 
             case "DPF":
             case "FPF":
             case "GPF":
                 return BuildForConfiguration(expectedDate, 2, DayOfWeek.FRIDAY, true, false);
-
-            // Todo: Add every known cataloguecode
+            case "EMO":
+            case "EMS":
+                return BuildForConfiguration(expectedDate, 1, DayOfWeek.SUNDAY, true, true);
 
             default:
                 throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
@@ -121,41 +114,58 @@ public class WeekResolver {
     private WeekResolverResult BuildForConfiguration(LocalDate expectedDate, int addWeeks, DayOfWeek shiftDay, boolean allowEndOfYearWeeks, boolean ignoreClosingDays) {
 
         // Algorithm:
-        //   step 1: take date and add [0,1,2] weeks
-        //   step 2: if closingday then add 1 week
-        //   step 3: if shiftday => add 1 week
+        //   step 1: Shift to next working day for weekends - unless shiftday is in the weekend
+        //   step 2: take date and add [0,1,2,...] weeks
+        //   step 3: if closingday then add 1 week
+        //   step 4: if shiftday => add 1 week
         //
         // Allthough it is a cornercase, we need to check that a shifted date does not end up
         // being a closing day.., 1. may and 5. june could in rare cases give this result. So:
         //
-        //   step 4: while day is a closingday => add 1 week
+        //   step 5: while day is a closingday => add 1 week
 
-        // Step 1: add the selected number of weeks
+        // Step 1: Automated systems may request weekcodes on Weekend days.
+        //         Push the date forward to the comming monday unless shiftday is actually in the weekend
+        if( shiftDay != DayOfWeek.SATURDAY && shiftDay != DayOfWeek.SUNDAY ) {
+            if(expectedDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
+                expectedDate = expectedDate.plusDays(2);
+                LOGGER.info("Date {} is a saturday. Moving date to next monday {}", date, expectedDate);
+            }
+            if(expectedDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
+                expectedDate = expectedDate.plusDays(1);
+                LOGGER.info("Date {} is a sunday. Moving date to next monday {}", date, expectedDate);
+            }
+        } else {
+            LOGGER.info("Date {} is a {} but shiftday is {}. Ignoring weekends", date, date.getDayOfWeek(), shiftDay);
+        }
+
+        // Step 2: add the selected number of weeks
         expectedDate = expectedDate.plusWeeks(addWeeks);
         LOGGER.info("date shifted {} week(s) {}", addWeeks, expectedDate);
 
-        // Step 2: Is this a closing day ?
+        // Step 3: Is this a closing day ?
         if( !ignoreClosingDays && isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
             expectedDate = expectedDate.plusWeeks(1);
             LOGGER.info("date shifted 1 week due to closing day to {}", expectedDate);
         }
 
-        // Step 3: Is this the shiftday ?
+        // Step 4: Is this the shiftday ?
         if( expectedDate.getDayOfWeek() == shiftDay ) {
             expectedDate = expectedDate.plusWeeks(1);
             LOGGER.info("date shifted 1 week due to shiftday to {}", expectedDate);
         }
 
-        // Step 4: Make sure the resulting date is not also a closing day
+        // Step 5: Make sure the resulting date is not also a closing day
         while( ignoreClosingDays && isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
             expectedDate = expectedDate.plusWeeks(1);
             LOGGER.info("date shifted 1 week due to final date being a closing day {}", expectedDate);
         }
 
-        // Build final result
-        LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w"))));
+        // Build final result. Hardwire the local to da_DK since we may encounter different locales (badly configured dev. machines etc.)
+        Locale locale = new Locale("da", "DK");
+        LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
 
-        int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w")));
+        int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale)));
         int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY")));
         String weekCode = catalogueCode.toUpperCase() + year + String.format("%02d", weekNumber);
         Date date = Date.from(expectedDate.atStartOfDay(zoneId).toInstant());
