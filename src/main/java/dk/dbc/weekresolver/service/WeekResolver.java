@@ -149,16 +149,16 @@ public class WeekResolver {
             LOGGER.info("date shifted 1 week due to closing day to {}", expectedDate);
         }
 
-        // Step 4: Is this the shiftday ?
-        if( expectedDate.getDayOfWeek() == shiftDay ) {
+        // Step 4: Is this on or after the shiftday ?
+        if( expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue() ) {
             expectedDate = expectedDate.plusWeeks(1);
             LOGGER.info("date shifted 1 week due to shiftday to {}", expectedDate);
         }
 
         // Step 5: Make sure the resulting date is not also a closing day
         while( ignoreClosingDays && isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
-            expectedDate = expectedDate.plusWeeks(1);
-            LOGGER.info("date shifted 1 week due to final date being a closing day {}", expectedDate);
+            expectedDate = expectedDate.plusDays(1);
+            LOGGER.info("date shifted 1 day due to final date being a closing day {}", expectedDate);
         }
 
         // Build final result. Hardwire the local to da_DK since we may encounter different locales (badly configured dev. machines etc.)
