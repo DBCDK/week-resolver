@@ -1,7 +1,6 @@
 package dk.dbc.weekresolver.service;
 
 import java.text.ParseException;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
