@@ -14,10 +14,10 @@ import java.time.format.DateTimeParseException;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,7 +26,8 @@ public class WeekResolver {
 
     private LocalDate date = LocalDate.now();
     private String catalogueCode = "";
-    private ZoneId zoneId;
+    private ZoneId zoneId = ZoneId.of("Europe/Copenhagen");
+    private Locale locale = new Locale("da", "DK");
 
     // Easter sundays (source https://ugenr.dk)
     private static List<LocalDate> EasterSundays = new ArrayList<LocalDate>();
@@ -58,8 +59,78 @@ public class WeekResolver {
         EasterSundays.add(LocalDate.parse("2040-04-01"));
     }
 
+    private static HashMap<String, WeekCodeConfiguration> codes = new HashMap<>();
+    static {
+        // No shiftday, no added weeks, allowing end-of-year and closingdays
+        // Todo: Needs checking
+        codes.put("ACC", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACF", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACM", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+
+        // Shiftday friday, add 2 weeks, allow end-of-year
+        codes.put("DPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
+        codes.put("FPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
+        codes.put("GPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
+
+        // Shiftday friday, add 1 week, allow end-of-year and ignore closing days
+        codes.put("EMO", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+        codes.put("EMS", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+
+        // Shiftday friday, add 1 week
+        // Todo: Needs checking
+        codes.put("DAN", new WeekCodeConfiguration().addWeeks(1));
+        codes.put("DAR", new WeekCodeConfiguration().addWeeks(1));
+        codes.put("DBF", new WeekCodeConfiguration().addWeeks(1));
+        codes.put("BKM", new WeekCodeConfiguration().addWeeks(1));
+
+        // Shiftday friday, use this weeks number
+        // Todo: Needs checking
+        codes.put("DBI", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DLF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DLR", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DMO", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("GBF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("BKR", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("BKX", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DIG", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DIS", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("ERA", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("ERE", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("ERL", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("FFK", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("FSC", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("FSB", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("FSF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("HOB", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("IDU", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("NLL", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("NLY", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("OPR", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("PLA", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("PLN", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("PLU", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("SNE", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("UTI", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY));
+
+        // Use fixed code for retro updates - should they ever be requested
+        codes.put("DBR", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        codes.put("DBT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        codes.put("SDT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+    }
+
+    public WeekResolver() {}
+
     public WeekResolver(String timezone) {
         this.zoneId = ZoneId.of(timezone);
+    }
+
+    public WeekResolver(String timezone, Locale locale) {
+        this.zoneId = ZoneId.of(timezone);
+        this.locale = locale;
     }
 
     public WeekResolver withDate(String date) throws DateTimeParseException {
@@ -70,6 +141,16 @@ public class WeekResolver {
 
     public WeekResolver withCatalogueCode(String catalogueCode) {
         this.catalogueCode = catalogueCode;
+        return this;
+    }
+
+    public WeekResolver withTimeZone(String timezone) {
+        this.zoneId = ZoneId.of(timezone);
+        return this;
+    }
+
+    public WeekResolver withLocale(Locale locale) {
+        this.locale = locale;
         return this;
     }
 
@@ -86,91 +167,58 @@ public class WeekResolver {
         LocalDate expectedDate = date;
 
         // Select configuration of weekcode calculation
-        switch (catalogueCode.toUpperCase()) {
-
-            case "DPF":
-            case "FPF":
-            case "GPF":
-                return BuildForConfiguration(expectedDate, 2, DayOfWeek.FRIDAY, true, false);
-            case "EMO":
-            case "EMS":
-                return BuildForConfiguration(expectedDate, 1, DayOfWeek.SUNDAY, true, true);
-
-            default:
-                throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
+        if( !codes.containsKey(catalogueCode.toUpperCase()) ){
+            throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
+
+        return BuildForConfiguration(expectedDate, codes.get(catalogueCode.toUpperCase()));
     }
 
     /**
      * Calculate the weekcode for the given date with the given configuration
      *
-     * @param expectedDate The initial date for which the weekcode should be calculated
-     * @param addWeeks The number of weeks to add to the actual week number
-     * @param shiftDay The day of the week where the current week number should shift to the next week
-     * @param allowEndOfYearWeeks If true then allow weekcodes for the last weeks of the year (christmas period)
-     * @param ignoreClosingDays If true then ignore closing days when calculating the weekcode
-     * @return a string with the weekcode
+     * @param configuration The configuration to use when generating the weekcode
+     * @return a WeekResolverResult
      */
-    private WeekResolverResult BuildForConfiguration(LocalDate expectedDate, int addWeeks, DayOfWeek shiftDay, boolean allowEndOfYearWeeks, boolean ignoreClosingDays) {
+    private WeekResolverResult BuildForConfiguration(LocalDate expectedDate, WeekCodeConfiguration configuration) {
+
+        // If the configuration has a fixed weekcode, return this
+        if( configuration.getFixedWeekCode() != null ) {
+            LOGGER.info("Return fixed code {}", catalogueCode.toUpperCase() + configuration.getFixedWeekCode(), catalogueCode.toUpperCase());
+            return new WeekResolverResult(Date.from(expectedDate.atStartOfDay(zoneId).toInstant()),
+                    0, 0, catalogueCode.toUpperCase() + configuration.getFixedWeekCode(), catalogueCode.toUpperCase());
+        }
 
         // Algorithm:
-        //   step 1: Shift to next working day for weekends - unless shiftday is in the weekend
+        //   step 1: If on or after shiftday, shift to first day in the next week
         //   step 2: take date and add [0,1,2,...] weeks
-        //   step 3: if closingday then add 1 week
-        //   step 4: if shiftday => add 1 week
-        //
-        // Allthough it is a cornercase, we need to check that a shifted date does not end up
-        // being a closing day.., 1. may and 5. june could in rare cases give this result. So:
-        //
-        //   step 5: while day is a closingday => add 1 week
+        //   step 3: if closingday then add 1 day untill we reach a working day
 
-        // Step 1: Automated systems may request weekcodes on Weekend days.
-        //         Push the date forward to the comming monday unless shiftday is actually in the weekend
-        if( shiftDay != DayOfWeek.SATURDAY && shiftDay != DayOfWeek.SUNDAY ) {
-            if(expectedDate.getDayOfWeek() == DayOfWeek.SATURDAY) {
-                expectedDate = expectedDate.plusDays(2);
-                LOGGER.info("Date {} is a saturday. Moving date to next monday {}", date, expectedDate);
-            }
-            if(expectedDate.getDayOfWeek() == DayOfWeek.SUNDAY) {
-                expectedDate = expectedDate.plusDays(1);
-                LOGGER.info("Date {} is a sunday. Moving date to next monday {}", date, expectedDate);
-            }
-        } else {
-            LOGGER.info("Date {} is a {} but shiftday is {}. Ignoring weekends", date, date.getDayOfWeek(), shiftDay);
+        // Step 1: Is this on or after the shiftday ?
+        while( configuration.getShiftDay() != null && expectedDate.getDayOfWeek().getValue() >= configuration.getShiftDay().getValue() ) {
+            expectedDate = expectedDate.plusDays(1);
+            LOGGER.info("date shifted 1 day due to shiftday to {}", expectedDate);
         }
 
         // Step 2: add the selected number of weeks
-        expectedDate = expectedDate.plusWeeks(addWeeks);
-        LOGGER.info("date shifted {} week(s) {}", addWeeks, expectedDate);
+        expectedDate = expectedDate.plusWeeks(configuration.getAddWeeks());
+        LOGGER.info("date shifted {} week(s) {}", configuration.getAddWeeks(), expectedDate);
 
         // Step 3: Is this a closing day ?
-        if( !ignoreClosingDays && isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
-            expectedDate = expectedDate.plusWeeks(1);
-            LOGGER.info("date shifted 1 week due to closing day to {}", expectedDate);
-        }
-
-        // Step 4: Is this on or after the shiftday ?
-        if( expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue() ) {
-            expectedDate = expectedDate.plusWeeks(1);
-            LOGGER.info("date shifted 1 week due to shiftday to {}", expectedDate);
-        }
-
-        // Step 5: Make sure the resulting date is not also a closing day
-        while( ignoreClosingDays && isClosingDay(expectedDate, allowEndOfYearWeeks) ) {
+        while( !configuration.getIgnoreClosingDays() && isClosingDay(expectedDate, configuration.getAllowEndOfYear()) ) {
             expectedDate = expectedDate.plusDays(1);
-            LOGGER.info("date shifted 1 day due to final date being a closing day {}", expectedDate);
+            LOGGER.info("date shifted 1 day due to closing day to {}", expectedDate);
         }
 
-        // Build final result. Hardwire the local to da_DK since we may encounter different locales (badly configured dev. machines etc.)
-        Locale locale = new Locale("da", "DK");
+        // Build final result.
         LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
 
         int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale)));
         int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY")));
-        String weekCode = catalogueCode.toUpperCase() + year + String.format("%02d", weekNumber);
+        int month = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("MM")));
+        String weekCode = catalogueCode.toUpperCase() + year + String.format("%02d", configuration.getUseMonthNumber() ? month : weekNumber);
         Date date = Date.from(expectedDate.atStartOfDay(zoneId).toInstant());
-        WeekResolverResult result = WeekResolverResult.create(date, weekNumber, year, weekCode, catalogueCode.toUpperCase());
-        return result;
+        return new WeekResolverResult(date, weekNumber, year, weekCode, catalogueCode.toUpperCase());
     }
 
     /**
@@ -180,6 +228,12 @@ public class WeekResolver {
      * @return True if the date is a closing day, otherwise false
      */
     private boolean isClosingDay(LocalDate expectedDate, boolean allowEndOfYearWeeks) {
+
+        // Weekends
+        if( expectedDate.getDayOfWeek() == DayOfWeek.SATURDAY || expectedDate.getDayOfWeek() == DayOfWeek.SUNDAY ) {
+            LOGGER.info("{} is saturday or sunday", expectedDate);
+            return true;
+        }
 
         // 1. maj and pinched friday
         if( expectedDate.getMonth() == Month.MAY && expectedDate.getDayOfMonth() == 1 ) {
