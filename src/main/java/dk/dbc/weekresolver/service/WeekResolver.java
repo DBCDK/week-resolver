@@ -70,6 +70,9 @@ public class WeekResolver {
         codes.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
 
+        // Shiftday friday, add 1 week
+        codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY)); // = BMK-1
+
         // Shiftday friday, add 2 weeks, allow end-of-year
         codes.put("DPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
         codes.put("FPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
@@ -79,50 +82,59 @@ public class WeekResolver {
         codes.put("EMO", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
         codes.put("EMS", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
 
-        // Shiftday friday, add 1 week
+        // No shiftday , add 1 week
         codes.put("DAN", new WeekCodeConfiguration().addWeeks(1));
         codes.put("DAR", new WeekCodeConfiguration().addWeeks(1));
 
+        // Shiftday friday, add 1 week
+        codes.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
+
         // Shiftday friday, add 2 weeks
         codes.put("DLR", new WeekCodeConfiguration().addWeeks(2));
+        codes.put("BKM", new WeekCodeConfiguration().addWeeks(2));
+        codes.put("DBI", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("FSB", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("NLL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("NLY", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+
+        // No shiftday, add 3 weeks
+        codes.put("DBF", new WeekCodeConfiguration().addWeeks(3));
 
         // Shiftday friday, add 3 weeks
-        codes.put("DBF", new WeekCodeConfiguration().addWeeks(3));
-        codes.put("BKM", new WeekCodeConfiguration().addWeeks(3));
-
-        // Shiftday friday, follow bkm
-        codes.put("DBI", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("DLF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("DMO", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("GBF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("BKR", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("BKX", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("DIG", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("DIS", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("ERA", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("ERE", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("ERL", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("FFK", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("FSC", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("FSB", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("FSF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("HOB", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("IDU", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("NLL", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("NLY", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("OPR", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("PLU", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("PLN", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("SNE", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("UTI", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
+
+        // Shiftday friday, add 1 week. Will be modified when the record is being edited
+        codes.put("BKR", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
+
+        // Greenland
+        codes.put("GBF", new WeekCodeConfiguration().addWeeks(5).withShiftDay(DayOfWeek.FRIDAY));
+
+        // Use default, most often used, value DIS197605. This may have to be corrected if the record
+        // is indeed an old unowned KB record or the like
+        codes.put("DIS", new WeekCodeConfiguration().withFixedWeekCode("197605"));
+
+        // Use code for incomplete record. Finished record may become 197604 or 197607
+        codes.put("OPR", new WeekCodeConfiguration().withFixedWeekCode("197601"));
 
         // Use the month number instead of the week number
         codes.put("PLA", new WeekCodeConfiguration().useMonthNumber().withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("PLN", new WeekCodeConfiguration().useMonthNumber().withShiftDay(DayOfWeek.FRIDAY));
 
-        // Use fixed code for retro updates - should they ever be requested
+        // Use fixed codes for these cataloguecodes
         codes.put("DBR", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("DBT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("SDT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        codes.put("DIG", new WeekCodeConfiguration().withFixedWeekCode("198507"));
+        codes.put("ERA", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        codes.put("ERE", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        codes.put("FFK", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        codes.put("FSF", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        codes.put("HOB", new WeekCodeConfiguration().withFixedWeekCode("197300"));
     }
 
     public WeekResolver() {}
