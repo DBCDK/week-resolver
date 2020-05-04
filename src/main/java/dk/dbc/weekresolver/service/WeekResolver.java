@@ -436,7 +436,7 @@ public class WeekResolver {
         while( pentecost.getDayOfWeek() != DayOfWeek.SUNDAY ) {
             pentecost = pentecost.plusDays(1);
         }
-        LOGGER.info("PENTECOST {} {}", pentecost, dateOfSunday);
+        LOGGER.info("Pentecost is {}", pentecost);
         if( dateOfSunday.isEqual(pentecost) ) {
             LOGGER.info("{} is ", dateOfSunday);
             return true;
