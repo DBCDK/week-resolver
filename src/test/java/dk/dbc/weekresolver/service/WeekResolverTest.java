@@ -284,9 +284,54 @@ public class WeekResolverTest {
 
         // Month number
         assertThat(b.withCatalogueCode("PLA").withDate("2020-04-22").build().getWeekCode(), is("PLA202004"));
-        assertThat(b.withCatalogueCode("PLN").withDate("2020-04-30").build().getWeekCode(), is("PLN202004"));
+        assertThat(b.withCatalogueCode("PLN").withDate("2020-04-30").build().getWeekCode(), is("PLN202005"));
 
         // GBF is a bit weird
         assertThat(b.withCatalogueCode("GBF").withDate("2019-11-26").build().getWeekCode(), is("GBF202001"));
+    }
+
+    @Test
+    public void TestSpecialCases() {
+        WeekResolver b = new WeekResolver();
+
+        // "Fredag 27.03.20 afsluttes DBC+BKM202015. Fredag morgen skal koden være 202017"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-03-27").build().getWeekCode(), is("DBF202017"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-03-27").build().getWeekCode(), is("BKM202017"));
+
+        // DBC+BKM202016 udgår"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-03-25").build().getWeekCode(), is("DBF202017"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-03-25").build().getWeekCode(), is("BKM202017"));
+
+        // Torsdag 02.04.20 afsluttes DBC+BKM202017. Torsdag morgen skal koden være 202018"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-04-09").build().getWeekCode(), is("DBF202018"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-04-09").build().getWeekCode(), is("BKM202018"));
+
+        // "Der er ingen afslutning i uge 15 (påskeugen)"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-04-02").build().getWeekCode(), is("DBF202018"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-04-02").build().getWeekCode(), is("BKM202018"));
+
+        // Fredag 17.04.20 afsluttes DBF+BKM2020202018. Fredag morgen skal koden være 202020"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-04-17").build().getWeekCode(), is("DBF202020"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-04-17").build().getWeekCode(), is("BKM202020"));
+
+        // "1. maj. Torsdag 30.04.20 afsluttes DBC+BMK202021. Torsdag morgen skal koden være 202022"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-04-30").build().getWeekCode(), is("DBF202022"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-04-30").build().getWeekCode(), is("BKM202022"));
+
+        // "Bededag. Torsdag 07.05.20 afsluttes DBC+BKM202022. Torsdag morgen d. 7/5 skal koden være 202023"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-05-07").build().getWeekCode(), is("DBF202023"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-05-07").build().getWeekCode(), is("BKM202023"));
+
+        // "Kristi himmelfart. Onsdag 20.05.20 afsluttes DBF+BKM202023. Onsdag morgen skal koden være 202026"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-05-20").build().getWeekCode(), is("DBF202025"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-05-20").build().getWeekCode(), is("BKM202025"));
+
+        // "Pinse. Torsdag 28.05.20 afsluttes DBF+BKM202024. Torsdag morgen skal koden være 202026"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-05-28").build().getWeekCode(), is("DBF202026"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-05-28").build().getWeekCode(), is("BKM202026"));
+
+        // "Grundlovsdag. Torsdag d. 04.06.20 afsluttes DBF+BKM202026. Torsdag morgen skal koden være 202027"
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-06-04").build().getWeekCode(), is("DBF202027"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-06-04").build().getWeekCode(), is("BKM202027"));
     }
 }
