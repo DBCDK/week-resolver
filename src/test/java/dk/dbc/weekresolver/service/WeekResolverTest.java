@@ -76,7 +76,8 @@ public class WeekResolverTest {
         // if closed => add days untill not a closing day
 
         // 3. apr. = wednesday => + 2 weeks = 17. apr., week 16, the day before maundy thursday.
-        // Not closed and not shiftday = 16
+        // Not closed and not shiftday = 16, but within the week after easter, so push
+        // forward another week
         assertThat(b.withDate("2019-04-03").build().getWeekCode(), is("DPF201916"));
 
         // 4. apr. = thursday => + 2 weeks = 18. apr., week 16, maundy thursday
@@ -84,12 +85,14 @@ public class WeekResolverTest {
         assertThat(b.withDate("2019-04-04").build().getWeekCode(), is("DPF201917"));
 
         // 5.apr. = friday, shiftday => + 1 week + 2 weeks = 26. apr., week 17
-        // Shiftday so add 1 + 2 weeks = week 17
-        assertThat(b.withDate("2019-04-05").build().getWeekCode(), is("DPF201917"));
+        // Shiftday so add 1 + 2 weeks = week 17. Last week was easter, no closing in this
+        // week, so push forward to 18
+        assertThat(b.withDate("2019-04-05").build().getWeekCode(), is("DPF201918"));
 
         // 8. apr. = monday => + 2 weeks = 22. apr., week 17, easter monday
         // Closed, not shiftday so add 2 weeks and adjust for closing days = tuesday week 17
-        assertThat(b.withDate("2019-04-08").build().getWeekCode(), is("DPF201917"));
+        // Last week was easter, so push forward to 18
+        assertThat(b.withDate("2019-04-08").build().getWeekCode(), is("DPF201918"));
 
         // 15. apr. = monday => + 2 weeks = 29. apr., week 18
         // Not closed and not shiftday = 18
@@ -221,8 +224,9 @@ public class WeekResolverTest {
     @Test
     public void TestYearEnd() {
         WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
-        assertThat(b.withDate("2020-04-22").build().getWeekCode(), is("BKM202019"));
-        assertThat(b.withDate("2019-11-26").build().getWeekCode(), is("BKM201950"));
+        assertThat(b.withDate("2020-04-22").build().getWeekCode(), is("BKM202020"));
+        assertThat(b.withDate("2019-11-26").build().getWeekCode(), is("BKM201951"));
+        assertThat(b.withDate("2019-12-03").build().getWeekCode(), is("BKM202001"));
     }
 
     @Test
@@ -251,10 +255,10 @@ public class WeekResolverTest {
         assertThat(b.withCatalogueCode("FPF").withDate("2020-04-22").build().getWeekCode(), is("FPF202019"));
         assertThat(b.withCatalogueCode("GPF").withDate("2020-04-22").build().getWeekCode(), is("GPF202019"));
         assertThat(b.withCatalogueCode("DLR").withDate("2020-04-22").build().getWeekCode(), is("DLR202019"));
-        assertThat(b.withCatalogueCode("BKM").withDate("2020-04-22").build().getWeekCode(), is("BKM202019"));
 
         // +3 weeks
-        assertThat(b.withCatalogueCode("DBF").withDate("2020-04-22").build().getWeekCode(), is("DBF202020"));
+        assertThat(b.withCatalogueCode("DBF").withDate("2020-04-27").build().getWeekCode(), is("DBF202021"));
+        assertThat(b.withCatalogueCode("BKM").withDate("2020-04-27").build().getWeekCode(), is("BKM202021"));
 
         // Checked in RR for the given creation date since these are not commonly used
         assertThat(b.withCatalogueCode("DBI").withDate("2020-04-22").build().getWeekCode(), is("DBI202019"));
