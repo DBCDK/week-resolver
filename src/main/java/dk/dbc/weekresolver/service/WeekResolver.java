@@ -71,7 +71,7 @@ public class WeekResolver {
         codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
 
         // Shiftday friday, add 1 week
-        codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY)); // = BMK-1
+        codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 2 weeks, allow end-of-year
         codes.put("DPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
