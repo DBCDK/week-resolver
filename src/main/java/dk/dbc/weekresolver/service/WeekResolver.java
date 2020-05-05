@@ -256,12 +256,6 @@ public class WeekResolver {
         dateOfShiftDay = dateOfShiftDay.plusDays(shiftDay.getValue() - expectedDate.getDayOfWeek().getValue());
         LOGGER.info("ExpectedDate is {} shiftday is then {}", expectedDate, dateOfShiftDay);
 
-        // Check if we have already passed the shiftday, then no need to adjust
-        if( dateOfShiftDay.getDayOfWeek().getValue() <= expectedDate.getDayOfWeek().getValue() ) {
-            LOGGER.info("We are on or after shiftday, no need adjust the shiftday");
-            return shiftDay;
-        }
-
         // SPECIAL CASES:
         // 1: If the expected date falls inside the easter week, then there is no shiftday
         LOGGER.info("Checking if {} is in the easter week", expectedDate);
