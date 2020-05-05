@@ -74,9 +74,9 @@ public class WeekResolver {
         codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 2 weeks, allow end-of-year
-        codes.put("DPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
-        codes.put("FPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
-        codes.put("GPF", new WeekCodeConfiguration().withShiftDay(DayOfWeek.FRIDAY).addWeeks(2).allowEndOfYear());
+        codes.put("DPF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        codes.put("FPF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        codes.put("GPF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
 
         // Shiftday friday, add 1 week, allow end-of-year and ignore closing days
         codes.put("EMO", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
@@ -95,16 +95,14 @@ public class WeekResolver {
         codes.put("FSB", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("NLL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("NLY", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-
-        // Shiftday friday, add 3 weeks
-        codes.put("DBF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("BKM", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("DLF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("DMO", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("ERL", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("FSC", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("IDU", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("SNE", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("BKM", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DLF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DMO", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("ERL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("FSC", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("IDU", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("SNE", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 1 week. Will be modified when the record is being edited
         codes.put("BKR", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
