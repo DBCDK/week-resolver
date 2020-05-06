@@ -10,8 +10,6 @@ public class WeekCodeConfiguration {
     private boolean allowEndOfYear;
     private boolean ignoreClosingDays;
     private boolean useMonthNumber;
-    private LocalDate date;
-
 
     public WeekCodeConfiguration() {
         this.fixedWeekCode = null;
@@ -20,8 +18,6 @@ public class WeekCodeConfiguration {
         this.allowEndOfYear = false;
         this.ignoreClosingDays = false;
         this.useMonthNumber = false;
-        this.date = LocalDate.now();
-
     }
 
     public WeekCodeConfiguration addWeeks(int addWeeks) {
@@ -51,11 +47,6 @@ public class WeekCodeConfiguration {
 
     public WeekCodeConfiguration withFixedWeekCode(String weekCode) {
         this.fixedWeekCode = weekCode;
-        return this;
-    }
-
-    public WeekCodeConfiguration withDate(LocalDate date) {
-        this.date = date;
         return this;
     }
 
