@@ -31,16 +31,12 @@ public class WeekResolverResult {
 
     public WeekResolverResult() {}
 
-    private WeekResolverResult(Date date, int weekNumber, int year, String weekCode, String catalogueCode) {
+    public WeekResolverResult(Date date, int weekNumber, int year, String weekCode, String catalogueCode) {
         this.date = date;
         this.weekNumber=weekNumber;
         this.year=year;
         this.weekCode=weekCode;
         this.catalogueCode=catalogueCode;
-    }
-
-    public static WeekResolverResult create(Date date, int weekNumber, int year, String weekCode, String catalogueCode) {
-        return new WeekResolverResult(date, weekNumber, year, weekCode, catalogueCode);
     }
 
     public int getWeekNumber() {
