@@ -1,7 +1,6 @@
 package dk.dbc.weekresolver.service;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
 
 public class WeekCodeConfiguration {
     private String fixedWeekCode;
