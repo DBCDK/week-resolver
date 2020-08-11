@@ -28,14 +28,14 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         LOGGER.info("Using this url:{}", weekresolverServiceBaseUrl);
         WeekresolverConnector connector = new WeekresolverConnector(httpClient, weekresolverServiceBaseUrl);
         WeekResolverResult w = connector.getWeekCode("DPF", LocalDate.parse("2019-10-20"));
-        assertThat(w.getWeekCode(), is("DPF201945"));
+        assertThat(w.getWeekCode(), is("DPF201946"));
         assertThat(w.getYear(), is(2019));
-        assertThat(w.getWeekNumber(), is(45));
+        assertThat(w.getWeekNumber(), is(46));
 
         WeekResolverResult w1 = connector.getWeekCode("DPF", LocalDate.parse("2019-12-21"));
-        assertThat(w1.getWeekCode(), is("DPF202002"));
+        assertThat(w1.getWeekCode(), is("DPF202003"));
         assertThat(w1.getYear(), is(2020));
-        assertThat(w1.getWeekNumber(), is(2));
+        assertThat(w1.getWeekNumber(), is(3));
     }
 
     @Test

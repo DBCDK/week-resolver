@@ -44,15 +44,15 @@ public class WeekResolverTest {
         WeekResolver b = new WeekResolver(zone)
                 .withCatalogueCode("dpf");
 
-        assertDoesNotThrow(() -> b.withDate("2019-11-29").build());
+        assertDoesNotThrow(() -> b.withDate("2019-11-22").build());
 
-        WeekResolverResult result = b.withDate("2019-11-29").build();
+        WeekResolverResult result = b.withDate("2019-11-22").build();
         assertThat(result.getWeekNumber(), is(51));
         assertThat(result.getYear(), is(2019));
         assertThat(result.getCatalogueCode(), is("DPF"));
         assertThat(result.getWeekCode(), is("DPF201951"));
 
-        result = b.withDate("2019-12-29").build();
+        result = b.withDate("2019-12-22").build();
         assertThat(result.getWeekNumber(), is(3));
         assertThat(result.getYear(), is(2020));
         assertThat(result.getCatalogueCode(), is("DPF"));
@@ -75,40 +75,39 @@ public class WeekResolverTest {
         // add [0,1,2] weeks
         // if closed => add days untill not a closing day
 
-        // 3. apr. = wednesday => + 2 weeks = 17. apr., week 16, the day before maundy thursday.
-        // Not closed and not shiftday = 16, but within the week after easter, so push
-        // forward another week
-        assertThat(b.withDate("2019-04-03").build().getWeekCode(), is("DPF201916"));
+        // 27. mar. = wednesday => + 3 weeks = 17. apr., week 16, the day before maundy thursday.
+        // Not closed and not shiftday = 16, and not within the week after easter
+        assertThat(b.withDate("2019-03-27").build().getWeekCode(), is("DPF201916"));
 
-        // 4. apr. = thursday => + 2 weeks = 18. apr., week 16, maundy thursday
+        // 28. mar. = thursday => + 3 weeks = 18. apr., week 16, maundy thursday
         // Closed, but not shiftday so add 2 weeks and ajust for closing days = tuesday week 17
-        assertThat(b.withDate("2019-04-04").build().getWeekCode(), is("DPF201917"));
+        assertThat(b.withDate("2019-03-28").build().getWeekCode(), is("DPF201917"));
 
-        // 5.apr. = friday, shiftday => + 1 week + 2 weeks = 26. apr., week 17
-        // Shiftday so add 1 + 2 weeks = week 17. Last week was easter, no closing in this
+        // 5.apr. = friday, shiftday => + 1 week + 3 weeks = 26. apr., week 17
+        // Shiftday so add 1 + 3 weeks = week 17. Last week was easter, no closing in this
         // week, so push forward to 18
-        assertThat(b.withDate("2019-04-05").build().getWeekCode(), is("DPF201918"));
+        assertThat(b.withDate("2019-03-29").build().getWeekCode(), is("DPF201918"));
 
-        // 8. apr. = monday => + 2 weeks = 22. apr., week 17, easter monday
-        // Closed, not shiftday so add 2 weeks and adjust for closing days = tuesday week 17
+        // 8. apr. = monday => + 3 weeks = 22. apr., week 17, easter monday
+        // Closed, not shiftday so add 3 weeks and adjust for closing days = tuesday week 17
         // Last week was easter, so push forward to 18
+        assertThat(b.withDate("2019-04-01").build().getWeekCode(), is("DPF201918"));
+
+        // 8. apr. = monday => + 3 weeks = 29. apr., week 18
+        // Not closed and not shiftday = 18
         assertThat(b.withDate("2019-04-08").build().getWeekCode(), is("DPF201918"));
 
-        // 15. apr. = monday => + 2 weeks = 29. apr., week 18
-        // Not closed and not shiftday = 18
-        assertThat(b.withDate("2019-04-15").build().getWeekCode(), is("DPF201918"));
+        // 03. apr. = wednesday => + 3 weeks = 1. may., week 18
+        // Closed, not shiftday so add 2 weeks and adjust for closing days and easter last week = 18
+        assertThat(b.withDate("2019-04-03").build().getWeekCode(), is("DPF201918"));
 
-        // 17. apr. = wednesday => + 2 weeks = 1. may., week 18
-        // Closed, not shiftday so add 2 weeks and adjust for closing days = 18
-        assertThat(b.withDate("2019-04-17").build().getWeekCode(), is("DPF201918"));
-
-        // 23. apr. = thursday => + 2 weeks = 7. may., week 19
+        // 16. apr. = thursday => + 3 weeks = 7. may., week 19
         // Not closed and not shiftday = 19
-        assertThat(b.withDate("2019-04-23").build().getWeekCode(), is("DPF201919"));
+        assertThat(b.withDate("2019-04-16").build().getWeekCode(), is("DPF201919"));
 
-        // 26. apr. = friday, shiftday => + 1 + 2 weeks = 17. may., week 20
+        // 26. apr. = friday, shiftday => + 1 + 3 weeks = 24. may., week 21
         // Not closed but shiftday = 20
-        assertThat(b.withDate("2019-04-26").build().getWeekCode(), is("DPF201920"));
+        assertThat(b.withDate("2019-04-26").build().getWeekCode(), is("DPF201921"));
     }
 
     @Test
@@ -256,13 +255,14 @@ public class WeekResolverTest {
         assertThat(b.withCatalogueCode("DAR").withDate("2020-04-22").build().getWeekCode(), is("DAR202018"));
 
         // +2 weeks
-        assertThat(b.withCatalogueCode("DPF").withDate("2020-04-22").build().getWeekCode(), is("DPF202019"));
-        assertThat(b.withCatalogueCode("FPF").withDate("2020-04-22").build().getWeekCode(), is("FPF202019"));
-        assertThat(b.withCatalogueCode("GPF").withDate("2020-04-22").build().getWeekCode(), is("GPF202019"));
         assertThat(b.withCatalogueCode("DLR").withDate("2020-04-22").build().getWeekCode(), is("DLR202019"));
         assertThat(b.withCatalogueCode("DBF").withDate("2020-04-27").build().getWeekCode(), is("DBF202020"));
         assertThat(b.withCatalogueCode("BKM").withDate("2020-04-27").build().getWeekCode(), is("BKM202020"));
 
+        // +3 weeks
+        assertThat(b.withCatalogueCode("DPF").withDate("2020-04-22").build().getWeekCode(), is("DPF202020"));
+        assertThat(b.withCatalogueCode("FPF").withDate("2020-04-22").build().getWeekCode(), is("FPF202020"));
+        assertThat(b.withCatalogueCode("GPF").withDate("2020-04-22").build().getWeekCode(), is("GPF202020"));
         // Checked in RR for the given creation date since these are not commonly used
         // Note: The rules for assigning some of these codes has changes, they now differ from the
         //       actual value in RR. (DLF, DMO, ERL, FSC, IDU, SNE)
