@@ -263,6 +263,7 @@ public class WeekResolverTest {
         assertThat(b.withCatalogueCode("DPF").withDate("2020-04-22").build().getWeekCode(), is("DPF202020"));
         assertThat(b.withCatalogueCode("FPF").withDate("2020-04-22").build().getWeekCode(), is("FPF202020"));
         assertThat(b.withCatalogueCode("GPF").withDate("2020-04-22").build().getWeekCode(), is("GPF202020"));
+        
         // Checked in RR for the given creation date since these are not commonly used
         // Note: The rules for assigning some of these codes has changes, they now differ from the
         //       actual value in RR. (DLF, DMO, ERL, FSC, IDU, SNE)
