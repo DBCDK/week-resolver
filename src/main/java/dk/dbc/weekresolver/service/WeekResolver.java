@@ -393,7 +393,6 @@ public class WeekResolver {
 
         // Check if the expected date is before Maundy Thursday
         if( dateOfSunday.isEqual(easterSunday)) {
-        //if(expectedDate.isAfter(easterSunday.minusDays(4)) && expectedDate.isBefore(easterSunday.plusDays(2))) {
             LOGGER.info("{} is in the easter week", expectedDate);
             return true;
         }
