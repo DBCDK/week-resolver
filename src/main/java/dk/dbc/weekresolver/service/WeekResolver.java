@@ -74,9 +74,9 @@ public class WeekResolver {
         codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 2 weeks, allow end-of-year
-        codes.put("DPF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
-        codes.put("FPF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
-        codes.put("GPF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        codes.put("DPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        codes.put("FPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        codes.put("GPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
 
         // Shiftday friday, add 1 week, allow end-of-year and ignore closing days
         codes.put("EMO", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
@@ -393,7 +393,6 @@ public class WeekResolver {
 
         // Check if the expected date is before Maundy Thursday
         if( dateOfSunday.isEqual(easterSunday)) {
-        //if(expectedDate.isAfter(easterSunday.minusDays(4)) && expectedDate.isBefore(easterSunday.plusDays(2))) {
             LOGGER.info("{} is in the easter week", expectedDate);
             return true;
         }
