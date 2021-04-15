@@ -288,6 +288,9 @@ public class WeekResolverTest {
         assertThat(b.withCatalogueCode("OPR").withDate("2020-04-22").build().getWeekCode(), is("OPR197601"));
         assertThat(b.withCatalogueCode("UTI").withDate("2020-03-18").build().getWeekCode(), is("UTI202013"));
         assertThat(b.withCatalogueCode("SNE").withDate("2020-04-22").build().getWeekCode(), is("SNE202019"));
+        assertThat(b.withCatalogueCode("LEK").withDate("2020-04-22").build().getWeekCode(), is("LEK202019"));
+        assertThat(b.withCatalogueCode("MMV").withDate("2020-04-22").build().getWeekCode(), is("MMV202019"));
+        assertThat(b.withCatalogueCode("FIV").withDate("2020-04-22").build().getWeekCode(), is("FIV202019"));
 
         // Month number
         assertThat(b.withCatalogueCode("PLA").withDate("2020-04-22").build().getWeekCode(), is("PLA202004"));
