@@ -1,38 +1,37 @@
 package dk.dbc.weekresolver.service;
 
-import java.text.ParseException;
+import org.junit.jupiter.api.Test;
+
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.Date;
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Locale;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import java.time.format.DateTimeParseException;
-import java.util.Locale;
-
-public class WeekResolverTest {
+class WeekResolverTest {
     final static String zone = "Europe/Copenhagen";
 
     @Test
-    public void TestInvalidCatalogueCode() {
+    void TestInvalidCatalogueCode() {
         WeekResolver b = new WeekResolver(zone)
                 .withDate("2019-11-29")
                 .withCatalogueCode("qxz");
-        assertThrows(UnsupportedOperationException.class, () -> b.build());
+        assertThrows(UnsupportedOperationException.class, b::build);
     }
 
     @Test
-    public void TestInvalidDates() {
+    void TestInvalidDates() {
         assertThrows(DateTimeParseException.class, () -> new WeekResolver(zone).withDate("2019-13-29"));
         assertThrows(DateTimeParseException.class, () -> new WeekResolver(zone).withDate("11-29"));
     }
 
     @Test
-    public void TestValidCatalogueCodeLowerCase() {
+    void TestValidCatalogueCodeLowerCase() {
         WeekResolver b = new WeekResolver(zone)
                 .withDate("2019-11-29");
         assertDoesNotThrow(() -> b.withCatalogueCode("dpf").build());
@@ -40,7 +39,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestCatalogueCodeDPF() throws ParseException {
+    void TestCatalogueCodeDPF() {
         WeekResolver b = new WeekResolver(zone)
                 .withCatalogueCode("dpf");
 
@@ -63,7 +62,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestDPFAtEaster2019() {
+    void TestDPFAtEaster2019() {
 
         // This test uses the DPF cataloguecode to test the generic logic handling easter (and other closingdays).
         // DPF should add 2 weeks and uses friday as shiftday
@@ -111,7 +110,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestCatalogueCodeFPF() throws ParseException {
+    void TestCatalogueCodeFPF() {
 
         // This code has the same configuration as DPF, so just check that the code is accepted
         WeekResolver b = new WeekResolver(zone)
@@ -122,7 +121,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestCatalogueCodeGPF() throws ParseException {
+    void TestCatalogueCodeGPF() {
 
         // This code has the same configuration as DPF, so just check that the code is accepted
         WeekResolver b = new WeekResolver(zone)
@@ -135,7 +134,7 @@ public class WeekResolverTest {
     /* Below here is compressed tests for the remaining weekcodes */
 
     @Test
-    public void TestCatalogueCodeEMO() throws ParseException {
+    void TestCatalogueCodeEMO() {
 
         // EMO:
         //   - current week number + 1
@@ -153,7 +152,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestCatalogueCodeEMS() throws ParseException {
+    void TestCatalogueCodeEMS() {
 
         // EMS:
         //   - current week number + 1
@@ -171,7 +170,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestCatalogueCodeACC() throws ParseException {
+    void TestCatalogueCodeACC() {
 
         // ACC (and ACE, ACF, ACT, ACM, ARK, BLG):
         //   - Current week number
@@ -184,7 +183,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestFixedCodes() throws ParseException {
+    void TestFixedCodes() {
 
         // Codes DBR, DBT, SDT should return a fixed code since they are used for retro updates
         // and since we dont have the record data, we cannot set the correct weekcode
@@ -200,7 +199,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestLocaleParameter() {
+    void TestLocaleParameter() {
         WeekResolver b1 = new WeekResolver().withCatalogueCode("EMS");
         WeekResolver b2 = new WeekResolver(zone, new Locale("da", "DK")).withCatalogueCode("EMS");
         WeekResolver b3 = new WeekResolver().withCatalogueCode("EMS").withLocale(new Locale("da", "DK"));
@@ -221,20 +220,20 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestBkm() {
+    void TestBkm() {
         WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
         assertThat(b.withDate("2020-05-05").build().getWeekCode(), is("BKM202021"));
     }
 
     @Test
-    public void TestYearEnd() {
+    void TestYearEnd() {
         WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
         assertThat(b.withDate("2019-12-03").build().getWeekCode(), is("BKM201951"));
         assertThat(b.withDate("2019-12-10").build().getWeekCode(), is("BKM202001"));
     }
 
     @Test
-    public void TestAllCodes() {
+    void TestAllCodes() {
         WeekResolver b = new WeekResolver();
 
         // +0 weeks
@@ -263,7 +262,7 @@ public class WeekResolverTest {
         assertThat(b.withCatalogueCode("DPF").withDate("2020-04-22").build().getWeekCode(), is("DPF202020"));
         assertThat(b.withCatalogueCode("FPF").withDate("2020-04-22").build().getWeekCode(), is("FPF202020"));
         assertThat(b.withCatalogueCode("GPF").withDate("2020-04-22").build().getWeekCode(), is("GPF202020"));
-        
+
         // Checked in RR for the given creation date since these are not commonly used
         // Note: The rules for assigning some of these codes has changes, they now differ from the
         //       actual value in RR. (DLF, DMO, ERL, FSC, IDU, SNE)
@@ -301,7 +300,7 @@ public class WeekResolverTest {
     }
 
     @Test
-    public void TestSpecialCases() {
+    void TestSpecialCases() {
         WeekResolver b = new WeekResolver();
 
         // "Fredag 27.03.20 afsluttes DBC+BKM202015. Fredag morgen skal koden være 202017"

@@ -21,8 +21,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekresolverResourceIT.class);
 
-    private final JSONBContext jsonbContext = new JSONBContext();
-
     @Test
     void getWeekCode_standardDate() throws WeekresolverConnectorException {
         LOGGER.info("Using this url:{}", weekresolverServiceBaseUrl);
