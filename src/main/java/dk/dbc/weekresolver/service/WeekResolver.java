@@ -65,8 +65,11 @@ public class WeekResolver {
         codes.put("ACC", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACF", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACM", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACN", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACP", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
 

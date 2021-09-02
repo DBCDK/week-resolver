@@ -240,8 +240,11 @@ class WeekResolverTest {
         assertThat(b.withCatalogueCode("ACC").withDate("2020-04-22").build().getWeekCode(), is("ACC202017"));
         assertThat(b.withCatalogueCode("ACE").withDate("2020-04-22").build().getWeekCode(), is("ACE202017"));
         assertThat(b.withCatalogueCode("ACF").withDate("2020-04-22").build().getWeekCode(), is("ACF202017"));
-        assertThat(b.withCatalogueCode("ACT").withDate("2020-04-22").build().getWeekCode(), is("ACT202017"));
+        assertThat(b.withCatalogueCode("ACK").withDate("2021-09-01").build().getWeekCode(), is("ACK202135"));
         assertThat(b.withCatalogueCode("ACM").withDate("2020-04-22").build().getWeekCode(), is("ACM202017"));
+        assertThat(b.withCatalogueCode("ACN").withDate("2021-08-23").build().getWeekCode(), is("ACN202134"));
+        assertThat(b.withCatalogueCode("ACP").withDate("2021-08-31").build().getWeekCode(), is("ACP202135"));
+        assertThat(b.withCatalogueCode("ACT").withDate("2020-04-22").build().getWeekCode(), is("ACT202017"));
         assertThat(b.withCatalogueCode("ARK").withDate("2020-04-22").build().getWeekCode(), is("ARK202017"));
         assertThat(b.withCatalogueCode("BLG").withDate("2020-04-22").build().getWeekCode(), is("BLG202017"));
 
