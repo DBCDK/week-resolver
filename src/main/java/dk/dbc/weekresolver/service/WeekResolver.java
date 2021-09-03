@@ -30,43 +30,46 @@ public class WeekResolver {
     private Locale locale = new Locale("da", "DK");
 
     // Easter sundays (source https://ugenr.dk)
-    private static List<LocalDate> EasterSundays = new ArrayList<LocalDate>();
+    private static final List<LocalDate> EASTER_SUNDAYS = new ArrayList<>();
     static {
-        EasterSundays.add(LocalDate.parse("2016-03-27"));
-        EasterSundays.add(LocalDate.parse("2017-04-16"));
-        EasterSundays.add(LocalDate.parse("2018-04-01"));
-        EasterSundays.add(LocalDate.parse("2019-04-21"));
-        EasterSundays.add(LocalDate.parse("2020-04-12"));
-        EasterSundays.add(LocalDate.parse("2021-04-04"));
-        EasterSundays.add(LocalDate.parse("2022-04-17"));
-        EasterSundays.add(LocalDate.parse("2023-04-09"));
-        EasterSundays.add(LocalDate.parse("2024-03-31"));
-        EasterSundays.add(LocalDate.parse("2025-04-20"));
-        EasterSundays.add(LocalDate.parse("2026-04-05"));
-        EasterSundays.add(LocalDate.parse("2027-03-28"));
-        EasterSundays.add(LocalDate.parse("2028-04-16"));
-        EasterSundays.add(LocalDate.parse("2029-04-01"));
-        EasterSundays.add(LocalDate.parse("2030-04-21"));
-        EasterSundays.add(LocalDate.parse("2031-04-13"));
-        EasterSundays.add(LocalDate.parse("2032-03-28"));
-        EasterSundays.add(LocalDate.parse("2033-04-17"));
-        EasterSundays.add(LocalDate.parse("2034-04-09"));
-        EasterSundays.add(LocalDate.parse("2035-03-25"));
-        EasterSundays.add(LocalDate.parse("2036-04-13"));
-        EasterSundays.add(LocalDate.parse("2037-04-05"));
-        EasterSundays.add(LocalDate.parse("2038-04-25"));
-        EasterSundays.add(LocalDate.parse("2039-04-10"));
-        EasterSundays.add(LocalDate.parse("2040-04-01"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2016-03-27"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2017-04-16"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2018-04-01"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2019-04-21"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2020-04-12"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2021-04-04"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2022-04-17"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2023-04-09"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2024-03-31"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2025-04-20"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2026-04-05"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2027-03-28"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2028-04-16"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2029-04-01"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2030-04-21"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2031-04-13"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2032-03-28"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2033-04-17"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2034-04-09"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2035-03-25"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2036-04-13"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2037-04-05"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2038-04-25"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2039-04-10"));
+        EASTER_SUNDAYS.add(LocalDate.parse("2040-04-01"));
     }
 
-    private static HashMap<String, WeekCodeConfiguration> codes = new HashMap<>();
+    private static final HashMap<String, WeekCodeConfiguration> codes = new HashMap<>();
     static {
         // No shiftday, no added weeks, allowing end-of-year and closingdays
         codes.put("ACC", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACF", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACM", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACN", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACP", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
 
@@ -185,7 +188,7 @@ public class WeekResolver {
             throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
 
-        return BuildForConfiguration(expectedDate, codes.get(catalogueCode.toUpperCase()));
+        return buildForConfiguration(expectedDate, codes.get(catalogueCode.toUpperCase()));
     }
 
     /**
@@ -194,11 +197,11 @@ public class WeekResolver {
      * @param configuration The configuration to use when generating the weekcode
      * @return a WeekResolverResult
      */
-    private WeekResolverResult BuildForConfiguration(LocalDate expectedDate, WeekCodeConfiguration configuration) {
+    private WeekResolverResult buildForConfiguration(LocalDate expectedDate, WeekCodeConfiguration configuration) {
 
         // If the configuration has a fixed weekcode, return this
         if( configuration.getFixedWeekCode() != null ) {
-            LOGGER.info("Return fixed code {}", catalogueCode.toUpperCase() + configuration.getFixedWeekCode(), catalogueCode.toUpperCase());
+            LOGGER.info("Return fixed code {}", catalogueCode.toUpperCase() + configuration.getFixedWeekCode());
             return new WeekResolverResult(Date.from(expectedDate.atStartOfDay(zoneId).toInstant()),
                     0, 0, catalogueCode.toUpperCase() + configuration.getFixedWeekCode(), catalogueCode.toUpperCase());
         }
@@ -386,7 +389,7 @@ public class WeekResolver {
         LOGGER.info("Sunday in this week is {}", dateOfSunday);
 
         // Locate easter sunday for current year
-        Optional<LocalDate> optionalSunday = EasterSundays.stream().filter(x -> x.getYear() == dateOfSunday.getYear()).findFirst();
+        Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == dateOfSunday.getYear()).findFirst();
         if(!optionalSunday.isPresent()) {
             LOGGER.warn("Request for date in the far-off past or future, date will not be checked for easter");
             return false;
@@ -417,7 +420,7 @@ public class WeekResolver {
         LOGGER.info("Sunday in this week is {}", dateOfSunday);
 
         // Locate easter sunday for current year
-        Optional<LocalDate> optionalSunday = EasterSundays.stream().filter(x -> x.getYear() == dateOfSunday.getYear()).findFirst();
+        Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == dateOfSunday.getYear()).findFirst();
         if(!optionalSunday.isPresent()) {
             LOGGER.warn("Request for date in the far-off past or future, date will not be checked for easter");
             return false;
@@ -450,7 +453,7 @@ public class WeekResolver {
     private boolean isEasterAndRelatedClosingDay(LocalDate expectedDate) {
 
         // Locate easter sunday for current year
-        Optional<LocalDate> optionalSunday = EasterSundays.stream().filter(x -> x.getYear() == expectedDate.getYear()).findFirst();
+        Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == expectedDate.getYear()).findFirst();
         if( !optionalSunday.isPresent() ) {
             LOGGER.warn("Request for date in the far-off past or future, date will not be checked for easter");
             return false;
@@ -492,7 +495,7 @@ public class WeekResolver {
             return true;
         }
         if( expectedDate.isEqual(prayersDay.plusDays(1)) && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY) {
-            LOGGER.info("{} is pinched friday after prayers day ('store bededag')");
+            LOGGER.info("{} is pinched friday after prayers day ('store bededag')", expectedDate);
             return true;
         }
 
