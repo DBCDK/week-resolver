@@ -22,7 +22,7 @@
     <repositories>
         <repository>
             <id>mavenrepo.dbc.dk</id>
-            <url>http://mavenrepo.dbc.dk/content/groups/public/</url>
+            <url>https://mavenrepo.dbc.dk/content/groups/public/</url>
         </repository>
     </repositories>
 
@@ -92,6 +92,7 @@
             <groupId>org.eclipse.microprofile</groupId>
             <artifactId>microprofile</artifactId>
             <type>pom</type>
+            <version>4.1</version>
         </dependency>
 
     </dependencies>
