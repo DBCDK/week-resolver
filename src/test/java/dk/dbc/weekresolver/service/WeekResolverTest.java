@@ -185,12 +185,9 @@ class WeekResolverTest {
     @Test
     void TestFixedCodes() {
 
-        // Codes DBR, DBT, SDT should return a fixed code since they are used for retro updates
+        // Codes DBT, SDT should return a fixed code since they are used for retro updates
         // and since we dont have the record data, we cannot set the correct weekcode
         WeekResolver b = new WeekResolver();
-        assertDoesNotThrow(() -> b.withCatalogueCode("DBR").withDate("2019-12-26").build());
-        assertThat(b.withCatalogueCode("DBR").withDate("2019-12-26").build().getWeekCode(), is("DBR999999"));
-
         assertDoesNotThrow(() -> b.withCatalogueCode("DBT").withDate("2019-12-26").build());
         assertThat(b.withCatalogueCode("DBT").withDate("2019-12-26").build().getWeekCode(), is("DBT999999"));
 
@@ -258,6 +255,8 @@ class WeekResolverTest {
 
         // +2 weeks
         assertThat(b.withCatalogueCode("DLR").withDate("2020-04-22").build().getWeekCode(), is("DLR202019"));
+        assertThat(b.withCatalogueCode("DLF").withDate("2020-04-29").build().getWeekCode(), is("DLF202020"));
+        assertThat(b.withCatalogueCode("DBR").withDate("2019-12-26").build().getWeekCode(), is("DBR202003"));
         assertThat(b.withCatalogueCode("DBF").withDate("2020-04-27").build().getWeekCode(), is("DBF202020"));
         assertThat(b.withCatalogueCode("BKM").withDate("2020-04-27").build().getWeekCode(), is("BKM202020"));
 
@@ -270,29 +269,29 @@ class WeekResolverTest {
         // Note: The rules for assigning some of these codes has changes, they now differ from the
         //       actual value in RR. (DLF, DMO, ERL, FSC, IDU, SNE)
         assertThat(b.withCatalogueCode("DBI").withDate("2020-04-22").build().getWeekCode(), is("DBI202019"));
-        assertThat(b.withCatalogueCode("DLF").withDate("2020-04-29").build().getWeekCode(), is("DLF202020"));
         assertThat(b.withCatalogueCode("DMO").withDate("2020-04-16").build().getWeekCode(), is("DMO202018"));
         assertThat(b.withCatalogueCode("BKR").withDate("2020-01-29").build().getWeekCode(), is("BKR202006"));
         assertThat(b.withCatalogueCode("BKX").withDate("2020-04-22").build().getWeekCode(), is("BKX202018"));
         assertThat(b.withCatalogueCode("DIG").withDate("2020-04-22").build().getWeekCode(), is("DIG198507"));
         assertThat(b.withCatalogueCode("DIS").withDate("2020-04-22").build().getWeekCode(), is("DIS197605"));
-        assertThat(b.withCatalogueCode("ERA").withDate("2020-04-22").build().getWeekCode(), is("ERA999999"));
-        assertThat(b.withCatalogueCode("ERE").withDate("2020-04-22").build().getWeekCode(), is("ERE999999"));
-        assertThat(b.withCatalogueCode("ERL").withDate("2020-04-23").build().getWeekCode(), is("ERL202019"));
         assertThat(b.withCatalogueCode("FFK").withDate("2020-04-22").build().getWeekCode(), is("FFK999999"));
         assertThat(b.withCatalogueCode("FSC").withDate("2020-03-10").build().getWeekCode(), is("FSC202013"));
         assertThat(b.withCatalogueCode("FSB").withDate("2020-03-10").build().getWeekCode(), is("FSB202013"));
         assertThat(b.withCatalogueCode("FSF").withDate("2020-04-22").build().getWeekCode(), is("FSF999999"));
         assertThat(b.withCatalogueCode("HOB").withDate("2020-04-22").build().getWeekCode(), is("HOB197300"));
         assertThat(b.withCatalogueCode("IDU").withDate("2020-04-22").build().getWeekCode(), is("IDU202019"));
-        assertThat(b.withCatalogueCode("NLL").withDate("2020-04-24").build().getWeekCode(), is("NLL202020"));
-        assertThat(b.withCatalogueCode("NLY").withDate("2020-04-27").build().getWeekCode(), is("NLY202020"));
         assertThat(b.withCatalogueCode("OPR").withDate("2020-04-22").build().getWeekCode(), is("OPR197601"));
         assertThat(b.withCatalogueCode("UTI").withDate("2020-03-18").build().getWeekCode(), is("UTI202013"));
         assertThat(b.withCatalogueCode("SNE").withDate("2020-04-22").build().getWeekCode(), is("SNE202019"));
         assertThat(b.withCatalogueCode("LEK").withDate("2020-04-22").build().getWeekCode(), is("LEK202019"));
         assertThat(b.withCatalogueCode("MMV").withDate("2020-04-22").build().getWeekCode(), is("MMV202019"));
         assertThat(b.withCatalogueCode("FIV").withDate("2020-04-22").build().getWeekCode(), is("FIV202019"));
+
+        assertThat(b.withCatalogueCode("ERA").withDate("2020-04-08").build().getWeekCode(), is("ERA202015"));
+        assertThat(b.withCatalogueCode("ERE").withDate("2020-04-15").build().getWeekCode(), is("ERE202016"));
+        assertThat(b.withCatalogueCode("ERL").withDate("2020-04-22").build().getWeekCode(), is("ERL202017"));
+        assertThat(b.withCatalogueCode("NLL").withDate("2020-04-24").build().getWeekCode(), is("NLL202017"));
+        assertThat(b.withCatalogueCode("NLY").withDate("2020-04-27").build().getWeekCode(), is("NLY202018"));
 
         // Month number
         assertThat(b.withCatalogueCode("PLA").withDate("2020-04-22").build().getWeekCode(), is("PLA202004"));
