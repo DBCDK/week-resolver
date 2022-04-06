@@ -62,22 +62,28 @@ public class WeekResolver {
     private static final HashMap<String, WeekCodeConfiguration> codes = new HashMap<>();
     static {
         // No shiftday, no added weeks, allowing end-of-year and closingdays
-        codes.put("ACC", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACC", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        codes.put("ACE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
         codes.put("ACF", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACM", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACN", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("ACP", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
         codes.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        codes.put("ERA", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        codes.put("ERE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        codes.put("NLL", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        codes.put("NLY", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        codes.put("ERL", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+
 
         // Shiftday friday, add 1 week
         codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 2 weeks, allow end-of-year
-        codes.put("DPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        codes.put("DPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (automarc)
         codes.put("FPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
         codes.put("GPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
 
@@ -93,16 +99,14 @@ public class WeekResolver {
         codes.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 2 weeks
-        codes.put("DLR", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("DBR", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        codes.put("DLR", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        codes.put("DBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        codes.put("DLF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
         codes.put("DBI", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("FSB", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("NLL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("NLY", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("DBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("BKM", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("DLF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("BKM", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DataIO, DMatV2
         codes.put("DMO", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("ERL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("FSC", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("IDU", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("SNE", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
@@ -128,12 +132,9 @@ public class WeekResolver {
         codes.put("PLN", new WeekCodeConfiguration().useMonthNumber().withShiftDay(DayOfWeek.FRIDAY));
 
         // Use fixed codes for these cataloguecodes
-        codes.put("DBR", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("DBT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("SDT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("DIG", new WeekCodeConfiguration().withFixedWeekCode("198507"));
-        codes.put("ERA", new WeekCodeConfiguration().withFixedWeekCode("999999"));
-        codes.put("ERE", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("FFK", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("FSF", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         codes.put("HOB", new WeekCodeConfiguration().withFixedWeekCode("197300"));
