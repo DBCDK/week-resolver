@@ -56,7 +56,7 @@ pipeline {
             }
             steps {
                 script {
-                    def image = docker.build("docker-io.dbc.dk/weekresolver:${env.BRANCH_NAME}-${env.BUILD_NUMBER}",
+                    def image = docker.build("docker-metascrum.artifacts.dbccloud.dk/weekresolver:${env.BRANCH_NAME}-${env.BUILD_NUMBER}",
                             "-f src/main/docker/Dockerfile --pull --no-cache .")
                     image.push()
                 }
@@ -67,7 +67,7 @@ pipeline {
             agent {
                 docker {
                     label workerNode
-                    image "docker.dbc.dk/build-env:latest"
+                    image "docker-dbc.artifacts.dbccloud.dk/build-env:latest"
                     alwaysPull true
                 }
             }

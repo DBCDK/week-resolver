@@ -24,7 +24,7 @@ public abstract class AbstractWeekresolverServiceContainerTest {
     static final FailSafeHttpClient httpClient;
 
     static {
-        weekresolverServiceContainer = new GenericContainer("docker-io.dbc.dk/weekresolver:devel")
+        weekresolverServiceContainer = new GenericContainer("docker-metascrum.artifacts.dbccloud.dk/weekresolver:devel")
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
                 .withEnv("LOG_FORMAT", "text")

@@ -4,7 +4,7 @@ Service to hand out specific week codes for any given date.
 To build:
 ```bash
 mvn verify
-docker build -t docker-io.dbc.dk/weekresolver:dev \ 
+docker build -t docker-metascrum.artifacts.dbccloud.dk/weekresolver:dev \ 
     -f $(pwd)/target/docker/Dockerfile .
 ```
 
@@ -16,7 +16,7 @@ docker run -it -p 8080:8080 \
     -e TZ=Europe/Copenhagen \
     --name test \
     --rm \
-    docker-io.dbc.dk/weekresolver:dev
+    docker-metascrum.artifacts.dbccloud.dk/weekresolver:dev
 ```
 
 
