@@ -72,12 +72,6 @@ public class WeekResolver {
         codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
         codes.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ERA", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        codes.put("ERE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        codes.put("NLL", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        codes.put("NLY", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        codes.put("ERL", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-
 
         // Shiftday friday, add 1 week
         codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
@@ -113,6 +107,11 @@ public class WeekResolver {
         codes.put("LEK", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("MMV", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
         codes.put("FIV", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("ERA", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        codes.put("ERE", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        codes.put("NLL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        codes.put("NLY", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        codes.put("ERL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
 
         // Shiftday friday, add 1 week. Will be modified when the record is being edited
         codes.put("BKR", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));

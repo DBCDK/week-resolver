@@ -287,11 +287,11 @@ class WeekResolverTest {
         assertThat(b.withCatalogueCode("MMV").withDate("2020-04-22").build().getWeekCode(), is("MMV202019"));
         assertThat(b.withCatalogueCode("FIV").withDate("2020-04-22").build().getWeekCode(), is("FIV202019"));
 
-        assertThat(b.withCatalogueCode("ERA").withDate("2020-04-08").build().getWeekCode(), is("ERA202015"));
-        assertThat(b.withCatalogueCode("ERE").withDate("2020-04-15").build().getWeekCode(), is("ERE202016"));
-        assertThat(b.withCatalogueCode("ERL").withDate("2020-04-22").build().getWeekCode(), is("ERL202017"));
-        assertThat(b.withCatalogueCode("NLL").withDate("2020-04-24").build().getWeekCode(), is("NLL202017"));
-        assertThat(b.withCatalogueCode("NLY").withDate("2020-04-27").build().getWeekCode(), is("NLY202018"));
+        assertThat(b.withCatalogueCode("ERA").withDate("2020-04-08").build().getWeekCode(), is("ERA202017"));
+        assertThat(b.withCatalogueCode("ERE").withDate("2020-04-15").build().getWeekCode(), is("ERE202018"));
+        assertThat(b.withCatalogueCode("ERL").withDate("2020-04-22").build().getWeekCode(), is("ERL202019"));
+        assertThat(b.withCatalogueCode("NLL").withDate("2020-04-24").build().getWeekCode(), is("NLL202020"));
+        assertThat(b.withCatalogueCode("NLY").withDate("2020-04-27").build().getWeekCode(), is("NLY202020"));
 
         // Month number
         assertThat(b.withCatalogueCode("PLA").withDate("2020-04-22").build().getWeekCode(), is("PLA202004"));
