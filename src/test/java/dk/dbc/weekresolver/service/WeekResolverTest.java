@@ -226,7 +226,7 @@ class WeekResolverTest {
     void TestYearEnd() {
         WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
         assertThat(b.withDate("2019-12-03").build().getWeekCode(), is("BKM201951"));
-        assertThat(b.withDate("2019-12-10").build().getWeekCode(), is("BKM202001"));
+        assertThat(b.withDate("2019-12-10").build().getWeekCode(), is("BKM202002"));
     }
 
     @Test
@@ -298,7 +298,7 @@ class WeekResolverTest {
         assertThat(b.withCatalogueCode("PLN").withDate("2020-04-30").build().getWeekCode(), is("PLN202005"));
 
         // GBF is a bit weird
-        assertThat(b.withCatalogueCode("GBF").withDate("2019-11-26").build().getWeekCode(), is("GBF202001"));
+        assertThat(b.withCatalogueCode("GBF").withDate("2019-11-26").build().getWeekCode(), is("GBF202002"));
     }
 
     @Test
@@ -344,5 +344,13 @@ class WeekResolverTest {
         // "Grundlovsdag. Torsdag d. 04.06.20 afsluttes DBF+BKM202026. Torsdag morgen skal koden være 202027"
         assertThat(b.withCatalogueCode("DBF").withDate("2020-06-04").build().getWeekCode(), is("DBF202026"));
         assertThat(b.withCatalogueCode("BKM").withDate("2020-06-04").build().getWeekCode(), is("BKM202026"));
+    }
+
+    @Test
+    void TestFirstWeekOfYear() {
+        WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
+        assertThat(b.withDate("2022-12-01").build().getWeekCode(), is("BKM202250"));
+        assertThat(b.withDate("2022-12-05").build().getWeekCode(), is("BKM202302"));
+        assertThat(b.withDate("2022-12-15").build().getWeekCode(), is("BKM202302"));
     }
 }

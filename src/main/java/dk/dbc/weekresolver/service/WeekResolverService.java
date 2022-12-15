@@ -26,8 +26,6 @@ public class WeekResolverService {
     @Inject
     @ConfigProperty(name = "TZ")
     String timeZone;
-    //@EJB
-    //WeekResolverBean weekResolver;
 
     /**
      * Endpoint for getting the week code based on catalogueCode and todays date
