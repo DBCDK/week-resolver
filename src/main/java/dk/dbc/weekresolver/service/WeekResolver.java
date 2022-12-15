@@ -501,8 +501,8 @@ public class WeekResolver {
         // Locate Easter sunday for current year
         Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == dateOfSunday.getYear()).findFirst();
         if(!optionalSunday.isPresent()) {
-            LOGGER.warn("Request for date in the far-off past or future, date can not be checked for Easter");
-            throw new BadRequestException("Date is too far-off into the past");
+            LOGGER.warn("Date {} is too far-off into the past", dateOfSunday.toString());
+            throw new BadRequestException(String.format("Date %s is too far-off into the past", dateOfSunday.toString()));
         }
         LocalDate easterSunday = optionalSunday.get();
         LOGGER.info("Easter sunday for {} is {}", dateOfSunday.getYear(), easterSunday);
