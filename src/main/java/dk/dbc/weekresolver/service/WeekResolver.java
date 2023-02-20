@@ -119,7 +119,7 @@ public class WeekResolver {
         codes.put("BKR", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Greenland
-        codes.put("GBF", new WeekCodeConfiguration().addWeeks(5).withShiftDay(DayOfWeek.FRIDAY));
+        codes.put("GBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
 
         // Use default, most often used, value DIS197605. This may have to be corrected if the record
         // is indeed an old unowned KB record or the like

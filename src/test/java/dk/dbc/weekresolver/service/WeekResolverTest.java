@@ -259,6 +259,7 @@ class WeekResolverTest {
         assertThat(b.withCatalogueCode("DBR").withDate("2019-12-26").build().getWeekCode(), is("DBR202003"));
         assertThat(b.withCatalogueCode("DBF").withDate("2020-04-27").build().getWeekCode(), is("DBF202020"));
         assertThat(b.withCatalogueCode("BKM").withDate("2020-04-27").build().getWeekCode(), is("BKM202020"));
+        assertThat(b.withCatalogueCode("GBF").withDate("2019-11-26").build().getWeekCode(), is("GBF201950"));
 
         // +3 weeks
         assertThat(b.withCatalogueCode("DPF").withDate("2020-04-22").build().getWeekCode(), is("DPF202020"));
@@ -296,9 +297,6 @@ class WeekResolverTest {
         // Month number
         assertThat(b.withCatalogueCode("PLA").withDate("2020-04-22").build().getWeekCode(), is("PLA202004"));
         assertThat(b.withCatalogueCode("PLN").withDate("2020-04-30").build().getWeekCode(), is("PLN202005"));
-
-        // GBF is a bit weird
-        assertThat(b.withCatalogueCode("GBF").withDate("2019-11-26").build().getWeekCode(), is("GBF202002"));
     }
 
     @Test
