@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.weekresolver.service;
 
 import java.time.DayOfWeek;
@@ -21,7 +16,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.BadRequestException;
+import jakarta.ws.rs.BadRequestException;
 
 public class WeekResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolver.class);
@@ -446,7 +441,7 @@ public class WeekResolver {
 
         // Locate Easter sunday for current year
         Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == expectedDate.getYear()).findFirst();
-        if( !optionalSunday.isPresent() ) {
+        if(optionalSunday.isEmpty()) {
             LOGGER.warn("Request for date in the far-off past or future, date will not be checked for Easter");
             return false;
         }
@@ -500,7 +495,7 @@ public class WeekResolver {
 
         // Locate Easter sunday for current year
         Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == dateOfSunday.getYear()).findFirst();
-        if(!optionalSunday.isPresent()) {
+        if(optionalSunday.isEmpty()) {
             LOGGER.warn("Date {} is too far-off into the past", dateOfSunday.toString());
             throw new BadRequestException(String.format("Date %s is too far-off into the past", dateOfSunday.toString()));
         }

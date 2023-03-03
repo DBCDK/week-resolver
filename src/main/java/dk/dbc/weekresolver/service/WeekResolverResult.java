@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.weekresolver.service;
 
 import java.util.Date;
@@ -29,6 +24,7 @@ public class WeekResolverResult {
     // for other date fields, it only relates to the weekcode being calculated
     private Date date;
 
+    @SuppressWarnings("unused")
     public WeekResolverResult() {}
 
     public WeekResolverResult(Date date, int weekNumber, int year, String weekCode, String catalogueCode) {
