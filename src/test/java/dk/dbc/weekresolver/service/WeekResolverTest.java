@@ -348,7 +348,7 @@ class WeekResolverTest {
     void TestFirstWeekOfYear() {
         WeekResolver b = new WeekResolver(zone).withCatalogueCode("BKM");
         assertThat(b.withDate("2022-12-01").build().getWeekCode(), is("BKM202250"));
-        assertThat(b.withDate("2022-12-05").build().getWeekCode(), is("BKM202302"));
+        assertThat(b.withDate("2022-12-05").build().getWeekCode(), is("BKM202251"));
         assertThat(b.withDate("2022-12-15").build().getWeekCode(), is("BKM202302"));
     }
 }

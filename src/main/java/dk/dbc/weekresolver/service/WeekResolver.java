@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -136,6 +137,11 @@ public class WeekResolver {
         codes.put("HOB", new WeekCodeConfiguration().withFixedWeekCode("197300"));
     }
 
+    // Make sure we all agree on when weeknumbers start
+    static {
+        Calendar.getInstance().setFirstDayOfWeek(Calendar.MONDAY);
+    }
+
     public WeekResolver() {}
 
     public WeekResolver(String timezone) {
@@ -243,10 +249,10 @@ public class WeekResolver {
         // Build final result.
         LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
 
-        int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale)));
+        int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale).withZone(zoneId)));
         //noinspection SuspiciousDateFormat
-        int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY"))); // Must be 'week year' format, not 'year' (lower case 'yyyy')
-        int month = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("MM")));
+        int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY", locale))); // Must be 'week year' format, not 'year' (lower case 'yyyy')
+        int month = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("MM", locale)));
         String weekCode = catalogueCode.toUpperCase() + year + String.format("%02d", configuration.getUseMonthNumber() ? month : weekNumber);
         Date date = Date.from(expectedDate.atStartOfDay(zoneId).toInstant());
         return new WeekResolverResult(date, weekNumber, year, weekCode, catalogueCode.toUpperCase());
@@ -348,7 +354,7 @@ public class WeekResolver {
             }
         } else {
             // Check for week 52 or 53
-            DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w");
+            DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
             if( Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 52 || Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 53 ) {
                 LOGGER.info("{} is within week 52 or 53", expectedDate);
                 return true;
@@ -476,6 +482,7 @@ public class WeekResolver {
         }
 
         // Check for 'store bededag', tounge-in-cheek english name 'prayers day'
+        // Todo: Remove or disable this after 'store bededag' 2023 since it has been been cancelled from 2024
         LocalDate prayersDay = easterSunday.plusDays(26);
         if( expectedDate.isEqual(prayersDay) ) {
             LOGGER.info("{} is prayers day ('store bededag')", expectedDate);
