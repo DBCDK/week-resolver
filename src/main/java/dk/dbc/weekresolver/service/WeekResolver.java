@@ -482,7 +482,7 @@ public class WeekResolver {
         }
 
         // Check for 'store bededag', tounge-in-cheek english name 'prayers day'
-        // Todo: Remove or disable this after 'store bededag' 2023 since it has been been cancelled from 2024
+        // Todo: Remove or disable this after 'store bededag' 2023 since it has been cancelled from 2024
         LocalDate prayersDay = easterSunday.plusDays(26);
         if( expectedDate.isEqual(prayersDay) ) {
             LOGGER.info("{} is prayers day ('store bededag')", expectedDate);
