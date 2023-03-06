@@ -1,8 +1,3 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GNU GPL v3
- *  See license text at https://opensource.dbc.dk/licenses/gpl-3.0
- */
-
 package dk.dbc.weekresolver.service;
 
 import java.time.DayOfWeek;
@@ -13,6 +8,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -21,7 +17,7 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.ws.rs.BadRequestException;
+import jakarta.ws.rs.BadRequestException;
 
 public class WeekResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolver.class);
@@ -141,6 +137,11 @@ public class WeekResolver {
         codes.put("HOB", new WeekCodeConfiguration().withFixedWeekCode("197300"));
     }
 
+    // Make sure we all agree on when weeknumbers start
+    static {
+        Calendar.getInstance().setFirstDayOfWeek(Calendar.MONDAY);
+    }
+
     public WeekResolver() {}
 
     public WeekResolver(String timezone) {
@@ -248,10 +249,10 @@ public class WeekResolver {
         // Build final result.
         LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
 
-        int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale)));
+        int weekNumber = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale).withZone(zoneId)));
         //noinspection SuspiciousDateFormat
-        int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY"))); // Must be 'week year' format, not 'year' (lower case 'yyyy')
-        int month = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("MM")));
+        int year = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("YYYY", locale))); // Must be 'week year' format, not 'year' (lower case 'yyyy')
+        int month = Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("MM", locale)));
         String weekCode = catalogueCode.toUpperCase() + year + String.format("%02d", configuration.getUseMonthNumber() ? month : weekNumber);
         Date date = Date.from(expectedDate.atStartOfDay(zoneId).toInstant());
         return new WeekResolverResult(date, weekNumber, year, weekCode, catalogueCode.toUpperCase());
@@ -353,7 +354,7 @@ public class WeekResolver {
             }
         } else {
             // Check for week 52 or 53
-            DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w");
+            DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
             if( Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 52 || Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 53 ) {
                 LOGGER.info("{} is within week 52 or 53", expectedDate);
                 return true;
@@ -446,7 +447,7 @@ public class WeekResolver {
 
         // Locate Easter sunday for current year
         Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == expectedDate.getYear()).findFirst();
-        if( !optionalSunday.isPresent() ) {
+        if(optionalSunday.isEmpty()) {
             LOGGER.warn("Request for date in the far-off past or future, date will not be checked for Easter");
             return false;
         }
@@ -481,6 +482,7 @@ public class WeekResolver {
         }
 
         // Check for 'store bededag', tounge-in-cheek english name 'prayers day'
+        // Todo: Remove or disable this after 'store bededag' 2023 since it has been cancelled from 2024
         LocalDate prayersDay = easterSunday.plusDays(26);
         if( expectedDate.isEqual(prayersDay) ) {
             LOGGER.info("{} is prayers day ('store bededag')", expectedDate);
@@ -500,7 +502,7 @@ public class WeekResolver {
 
         // Locate Easter sunday for current year
         Optional<LocalDate> optionalSunday = EASTER_SUNDAYS.stream().filter(x -> x.getYear() == dateOfSunday.getYear()).findFirst();
-        if(!optionalSunday.isPresent()) {
+        if(optionalSunday.isEmpty()) {
             LOGGER.warn("Date {} is too far-off into the past", dateOfSunday.toString());
             throw new BadRequestException(String.format("Date %s is too far-off into the past", dateOfSunday.toString()));
         }

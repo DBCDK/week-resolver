@@ -187,7 +187,7 @@ class WeekResolverTest {
 
         // Codes DBT, SDT should return a fixed code since they are used for retro updates
         // and since we dont have the record data, we cannot set the correct weekcode
-        WeekResolver b = new WeekResolver();
+        WeekResolver b = new WeekResolver(zone);
         assertDoesNotThrow(() -> b.withCatalogueCode("DBT").withDate("2019-12-26").build());
         assertThat(b.withCatalogueCode("DBT").withDate("2019-12-26").build().getWeekCode(), is("DBT999999"));
 
@@ -218,20 +218,20 @@ class WeekResolverTest {
 
     @Test
     void TestBkm() {
-        WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
+        WeekResolver b = new WeekResolver(zone).withCatalogueCode("BKM");
         assertThat(b.withDate("2020-05-05").build().getWeekCode(), is("BKM202021"));
     }
 
     @Test
     void TestYearEnd() {
-        WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
+        WeekResolver b = new WeekResolver(zone).withCatalogueCode("BKM");
         assertThat(b.withDate("2019-12-03").build().getWeekCode(), is("BKM201951"));
         assertThat(b.withDate("2019-12-10").build().getWeekCode(), is("BKM202002"));
     }
 
     @Test
     void TestAllCodes() {
-        WeekResolver b = new WeekResolver();
+        WeekResolver b = new WeekResolver(zone);
 
         // +0 weeks
         assertThat(b.withCatalogueCode("ACC").withDate("2020-04-22").build().getWeekCode(), is("ACC202017"));
@@ -301,7 +301,7 @@ class WeekResolverTest {
 
     @Test
     void TestSpecialCases() {
-        WeekResolver b = new WeekResolver();
+        WeekResolver b = new WeekResolver(zone);
 
         // "Fredag 27.03.20 afsluttes DBC+BKM202015. Fredag morgen skal koden være 202017"
         assertThat(b.withCatalogueCode("DBF").withDate("2020-03-27").build().getWeekCode(), is("DBF202017"));
@@ -346,9 +346,10 @@ class WeekResolverTest {
 
     @Test
     void TestFirstWeekOfYear() {
-        WeekResolver b = new WeekResolver().withCatalogueCode("BKM");
+        WeekResolver b = new WeekResolver(zone).withCatalogueCode("BKM");
         assertThat(b.withDate("2022-12-01").build().getWeekCode(), is("BKM202250"));
-        assertThat(b.withDate("2022-12-05").build().getWeekCode(), is("BKM202302"));
+        assertThat(b.withDate("2022-12-05").build().getWeekCode(), is("BKM202251"));
         assertThat(b.withDate("2022-12-15").build().getWeekCode(), is("BKM202302"));
+        assertThat(b.withDate("2024-12-09").build().getWeekCode(), is("BKM202502"));
     }
 }

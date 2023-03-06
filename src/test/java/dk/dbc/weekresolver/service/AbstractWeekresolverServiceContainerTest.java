@@ -1,12 +1,8 @@
-/*
- * Copyright Dansk Bibliotekscenter a/s. Licensed under GPLv3
- * See license text in LICENSE.txt or at https://opensource.dbc.dk/licenses/gpl-3.0/
- */
-
 package dk.dbc.weekresolver.service;
 
 import dk.dbc.httpclient.FailSafeHttpClient;
 import dk.dbc.httpclient.HttpClient;
+import jakarta.ws.rs.core.Response;
 import net.jodah.failsafe.RetryPolicy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,23 +15,24 @@ import java.time.Duration;
 public abstract class AbstractWeekresolverServiceContainerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWeekresolverServiceContainerTest.class);
 
-    static final GenericContainer weekresolverServiceContainer;
+    static final GenericContainer<?> weekresolverServiceContainer;
     static final String weekresolverServiceBaseUrl;
     static final FailSafeHttpClient httpClient;
 
     static {
-        weekresolverServiceContainer = new GenericContainer("docker-metascrum.artifacts.dbccloud.dk/weekresolver:devel")
+        //noinspection resource
+        weekresolverServiceContainer = new GenericContainer<>("docker-metascrum.artifacts.dbccloud.dk/weekresolver:devel")
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
                 .withEnv("LOG_FORMAT", "text")
                 .withEnv("TZ", "Europe/Copenhagen")
                 .withExposedPorts(8080)
-                .waitingFor(Wait.forHttp("/status"))
+                .waitingFor(Wait.forHttp("/api/v1/date/dpf"))
                 .withStartupTimeout(Duration.ofMinutes(5));
         weekresolverServiceContainer.start();
-        weekresolverServiceBaseUrl = "http://" + weekresolverServiceContainer.getContainerIpAddress() +
+        weekresolverServiceBaseUrl = "http://" + weekresolverServiceContainer.getHost() +
                 ":" + weekresolverServiceContainer.getMappedPort(8080);
-        httpClient = FailSafeHttpClient.create(HttpClient.newClient(), new RetryPolicy().withMaxRetries(0));
+        httpClient = FailSafeHttpClient.create(HttpClient.newClient(), new RetryPolicy<Response>().withMaxRetries(0));
     }
 
 }

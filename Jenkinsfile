@@ -1,18 +1,17 @@
 #!groovy
-def workerNode = "devel10"
+def workerNode = "devel11"
 pipeline {
     agent { label workerNode }
     tools {
-        // refers to the name set in manage jenkins -> global tool configuration
         maven "Maven 3"
+        jdk 'jdk11'
     }
     environment {
         GITLAB_PRIVATE_TOKEN = credentials("metascrum-gitlab-api-token")
     }
     triggers {
         githubPush()
-        // This project uses the docker.dbc.dk/payara5-micro container
-        upstream('/Docker-payara5-bump-trigger')
+        upstream('/Docker-payara6-bump-trigger')
     }
     options {
         timestamps()
