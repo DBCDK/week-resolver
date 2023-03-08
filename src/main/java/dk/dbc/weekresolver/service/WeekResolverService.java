@@ -39,9 +39,9 @@ public class WeekResolverService {
     @Path("v1/date/{catalogueCode}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode) {
-        LOGGER.trace("getWeekCode() method called");
+        LOGGER.trace("getWeekCode({})", catalogueCode);
 
-        return getWeekCodeFromDate(LocalDate.now().toString(), catalogueCode);
+        return getWeekCodeFromDate(catalogueCode, LocalDate.now().toString());
     }
 
     /**
@@ -56,27 +56,65 @@ public class WeekResolverService {
     @GET
     @Path("v1/date/{catalogueCode}/{date}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode,
+    public Response getWeekCodeForDate(@PathParam("catalogueCode") final String catalogueCode,
                                 @PathParam("date") final String date) {
-        LOGGER.trace("getWeekCode() method called with specific date");
+        LOGGER.trace("getWeekCode({}, {})", catalogueCode, date);
 
-        return getWeekCodeFromDate (date, catalogueCode);
+        return getWeekCodeFromDate(catalogueCode, date);
     }
 
     /**
-     * Get week id based on catalogCode and a date
+     * Endpoint for getting the current week code based on catalogueCode and todays date
+     *
+     * @param catalogueCode Cataloguecode
+     * @return a HTTP 200 with the week-code as a string
+     * @throws DateTimeParseException        if specified date is not parseable
+     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
+     */
+    @GET
+    @Path("v1/current/{catalogueCode}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCurrentWeekCode(@PathParam("catalogueCode") final String catalogueCode) {
+        LOGGER.trace("getCurrentWeekCode({})", catalogueCode);
+
+        return getCurrentWeekCodeFromDate(catalogueCode, LocalDate.now().toString());
+    }
+
+    /**
+     * Endpoint for getting the current week code based on catalogueCode and a date
+     *
+     * @param catalogueCode Cataloguecode
+     * @return a HTTP 200 with the week-code as a string
+     * @throws DateTimeParseException        if specified date is not parseable
+     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
+     */
+    @GET
+    @Path("v1/current/{catalogueCode}/{date}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getCurrentWeekCodeForDate(@PathParam("catalogueCode") final String catalogueCode,
+                                              @PathParam("date") final String date) {
+        LOGGER.trace("getCurrentWeekCode({}, {})", catalogueCode, date);
+
+        return getCurrentWeekCodeFromDate(catalogueCode, date);
+    }
+
+    /**
+     * Get week code based on catalogCode and a date
      * @param date
      * @param catalogueCode
      * @return
      */
-    private Response getWeekCodeFromDate(final String date, final String catalogueCode) {
+    private Response getWeekCodeFromDate(final String catalogueCode, final String date) {
         WeekResolverResult result;
 
         try {
             result = new WeekResolver(timeZone)
                     .withDate(date)
                     .withCatalogueCode(catalogueCode)
-                    .build();
+                    .getWeekCode();
+
+            LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
+            return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
         }
         catch( UnsupportedOperationException unsupportedOperationException) {
             LOGGER.error("Unsupported cataloguecode {}", catalogueCode);
@@ -86,11 +124,37 @@ public class WeekResolverService {
             LOGGER.error("Invalid date {}: {}", date, dateTimeParseException.getCause());
             return Response.status( 400, "Unable to parse the date").build();
         }
+        catch( JSONBException jsonbException ) {
+            LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
+            return Response.status(500, "Internal error when serializing result").build();
+        }
+    }
 
-        // Return calculated weekcode
-        LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
+    /**
+     * Get current week code based on catalogCode and a date
+     * @param date
+     * @param catalogueCode
+     * @return
+     */
+    private Response getCurrentWeekCodeFromDate(final String catalogueCode, final String date) {
+        WeekResolverResult result;
+
         try {
+            result = new WeekResolver(timeZone)
+                    .withDate(date)
+                    .withCatalogueCode(catalogueCode)
+                    .getCurrentWeekCode();
+
+            LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
             return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
+        }
+        catch( UnsupportedOperationException unsupportedOperationException) {
+            LOGGER.error("Unsupported cataloguecode {}", catalogueCode);
+            return Response.status(400, "Unsupported cataloguecode").build();
+        }
+        catch( DateTimeParseException dateTimeParseException ) {
+            LOGGER.error("Invalid date {}: {}", date, dateTimeParseException.getCause());
+            return Response.status( 400, "Unable to parse the date").build();
         }
         catch( JSONBException jsonbException ) {
             LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
