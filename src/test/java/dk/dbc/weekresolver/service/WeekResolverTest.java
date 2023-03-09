@@ -7,6 +7,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -379,5 +380,60 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-20").getCurrentWeekCode().getWeekCode(), is("BKM202022"));
         assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-21").getCurrentWeekCode().getWeekCode(), is("DBF202022"));
         assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-21").getCurrentWeekCode().getWeekCode(), is("BKM202022"));
+    }
+
+    @Test
+    void testGetYearPlan2022() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        YearPlanResult yearPlan = wr.getYearPlan(2022);
+
+        // Check size
+        assertThat(yearPlan.size(), is(54));
+
+        // Check alignment
+        assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202152"));
+        assertThat(yearPlan.getRows().get(53).getColumns().get(0), is("202252"));
+    }
+
+    @Test
+    void testGetYearPlan2023() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        YearPlanResult yearPlan = wr.getYearPlan(2023);
+
+        // Check size
+        assertThat(yearPlan.size(), is(54));
+
+        // Check alignment
+        assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202252"));
+        assertThat(yearPlan.getRows().get(53).getColumns().get(0), is("202352"));
+
+        // Check special cases
+
+    }
+
+    @Test
+    void testGetYearPlanWithWeek2024() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        YearPlanResult yearPlan = wr.getYearPlan(2024);
+
+        // Check size
+        assertThat(yearPlan.size(), is(54));
+
+        // Check alignment
+        assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202401"));
+        assertThat(yearPlan.getRows().get(53).getColumns().get(0), is("202453"));
+    }
+
+    @Test
+    void testGetYearPlanWithWeek2025() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        YearPlanResult yearPlan = wr.getYearPlan(2025);
+
+        // Check size
+        assertThat(yearPlan.size(), is(54));
+
+        // Check alignment
+        assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202453"));
+        assertThat(yearPlan.getRows().get(53).getColumns().get(0), is("202553"));
     }
 }

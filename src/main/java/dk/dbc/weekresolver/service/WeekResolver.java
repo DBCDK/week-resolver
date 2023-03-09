@@ -12,9 +12,13 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -141,6 +145,7 @@ public class WeekResolver {
     // Make sure we all agree on when weeknumbers start
     static {
         Calendar.getInstance().setFirstDayOfWeek(Calendar.MONDAY);
+        Calendar.getInstance().setMinimalDaysInFirstWeek(7);
     }
 
     public WeekResolver() {}
@@ -176,17 +181,21 @@ public class WeekResolver {
         return this;
     }
 
+    public WeekResolverResult getWeekCode() throws UnsupportedOperationException {
+        return getWeekCode(date);
+    }
+
     /**
      * Calculate the weekcode for the given date depending on the cataloguecode
      *
      * @return a string with the weekcode
      * @throws UnsupportedOperationException if the cataloguecode is not supported
      */
-    public WeekResolverResult getWeekCode() throws UnsupportedOperationException {
-        LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, date);
+    public WeekResolverResult getWeekCode(LocalDate customDate) throws UnsupportedOperationException {
+        LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, customDate);
 
         // Get the current date
-        LocalDate expectedDate = date;
+        LocalDate expectedDate = customDate;
 
         // Select configuration of weekcode calculation
         if( !codes.containsKey(catalogueCode.toUpperCase()) ){
@@ -196,7 +205,7 @@ public class WeekResolver {
 
         // If the configuration has a fixed weekcode, return this
         if( configuration.getFixedWeekCode() != null ) {
-            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, date));
+            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, customDate));
         }
 
         // Algorithm:
@@ -236,10 +245,14 @@ public class WeekResolver {
         }
 
         // Build final result.
-        LOGGER.info("Date {} pushed to final date {} with weeknumber {}", date, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
+        LOGGER.info("Date {} pushed to final date {} with weeknumber {}", customDate, expectedDate, Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
 
         // Build final result
-        return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, date));
+        return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, customDate));
+    }
+
+    public WeekResolverResult getCurrentWeekCode() throws UnsupportedOperationException {
+        return  getCurrentWeekCode(date);
     }
 
     /**
@@ -248,11 +261,11 @@ public class WeekResolver {
      * @return a string with the weekcode
      * @throws UnsupportedOperationException if the cataloguecode is not supported
      */
-    public WeekResolverResult getCurrentWeekCode() throws UnsupportedOperationException {
-        LOGGER.info("Calculating current weekcode for catalogueCode={} and date={}", catalogueCode, date);
+    public WeekResolverResult getCurrentWeekCode(LocalDate customDate) throws UnsupportedOperationException {
+        LOGGER.info("Calculating current weekcode for catalogueCode={} and date={}", catalogueCode, customDate);
 
         // Get the current date
-        LocalDate expectedDate = date;
+        LocalDate expectedDate = customDate;
 
         // Select configuration of weekcode calculation
         if( !codes.containsKey(catalogueCode.toUpperCase()) ){
@@ -262,7 +275,7 @@ public class WeekResolver {
 
         // If the configuration has a fixed weekcode, return this
         if( configuration.getFixedWeekCode() != null ) {
-            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, date));
+            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, customDate));
         }
 
         // Algorithm: Do note that we always allow end-of-year, since we just want the
@@ -274,22 +287,44 @@ public class WeekResolver {
         //   step 3: Otherwise check if we are on or before shiftday
 
         if (configuration.getIgnoreClosingDays()) {
-            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, date));
+            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, customDate));
         }
 
         if (isClosingDay(expectedDate, true)) {
-            while (isClosingDay(expectedDate, true)) {
+            // Move forward to next production day, but stop at sunday since we should return the following week, not any later week
+            while (isClosingDay(expectedDate, true) && expectedDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
                 expectedDate = expectedDate.plusDays(1);
             }
-            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, date));
         }
 
         DayOfWeek shiftDay = adjustShiftDay(expectedDate, configuration.getShiftDay(), true);
-        if (expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue()) {
-            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate.plusWeeks(1), calculateWeekDescription(configuration, date));
+        if (shiftDay == null || expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue()) {
+            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate.plusWeeks(1), calculateWeekDescription(configuration, customDate));
         } else {
-            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, date));
+            return new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate, calculateWeekDescription(configuration, customDate));
         }
+    }
+
+    public YearPlanResult getYearPlan(Integer year) {
+        YearPlanResult yearPlan = new YearPlanResult();
+
+        // Add headers
+        yearPlan.add(new ArrayList<>(WeekDescription.Headers));
+
+        // Find first day of the year. If not a monday, then move backwards to find the last monday in the previous year
+        LocalDate currentDate = LocalDate.parse(String.format("%04d-01-01", year), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        while (currentDate.getDayOfWeek() != DayOfWeek.MONDAY) {
+            currentDate = currentDate.minusDays(1);
+        }
+
+        // Iterate through all mondays and add the description of each week
+        do {
+            WeekResolverResult result = getCurrentWeekCode(currentDate);
+            yearPlan.add(getResultAsRow(result));
+            currentDate = currentDate.plusWeeks(1);
+        } while (currentDate.getYear() == year);
+
+        return yearPlan;
     }
 
     private DayOfWeek adjustShiftDay(LocalDate expectedDate, DayOfWeek shiftDay, boolean allowEndOfYear) {
@@ -307,7 +342,7 @@ public class WeekResolver {
             return null;
         }
         // 2: If the expected date falls in the pentecost week and shiftday is friday, then move
-        //    the shiftday back to thursdag
+        //    the shiftday back to thursday
         LOGGER.info("Checking if {} is in the pentecost week", expectedDate);
         if( isPentecostWeek(expectedDate) && shiftDay == DayOfWeek.FRIDAY ) {
             LOGGER.info("Sunday this week is pentecost and shiftday is friday. Move shiftday to thursdag");
@@ -321,7 +356,7 @@ public class WeekResolver {
             return DayOfWeek.THURSDAY;
         }
 
-        // Adjust the shiftday back untill it is not a closing day. This may potentially roll
+        // Adjust the shiftday back until it is not a closing day. This may potentially roll
         // back into the last week, but if we reach monday, then the shiftday is in effect no matter what
         // and we will end up adding a week as expected.
         while( isClosingDay(dateOfShiftDay, allowEndOfYear) && dateOfShiftDay.getDayOfWeek() != DayOfWeek.MONDAY ) {
@@ -554,20 +589,12 @@ public class WeekResolver {
     private WeekDescription calculateWeekDescription(WeekCodeConfiguration configuration, LocalDate date) {
         WeekDescription description = new WeekDescription();
 
-        // Standard fields for that given week
-        description.setWeekNumber(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w", locale).withZone(zoneId))));
-        //noinspection SuspiciousDateFormat
-        description.setYear(Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY", locale)))); // MUST be 'week year' (upper case 'YYYY') format, NOT 'year' (lower case 'yyyy')
-        int month = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("MM", locale)));
-        description.setWeekCode(catalogueCode.toUpperCase() + description.getYear() + String.format("%02d", configuration.getUseMonthNumber() ? month : description.getWeekNumber()));
-        description.setDate(Date.from(date.atStartOfDay(zoneId).toInstant()));
-        description.setCatalogueCode(catalogueCode.toUpperCase());
-
         // Find monday in this week since all calculations of dates is done from that day onwards
         LocalDate monday = date.minusDays(date.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue());
 
-        // Short version of weekcode (only digits)
-        description.setWeekCodeShort(description.getWeekCode().substring(3));
+        // Short version of weekcode (only digits).
+        description.setWeekCodeShort(String.format("%04d", getYear(date)) +
+                String.format("%02d", configuration.getUseMonthNumber() ? getMonth(date) : getWeekNumber(date)));
 
         // First day this weekcode is assigned
         LocalDate start = monday;
@@ -580,8 +607,12 @@ public class WeekResolver {
         if (configuration.getShiftDay() != null ) {
             DayOfWeek shiftDay = adjustShiftDay(date, configuration.getShiftDay(), configuration.getAllowEndOfYear());
             if (shiftDay != null) {
+                if (shiftDay == DayOfWeek.MONDAY) {
+                    description.setNoProduction(true);
+                }
                 description.setShiftDay(fromLocalDate(monday.plusDays(shiftDay.getValue() - DayOfWeek.MONDAY.getValue())));
             } else {
+                description.setNoProduction(true);
                 description.setShiftDay(null);
             }
         } else {
@@ -620,5 +651,55 @@ public class WeekResolver {
 
     private LocalDate fromDate(Date date) {
         return LocalDate.ofInstant(date.toInstant(), zoneId);
+    }
+
+    public int getYear(LocalDate date) {
+
+        // Format MUST be 'week year' (upper case 'YYYY'), NOT 'year' (lower case 'yyyy')
+        int year = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("YYYY", locale)));
+
+        // Adjust for week 53
+        if (getWeekNumber(date) == 53) {
+            year--;
+        }
+
+        return year;
+    }
+
+    public int getMonth(LocalDate date) {
+        return Integer.parseInt(date.format(DateTimeFormatter.ofPattern("MM", locale)));
+    }
+
+    public int getWeekNumber(LocalDate date) {
+        int weekNumber = Integer.parseInt(date.format(DateTimeFormatter.ofPattern("w", locale).withZone(zoneId)));
+
+        // Adjust for week 53
+        if (weekNumber == 1 && date.getMonth() == Month.DECEMBER) {
+            weekNumber = 53;
+        }
+
+        return weekNumber;
+    }
+
+    public List<String> getResultAsRow(WeekResolverResult result) {
+        return List.of(result.getDescription().getWeekCodeShort(),
+                stringFromDate(result.getDescription().getWeekCodeFirst()),
+                stringFromDate(result.getDescription().getWeekCodeLast()),
+                stringFromDate(result.getDescription().getShiftDay()),
+                stringFromDate(result.getDescription().getBookCart()),
+                stringFromDate(result.getDescription().getProof()),
+                stringFromDate(result.getDescription().getBkm()),
+                stringFromDate(result.getDescription().getProofFrom()),
+                stringFromDate(result.getDescription().getProofTo()),
+                stringFromDate(result.getDescription().getPublish()));
+    }
+
+    private String stringFromDate(Date date) {
+        if (date == null) {
+            return "";
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localDate = fromDate(date);
+        return localDate.format(formatter);
     }
 }

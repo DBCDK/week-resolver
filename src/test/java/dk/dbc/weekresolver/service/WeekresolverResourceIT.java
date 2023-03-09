@@ -49,14 +49,25 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
 
     @Test
     void getCurrentWeekCodeForDate() throws WeekResolverConnectorException {
-        LOGGER.info("Using this url:{}", weekresolverServiceBaseUrl);
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         WeekResolverResult w = connector.getCurrentWeekCodeForDate("BKM", LocalDate.parse("2023-03-06"));
         assertThat(w.getCatalogueCode(), is("BKM"));
-        //assertThat(w.getWeekCode(), is("BKM202310"));
+        assertThat(w.getWeekCode(), is("BKM202310"));
 
         w = connector.getCurrentWeekCodeForDate("BKM", LocalDate.parse("2023-03-10"));
         assertThat(w.getCatalogueCode(), is("BKM"));
-        //assertThat(w.getWeekCode(), is("BKM202311"));
+        assertThat(w.getWeekCode(), is("BKM202311"));
+    }
+
+    @Test
+    void getYearPlanForThisYear() throws WeekResolverConnectorException {
+        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
+        // Todo:
+    }
+
+    @Test
+    void getYearPlanFor2023() throws WeekResolverConnectorException {
+        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
+        // Todo:
     }
 }

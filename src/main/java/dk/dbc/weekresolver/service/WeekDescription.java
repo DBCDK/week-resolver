@@ -1,38 +1,54 @@
 package dk.dbc.weekresolver.service;
 
 import java.util.Date;
+import java.util.Set;
 
-public class WeekDescription extends WeekResolverResult {
+public class WeekDescription {
 
-    // "DBF/DPF/BKM katalogkode"
+    public static Set<String> Headers = Set.of(
+        "DBF/DPF/BKM katalogkode",
+        "DBCKat ugekode start",
+        "DBCKat ugekode slut",
+        "DBCKat ugeafslutning"   ,
+        "Bogvogn",
+        "Ugekorrektur",
+        "BKM-red.",
+        "Ugekorrekturen køres",
+        "Slutredaktion (ugekorrektur)",
+        "Udgivelsesdato"
+    );
+
+    // DBF/DPF/BKM katalogkode
     private String weekCodeShort;
 
-    // "DBCKat ugekode start"
+    // DBCKat ugekode start
     private Date weekCodeFirst;
 
-    // "DBCKat ugekode slut"
+    // DBCKat ugekode slut
     private Date weekCodeLast;
 
-    // "DBCKat ugeafslutning"
+    // DBCKat ugeafslutning
     private Date shiftDay;
 
-    // "Bogvogn"
+    // Bogvogn
     private Date bookCart;
 
-    // "Ugekorrektur"
+    // Ugekorrektur
     private Date proof;
 
-    // "BKM-red."
+    // BKM-red.
     private Date bkm;
 
-    // "Ugekorrekturen køres"
+    // Ugekorrekturen køres
     private Date proofFrom;
 
-    // "Slutredaktion (ugekorrektur)"
+    // Slutredaktion (ugekorrektur)
     private Date proofTo;
 
-    // "Udgivelsesdato"
+    // Udgivelsesdato
     private Date publish;
+
+    private Boolean noProduction = false;
 
     public String getWeekCodeShort() {
         return weekCodeShort;
@@ -164,6 +180,19 @@ public class WeekDescription extends WeekResolverResult {
         return this;
     }
 
+    public Boolean getNoProduction() {
+        return noProduction;
+    }
+
+    public void setNoProduction(Boolean noProduction) {
+        this.noProduction = noProduction;
+    }
+
+    public WeekDescription withNoProduction(Boolean noProduction) {
+        this.noProduction = noProduction;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "WeekDescription{" +
@@ -177,6 +206,7 @@ public class WeekDescription extends WeekResolverResult {
                 ", proofFrom=" + proofFrom +
                 ", proofTo=" + proofTo +
                 ", publish=" + publish +
-                "} " + super.toString();
+                ", noProduction=" + noProduction +
+                '}';
     }
 }

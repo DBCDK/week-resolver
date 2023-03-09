@@ -16,6 +16,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
 import java.time.LocalDate;
+import java.time.Month;
 import java.time.format.DateTimeParseException;
 
 @Path("/api")
@@ -99,6 +100,45 @@ public class WeekResolverService {
     }
 
     /**
+     * Endpoint for getting a year plan for the given code and the current year
+     *
+     * @param catalogueCode Cataloguecode
+     * @return a HTTP 200 with a csv document containing the year plan
+     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
+     */
+    @GET
+    @Path("v1/year/{catalogueCode}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getYearPlanForCode(@PathParam("catalogueCode") final String catalogueCode) {
+        LOGGER.trace("getYearPlanForCode({})", catalogueCode);
+
+        // Avoid week 53 problems by moving to no later than november
+        LocalDate now = LocalDate.now();
+        if (now.getMonth() == Month.DECEMBER) {
+            now = now.minusMonths(1);
+        }
+
+        return getYearPlanFromCodeAndYear(catalogueCode, now.getYear());
+    }
+
+    /**
+     * Endpoint for getting a year plan for the given code and year
+     *
+     * @param catalogueCode Cataloguecode
+     * @param year Year
+     * @return a HTTP 200 with a csv document containing the year plan
+     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
+     */
+    @GET
+    @Path("v1/year/{catalogueCode}/{year}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getYearPlanForCodeAndYear(@PathParam("catalogueCode") final String catalogueCode,
+                                              @PathParam("year") final Integer year) {
+        LOGGER.trace("getYearPlanForCodeAndYear({}, {})", catalogueCode, year);
+        return getYearPlanFromCodeAndYear(catalogueCode, year);
+    }
+
+    /**
      * Get week code based on catalogCode and a date
      * @param date
      * @param catalogueCode
@@ -155,6 +195,26 @@ public class WeekResolverService {
         catch( DateTimeParseException dateTimeParseException ) {
             LOGGER.error("Invalid date {}: {}", date, dateTimeParseException.getCause());
             return Response.status( 400, "Unable to parse the date").build();
+        }
+        catch( JSONBException jsonbException ) {
+            LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
+            return Response.status(500, "Internal error when serializing result").build();
+        }
+    }
+
+    private Response getYearPlanFromCodeAndYear(final String catalogueCode, final Integer year) {
+        YearPlanResult result;
+
+        try {
+            result = new WeekResolver(timeZone)
+                    .withCatalogueCode(catalogueCode)
+                    .getYearPlan(year);
+
+            return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
+        }
+        catch( UnsupportedOperationException unsupportedOperationException) {
+            LOGGER.error("Unsupported cataloguecode {}", catalogueCode);
+            return Response.status(400, "Unsupported cataloguecode").build();
         }
         catch( JSONBException jsonbException ) {
             LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
