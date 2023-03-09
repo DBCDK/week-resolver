@@ -1,10 +1,10 @@
 package dk.dbc.weekresolver.service;
 
-import dk.dbc.weekresolver.WeekResolverResult;
-import dk.dbc.weekresolver.WeekResolverConnectorException;
-import dk.dbc.weekresolver.WeekResolverConnector;
-
 import java.time.LocalDate;
+
+import dk.dbc.weekresolver.connector.WeekResolverConnector;
+import dk.dbc.weekresolver.connector.WeekResolverConnectorException;
+import dk.dbc.weekresolver.connector.WeekResolverResult;
 import org.junit.jupiter.api.Test;
 
 import org.slf4j.Logger;
