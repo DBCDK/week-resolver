@@ -1,5 +1,7 @@
 package dk.dbc.weekresolver.service;
 
+import dk.dbc.weekresolver.model.WeekResolverResult;
+import dk.dbc.weekresolver.model.YearPlanResult;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -7,7 +9,6 @@ import java.time.ZoneId;
 import java.time.format.DateTimeParseException;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;

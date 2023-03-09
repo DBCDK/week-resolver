@@ -1,6 +1,5 @@
 package dk.dbc.weekresolver.service;
 
-import java.lang.module.Configuration;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -12,13 +11,14 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
 
+import dk.dbc.weekresolver.model.WeekCodeConfiguration;
+import dk.dbc.weekresolver.model.WeekDescription;
+import dk.dbc.weekresolver.model.WeekResolverResult;
+import dk.dbc.weekresolver.model.YearPlanResult;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

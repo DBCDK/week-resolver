@@ -3,6 +3,8 @@ package dk.dbc.weekresolver.service;
 import dk.dbc.commons.jsonb.JSONBContext;
 import dk.dbc.commons.jsonb.JSONBException;
 
+import dk.dbc.weekresolver.model.WeekResolverResult;
+import dk.dbc.weekresolver.model.YearPlanResult;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.slf4j.Logger;

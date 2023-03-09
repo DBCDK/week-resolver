@@ -1,4 +1,4 @@
-package dk.dbc.weekresolver.service;
+package dk.dbc.weekresolver.model;
 
 import java.util.Date;
 import java.util.Set;
