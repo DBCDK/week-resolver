@@ -79,10 +79,10 @@ public class WeekResolver {
         // Shiftday friday, add 1 week
         codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
-        // Shiftday friday, add 2 weeks, allow end-of-year
+        // Shiftday friday, add 3 weeks, allow end-of-year
         codes.put("DPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (automarc)
         codes.put("FPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
-        codes.put("GPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        codes.put("GPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (periodicJobs)
 
         // Shiftday friday, add 1 week, allow end-of-year and ignore closing days
         codes.put("EMO", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
@@ -682,24 +682,32 @@ public class WeekResolver {
     }
 
     public List<String> getResultAsRow(WeekResolverResult result) {
+
+        // Todo: Check if we need a prefix for this week
+        String specialCasePrefix = "";
+
         return List.of(result.getDescription().getWeekCodeShort(),
-                stringFromDate(result.getDescription().getWeekCodeFirst()),
-                stringFromDate(result.getDescription().getWeekCodeLast()),
-                stringFromDate(result.getDescription().getShiftDay()),
-                stringFromDate(result.getDescription().getBookCart()),
-                stringFromDate(result.getDescription().getProof()),
-                stringFromDate(result.getDescription().getBkm()),
-                stringFromDate(result.getDescription().getProofFrom()),
-                stringFromDate(result.getDescription().getProofTo()),
-                stringFromDate(result.getDescription().getPublish()));
+                rowStringFromRowDate(specialCasePrefix, result.getDescription().getWeekCodeFirst()),
+                rowStringFromRowDate(specialCasePrefix, result.getDescription().getWeekCodeLast()),
+                rowStringFromRowDate(specialCasePrefix, result.getDescription().getShiftDay()),
+                rowStringFromRowDate(specialCasePrefix, result.getDescription().getBookCart()),
+                rowStringFromRowDate(result.getDescription().getProof()),
+                rowStringFromRowDate(result.getDescription().getBkm()),
+                rowStringFromRowDate(result.getDescription().getProofFrom()),
+                rowStringFromRowDate(result.getDescription().getProofTo()),
+                rowStringFromRowDate(result.getDescription().getPublish()));
     }
 
-    private String stringFromDate(Date date) {
+    private String rowStringFromRowDate(Date date) {
+        return rowStringFromRowDate("", date);
+    }
+
+    private String rowStringFromRowDate(String prefix, Date date) {
         if (date == null) {
-            return "";
+            return "\"\"";
         }
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         LocalDate localDate = fromDate(date);
-        return localDate.format(formatter);
+        return "\"" + prefix + localDate.format(formatter) + "\"";
     }
 }

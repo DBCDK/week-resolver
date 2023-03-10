@@ -1,11 +1,15 @@
 package dk.dbc.weekresolver.model;
 
 import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 public class WeekDescription {
 
-    public static Set<String> Headers = Set.of(
+    public static List<String> Headers = List.of(
         "DBF/DPF/BKM katalogkode",
         "DBCKat ugekode start",
         "DBCKat ugekode slut",

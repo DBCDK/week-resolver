@@ -67,7 +67,7 @@ class WeekResolverTest {
     void TestDPFAtEaster2019() {
 
         // This test uses the DPF cataloguecode to test the generic logic handling easter (and other closingdays).
-        // DPF should add 2 weeks and uses friday as shiftday
+        // DPF should add 3 weeks and uses friday as shiftday
         WeekResolver wr = new WeekResolver(zone)
                 .withCatalogueCode("DPF");
 
@@ -81,7 +81,7 @@ class WeekResolverTest {
         assertThat(wr.withDate("2019-03-27").getWeekCode().getWeekCode(), is("DPF201916"));
 
         // 28. mar. = thursday => + 3 weeks = 18. apr., week 16, maundy thursday
-        // Closed, but not shiftday so add 2 weeks and ajust for closing days = tuesday week 17
+        // Closed, but not shiftday so add 3 weeks and ajust for closing days = tuesday week 17
         assertThat(wr.withDate("2019-03-28").getWeekCode().getWeekCode(), is("DPF201917"));
 
         // 5.apr. = friday, shiftday => + 1 week + 3 weeks = 26. apr., week 17

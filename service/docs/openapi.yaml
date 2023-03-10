@@ -1,0 +1,227 @@
+openapi: 3.0.1
+info:
+  title: weekresolver service
+  description: >-
+    Provides weekcode calculations
+  license:
+    name: GPL-3.0
+    url: 'https://github.com/DBCDK/weekresolver-service/blob/master/LICENCE.txt'
+  version: 2.1.0-SNAPSHOT
+
+tags:
+  - name: weekcode
+    description: Week codes
+  - name: yearplan
+    description: Year plan
+
+paths:
+  /date/{catalogueCode}:
+    get:
+      tags:
+        - weekcode
+      summary: Return today's future weekcode for given catalogue code
+      operationId: getWeekCode
+      parameters:
+        - in: path
+          name: catalogueCode
+          required: true
+          schema:
+            type: string
+            description: Catalogue code
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeekResolverResult'
+
+  /date/{catalogueCode}/${date}:
+    get:
+      tags:
+        - weekcode
+      summary: Return future weekcode for given catalogue code and date
+      operationId: getWeekCodeForDate
+      parameters:
+        - in: path
+          name: catalogueCode
+          required: true
+          schema:
+            type: string
+            description: Catalogue code
+        - in: path
+          name: date
+          required: true
+          schema:
+            type: string
+            description: Date in format 'yyyy-mm-dd'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeekResolverResult'
+
+  /current/{catalogueCode}:
+    get:
+      tags:
+        - weekcode
+      summary: Return today's current weekcode for given catalogue code
+      operationId: getCurrentWeekCode
+      parameters:
+        - in: path
+          name: catalogueCode
+          required: true
+          schema:
+            type: string
+            description: Catalogue code
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeekResolverResult'
+
+  /current/{catalogueCode}/${date}:
+    get:
+      tags:
+        - weekcode
+      summary: Return current weekcode for given catalogue code and date
+      operationId: getCurrentWeekCodeForDate
+      parameters:
+        - in: path
+          name: catalogueCode
+          required: true
+          schema:
+            type: string
+            description: Catalogue code
+        - in: path
+          name: date
+          required: true
+          schema:
+            type: string
+            description: Date in format 'yyyy-mm-dd'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeekResolverResult'
+
+  /year/{catalogueCode}:
+    get:
+      tags:
+        - yearplan
+      summary: Return year plan for the current year and the given catalogue code
+      operationId: getYearPlanForCode
+      parameters:
+        - in: path
+          name: catalogueCode
+          required: true
+          schema:
+            type: string
+            description: Catalogue code
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YearPlanResult'
+
+  /year/{catalogueCode}/${year}:
+    get:
+      tags:
+        - yearplan
+      summary: Return year plan for the given year and catalogue code
+      operationId: getYearPlanForCodeAndYear
+      parameters:
+        - in: path
+          name: catalogueCode
+          required: true
+          schema:
+            type: string
+            description: Catalogue code
+        - in: path
+          name: year
+          required: true
+          schema:
+            type: integer
+            description: Year
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YearPlanResult'
+
+components:
+  schemas:
+    WeekResolverResult:
+      type: object
+      properties:
+        weekNumber:
+          type: integer
+        year:
+          type: integer
+        catalogueCode:
+          type: string
+        weekCode:
+          type: string
+        date:
+          type: integer
+          description: The release date as utc epoch timestamp
+        description:
+          $ref: '#/components/schemas/WeekDescription'
+
+    YearPlanResult:
+      type: object
+      properties:
+        rows:
+          type: array
+          items:
+            type: array
+            items:
+              type: string
+
+    WeekDescription:
+      type: object
+      description: All date fields are utc epoch timestamp
+      properties:
+        weekCodeShort:
+          type: string
+          description: Short weekcode (without catalogue code)
+        weekCodeFirst:
+          type: integer
+          description: First date of assignment
+        weekCodeLast:
+          type: integer
+          description: Last date of assignment
+        shiftDay:
+          type: integer
+          description: Date when the weekcode increments / first date in new weekcode
+        bookCart:
+          type: integer
+          description: Date when the book cart is handled
+        proof:
+          type: integer
+          description: Date when proof reading is done
+        bkm:
+          type: integer
+          description: Date when bkm period editing ends
+        proofFrom:
+          type: integer
+          description: Date when proof reading may begin at 15.00 o'clock
+        proofTo:
+          type: integer
+          description: Date when proof reading should stop at 17.30 o'clock
+        publish:
+          type: integer
+          description: Publishing date
+        noProduction:
+          type: boolean
+          description: If set to true, then no production is done in this week

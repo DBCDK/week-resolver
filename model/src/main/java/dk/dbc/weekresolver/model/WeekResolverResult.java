@@ -9,7 +9,7 @@ import java.util.Locale;
 /**
  * Result data from resolving a weeknumber by use of a specific catalogue code
  */
-public class WeekResolverResult {
+public class WeekResolverResult implements Result {
     // Calculated week number
     private int weekNumber;
 

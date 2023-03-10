@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+source "$(realpath $(dirname "${0}")/..)/scripts/common"
+
+case "$1" in
+    docker)
+        if [[ ! -z "$BUILD_NUMBER" ]];
+        then
+            docker build -f target/docker/Dockerfile --pull --no-cache . -t ${DOCKER_REPOSITORY}:${BRANCH_NAME}-${BUILD_NUMBER} || exit 1
+            docker tag ${DOCKER_REPOSITORY}:${BRANCH_NAME}-${BUILD_NUMBER} ${DOCKER_REPOSITORY}:devel
+        else
+            docker build -f target/docker/Dockerfile . -t ${DOCKER_REPOSITORY}:devel || exit 1
+        fi
+        ;;
+
+    *)
+        mvn verify
+        ;;
+esac

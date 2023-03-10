@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+source "$(realpath $(dirname "${0}")/..)/scripts/common"
+
+docker run -ti --rm --name "${DOCKER_NAME}-${PORT}" \
+  -e JAVA_MAX_HEAP_SIZE=${JAVA_MAX_HEAP_SIZE} \
+  -e MP_OPENAPI_SERVERS=http://$(getMyIP):${PORT}/api/v1 \
+  -e OPENAPI_UI_CONTEXTROOT=http://$(getMyIP):${PORT} \
+  -e TZ=${TZ} \
+  -p "${PORT}:8080" \
+  ${ENABLE_REMOTE_DEBUGGING:+ -p 9009:9009} \
+  $@ \
+  "${DOCKER_REPOSITORY}:devel"

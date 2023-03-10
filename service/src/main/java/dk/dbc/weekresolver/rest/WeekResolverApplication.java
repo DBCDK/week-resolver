@@ -15,7 +15,7 @@ import java.util.Set;
  * This class defines the other classes that make up this JAX-RS application by
  * having the getClasses method return a specific set of resources.
  */
-@ApplicationPath("")
+@ApplicationPath("/")
 public class WeekResolverApplication extends Application {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverApplication.class);
 

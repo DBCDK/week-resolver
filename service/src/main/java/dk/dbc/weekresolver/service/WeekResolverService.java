@@ -4,6 +4,7 @@ import dk.dbc.commons.jsonb.JSONBContext;
 import dk.dbc.commons.jsonb.JSONBException;
 
 import dk.dbc.weekresolver.model.WeekResolverResult;
+import dk.dbc.weekresolver.model.YearPlanFormat;
 import dk.dbc.weekresolver.model.YearPlanResult;
 import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
@@ -20,11 +21,16 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
+import java.util.stream.Collectors;
 
 @Path("/api")
 public class WeekResolverService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverService.class);
     private static final JSONBContext jsonbContext = new JSONBContext();
+
+    public final static String TEXT_CSV = "text/csv";
+
+    private final static String CSV_SEPARATOR = ";";
 
     @Inject
     @ConfigProperty(name = "TZ")
@@ -109,10 +115,11 @@ public class WeekResolverService {
      * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
      */
     @GET
-    @Path("v1/year/{catalogueCode}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getYearPlanForCode(@PathParam("catalogueCode") final String catalogueCode) {
-        LOGGER.trace("getYearPlanForCode({})", catalogueCode);
+    @Path("v1/year/{format}/{catalogueCode}")
+    @Produces({MediaType.APPLICATION_JSON, TEXT_CSV})
+    public Response getYearPlanForCode(@PathParam("format") final YearPlanFormat format,
+                                       @PathParam("catalogueCode") final String catalogueCode) {
+        LOGGER.trace("getYearPlanForCode({}, {})", format, catalogueCode);
 
         // Avoid week 53 problems by moving to no later than november
         LocalDate now = LocalDate.now();
@@ -120,8 +127,9 @@ public class WeekResolverService {
             now = now.minusMonths(1);
         }
 
-        return getYearPlanFromCodeAndYear(catalogueCode, now.getYear());
+        return getYearPlanFromCodeAndYear(format, catalogueCode, now.getYear());
     }
+
 
     /**
      * Endpoint for getting a year plan for the given code and year
@@ -132,12 +140,13 @@ public class WeekResolverService {
      * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
      */
     @GET
-    @Path("v1/year/{catalogueCode}/{year}")
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response getYearPlanForCodeAndYear(@PathParam("catalogueCode") final String catalogueCode,
+    @Path("v1/year/{format}/{catalogueCode}/{year}")
+    @Produces({MediaType.APPLICATION_JSON, TEXT_CSV})
+    public Response getYearPlanForCodeAndYear(@PathParam("format") final YearPlanFormat format,
+                                              @PathParam("catalogueCode") final String catalogueCode,
                                               @PathParam("year") final Integer year) {
-        LOGGER.trace("getYearPlanForCodeAndYear({}, {})", catalogueCode, year);
-        return getYearPlanFromCodeAndYear(catalogueCode, year);
+        LOGGER.trace("getYearPlanForCodeAndYear({}, {}, {})", format, catalogueCode, year);
+        return getYearPlanFromCodeAndYear(format, catalogueCode, year);
     }
 
     /**
@@ -204,7 +213,14 @@ public class WeekResolverService {
         }
     }
 
-    private Response getYearPlanFromCodeAndYear(final String catalogueCode, final Integer year) {
+    /**
+     * Get year plan based on format, catalogCode and a year
+     * @param format
+     * @param catalogueCode
+     * @param year
+     * @return
+     */
+    private Response getYearPlanFromCodeAndYear(final YearPlanFormat format, final String catalogueCode, final Integer year) {
         YearPlanResult result;
 
         try {
@@ -212,7 +228,17 @@ public class WeekResolverService {
                     .withCatalogueCode(catalogueCode)
                     .getYearPlan(year);
 
-            return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
+            if (format == YearPlanFormat.JSON) {
+                return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
+            } else if (format == YearPlanFormat.CSV) {
+                String csv = result.getRows().stream()
+                        .map(row -> String.join(CSV_SEPARATOR, row.getColumns()))
+                        .collect(Collectors.joining("\n"));
+                return Response.ok((csv), TEXT_CSV).build();
+            } else {
+                LOGGER.error("Unsupported format {}", format);
+                return Response.status(400, "Unsupported format").build();
+            }
         }
         catch( UnsupportedOperationException unsupportedOperationException) {
             LOGGER.error("Unsupported cataloguecode {}", catalogueCode);

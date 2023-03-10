@@ -21,13 +21,14 @@ public abstract class AbstractWeekresolverServiceContainerTest {
 
     static {
         //noinspection resource
-        weekresolverServiceContainer = new GenericContainer<>("docker-metascrum.artifacts.dbccloud.dk/weekresolver:devel")
+        weekresolverServiceContainer = new GenericContainer<>("docker-metascrum.artifacts.dbccloud.dk/weekresolver-service:devel")
                 .withLogConsumer(new Slf4jLogConsumer(LOGGER))
                 .withEnv("JAVA_MAX_HEAP_SIZE", "2G")
                 .withEnv("LOG_FORMAT", "text")
                 .withEnv("TZ", "Europe/Copenhagen")
                 .withExposedPorts(8080)
                 .waitingFor(Wait.forHttp("/api/v1/date/dpf"))
+                .waitingFor(Wait.forHttp("/openapi"))
                 .withStartupTimeout(Duration.ofMinutes(5));
         weekresolverServiceContainer.start();
         weekresolverServiceBaseUrl = "http://" + weekresolverServiceContainer.getHost() +

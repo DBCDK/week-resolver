@@ -3,14 +3,16 @@ package dk.dbc.weekresolver.model;
 import java.util.ArrayList;
 import java.util.List;
 
-public class YearPlanResult {
+public class YearPlanResult implements Result {
 
     public YearPlanResult() {
         rows = new ArrayList<>();
     }
 
-    public class YearPlanRow {
+    public static class YearPlanRow {
         private List<String> columns;
+
+        YearPlanRow() {}
 
         YearPlanRow(List<String> columns) {
             this.columns = columns;
