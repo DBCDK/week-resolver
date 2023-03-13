@@ -3,6 +3,8 @@ package dk.dbc.weekresolver.service;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanResult;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -16,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WeekResolverTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverTest.class);
+
     final static String zone = "Europe/Copenhagen";
 
     @Test
@@ -408,8 +412,14 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202252"));
         assertThat(yearPlan.getRows().get(53).getColumns().get(0), is("202352"));
 
-        // Check special cases
-
+        // Check easter
+        assertThat(yearPlan.getRows().get(14).getColumns().get(2).contains("ONSDAG"), is(true));  // week 13, last assignment
+        assertThat(yearPlan.getRows().get(14).getColumns().get(3).contains("TORSDAG"), is(true));  // week 13, shiftday
+        assertThat(yearPlan.getRows().get(15).getColumns().get(2).isEmpty(), is(true));  // week 14, last assignment
+        assertThat(yearPlan.getRows().get(15).getColumns().get(3).isEmpty(), is(true));  // week 14, shiftday
+        assertThat(yearPlan.getRows().get(16).getColumns().get(1).contains("ONSDAG"), is(true));  // week 15, first assignment
+        assertThat(yearPlan.getRows().get(16).getColumns().get(2), is("\"2023-04-13\""));  // week 15, last assignment
+        assertThat(yearPlan.getRows().get(16).getColumns().get(3), is("\"2023-04-14\""));  // week 15, shiftday assignment
     }
 
     @Test

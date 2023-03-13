@@ -1,5 +1,7 @@
 package dk.dbc.weekresolver.model;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
@@ -212,5 +214,9 @@ public class WeekDescription {
                 ", publish=" + publish +
                 ", noProduction=" + noProduction +
                 '}';
+    }
+
+    public static LocalDate fromDate(Date date, ZoneId zoneId) {
+        return LocalDate.ofInstant(date.toInstant(), zoneId);
     }
 }
