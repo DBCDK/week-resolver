@@ -41,6 +41,8 @@ public class YearPlanResult implements Result {
 
     private List<YearPlanRow> rows;
 
+    private String year;
+
     public List<YearPlanRow> getRows() {
         return rows;
     }
@@ -51,6 +53,19 @@ public class YearPlanResult implements Result {
 
     public YearPlanResult withRows(List<YearPlanRow> rows) {
         this.rows = rows;
+        return this;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
+    public YearPlanResult withYear(String year) {
+        this.year = year;
         return this;
     }
 
@@ -66,6 +81,7 @@ public class YearPlanResult implements Result {
     public String toString() {
         return "YearPlanResult{" +
                 "rows=" + rows +
+                ", year='" + year + '\'' +
                 '}';
     }
 }

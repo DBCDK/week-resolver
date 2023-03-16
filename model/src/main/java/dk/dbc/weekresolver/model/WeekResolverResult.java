@@ -41,6 +41,10 @@ public class WeekResolverResult implements Result {
         this.description = description;
     }
 
+    public WeekResolverResult(WeekCodeConfiguration configuration, ZoneId zoneId, Locale locale, String catalogueCode, LocalDate finalDate) {
+        this(configuration, zoneId, locale, catalogueCode, finalDate, null);
+    }
+
     public WeekResolverResult(WeekCodeConfiguration configuration, ZoneId zoneId, Locale locale, String catalogueCode, LocalDate finalDate, WeekDescription description) {
         if( configuration.getFixedWeekCode() != null ) {
             this.date = Date.from(finalDate.atStartOfDay(zoneId).toInstant());

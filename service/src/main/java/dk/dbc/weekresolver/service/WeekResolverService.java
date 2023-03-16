@@ -21,6 +21,7 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Path("/api")
@@ -141,7 +142,7 @@ public class WeekResolverService {
      */
     @GET
     @Path("v1/year/{format}/{catalogueCode}/{year}")
-    @Produces({MediaType.APPLICATION_JSON, TEXT_CSV})
+    @Produces({MediaType.APPLICATION_JSON, TEXT_CSV, MediaType.TEXT_HTML})
     public Response getYearPlanForCodeAndYear(@PathParam("format") final YearPlanFormat format,
                                               @PathParam("catalogueCode") final String catalogueCode,
                                               @PathParam("year") final Integer year) {
@@ -231,10 +232,11 @@ public class WeekResolverService {
             if (format == YearPlanFormat.JSON) {
                 return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
             } else if (format == YearPlanFormat.CSV) {
-                String csv = result.getRows().stream()
-                        .map(row -> String.join(CSV_SEPARATOR, row.getColumns()))
-                        .collect(Collectors.joining("\n"));
+                String csv = getCsvFormattedOutput(result);
                 return Response.ok((csv), TEXT_CSV).build();
+            } else if (format == YearPlanFormat.HTML) {
+                String html = getHtmlFormattedOutput(result);
+                return Response.ok((html), MediaType.TEXT_HTML).build();
             } else {
                 LOGGER.error("Unsupported format {}", format);
                 return Response.status(400, "Unsupported format").build();
@@ -248,5 +250,77 @@ public class WeekResolverService {
             LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
             return Response.status(500, "Internal error when serializing result").build();
         }
+    }
+
+    private String getCsvFormattedOutput(YearPlanResult result) {
+        return result.getRows().stream()
+                .map(row -> String.join(CSV_SEPARATOR, row.getColumns()))
+                .collect(Collectors.joining("\n"));
+    }
+
+    /**
+     * Poor man's html formatter, mostly for testing and internal use
+     * @param result
+     * @return string containing html document
+     */
+    private String getHtmlFormattedOutput(YearPlanResult result) {
+        StringBuilder builder= new StringBuilder();
+
+        final List<String> styles = List.of(
+                "table {border:  solid 1px #000000;border-collapse: collapse}",
+                "tr {border: solid 2px #000000}",
+                "td {border:  solid 1px #aaaaaa; padding-left: 15px; padding-right: 15px; font-family: monospace; font-size: 10pt; text-align:right}",
+                "p.normal {color:black}",
+                "p.modified {color:darkred}");
+
+        // Document begin and minimal stylesheet
+        builder.append("<html>\n");
+        builder.append("  <head>\n");
+        builder.append("    <title>Årsplan ").append(result.getYear()).append("</title>\n");
+        builder.append("    <style>\n");
+        builder.append(styles.stream().map(s -> "      " + s + "\n").collect(Collectors.joining()));
+        builder.append("    </style>\n");
+        builder.append("    <meta charset=\"UTF-8\">\n");
+        builder.append("  </head>\n");
+
+        // Body
+        builder.append("  <body>\n");
+        builder.append("    <table>\n");
+        builder.append(formatHtmlRow(result.getRows().get(0), true));
+        result.getRows().stream().skip(1).forEach(r -> builder.append(formatHtmlRow(r, false)));
+        builder.append("    </table>\n");
+        builder.append("  </body>\n");
+
+        // End document
+        builder.append("</html>\n");
+        return builder.toString();
+    }
+
+    private String formatHtmlRow(YearPlanResult.YearPlanRow row, boolean isHeader) {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append("      <tr>\n");
+        row.getColumns().forEach(c ->
+                builder.append(formatHtmlColumn(c
+                        .replaceAll("\"", "")
+                        .replaceAll(" ", "&nbsp;"), isHeader)));
+        builder.append("      </tr>\n");
+
+        return builder.toString();
+    }
+
+    private String formatHtmlColumn(String content, boolean isHeader) {
+        StringBuilder builder = new StringBuilder();
+        boolean modified = !isHeader && content.length() > "yyyy-mm-dd".length();
+
+        builder.append("      <td>\n");
+        builder.append("        <p class=" + (modified ? "modified": "normal") + ">");
+        builder.append(isHeader ? "<b>" : "");
+        builder.append("<nobr>" + (content.length() == 0 ? "---" : content) + "</nobr>");
+        builder.append(isHeader ? "</b>" : "");
+        builder.append("</p>\n");
+        builder.append("      </td>\n");
+
+        return builder.toString();
     }
 }

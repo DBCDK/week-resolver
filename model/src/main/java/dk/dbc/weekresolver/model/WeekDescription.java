@@ -3,16 +3,12 @@ package dk.dbc.weekresolver.model;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-import java.util.LinkedHashSet;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
 
 public class WeekDescription {
 
     public static List<String> Headers = List.of(
-        "DBF/DPF/BKM katalogkode",
+        "Katalogkode",
         "DBCKat ugekode start",
         "DBCKat ugekode slut",
         "DBCKat ugeafslutning"   ,
@@ -21,7 +17,8 @@ public class WeekDescription {
         "BKM-red.",
         "Ugekorrekturen køres",
         "Slutredaktion (ugekorrektur)",
-        "Udgivelsesdato"
+        "Udgivelsesdato",
+        "Ugenummber"
     );
 
     // DBF/DPF/BKM katalogkode
@@ -55,6 +52,8 @@ public class WeekDescription {
     private Date publish;
 
     private Boolean noProduction = false;
+
+    private String weekNumber;
 
     public String getWeekCodeShort() {
         return weekCodeShort;
@@ -199,6 +198,19 @@ public class WeekDescription {
         return this;
     }
 
+    public String getWeekNumber() {
+        return weekNumber;
+    }
+
+    public void setWeekNumber(String weekNumber) {
+        this.weekNumber = weekNumber;
+    }
+
+    public WeekDescription withWeekNumber(String weekNumber) {
+        this.weekNumber = weekNumber;
+        return this;
+    }
+
     @Override
     public String toString() {
         return "WeekDescription{" +
@@ -213,6 +225,7 @@ public class WeekDescription {
                 ", proofTo=" + proofTo +
                 ", publish=" + publish +
                 ", noProduction=" + noProduction +
+                ", weekNumber='" + weekNumber + '\'' +
                 '}';
     }
 
