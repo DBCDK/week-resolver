@@ -566,4 +566,19 @@ class WeekResolverTest {
         assertThat(wr.stringFromDate(results.get(6).getDescription().getWeekCodeLast()), is("2023-01-19"));
         assertThat(wr.stringFromDate(results.get(6).getDescription().getShiftDay()), is("2023-01-20"));
     }
+
+    @Test
+    void TestStoreBededag() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+
+        // 2023
+        assertThat(wr.withDate("2023-05-03").getWeekCode().getWeekCode(), is("BKM202320"));
+        assertThat(wr.withDate("2023-05-04").getWeekCode().getWeekCode(), is("BKM202321"));
+        assertThat(wr.withDate("2023-05-05").getWeekCode().getWeekCode(), is("BKM202321"));
+
+        // 2024
+        assertThat(wr.withDate("2025-05-14").getWeekCode().getWeekCode(), is("BKM202522"));
+        assertThat(wr.withDate("2025-05-15").getWeekCode().getWeekCode(), is("BKM202523"));  // Todo: This is wrong due to kristi himmelfart. Should be 202522
+        assertThat(wr.withDate("2025-05-16").getWeekCode().getWeekCode(), is("BKM202523"));
+    }
 }

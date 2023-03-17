@@ -21,7 +21,10 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Path("/api")
@@ -151,6 +154,24 @@ public class WeekResolverService {
     }
 
     /**
+     * Endpoint for getting a list of weekcodes for a range of days
+     *
+     * @param catalogueCode Cataloguecode
+     * @param start Start date
+     * @return a HTTP 200 with a csv document containing the year plan
+     * @throws UnsupportedOperationException if the specified cataloguecode is unkown or unsupported
+     */
+    @GET
+    @Path("v1/day/{catalogueCode}/{start}/{end}")
+    @Produces({MediaType.APPLICATION_JSON, TEXT_CSV, MediaType.TEXT_HTML})
+    public Response getDayPlan(@PathParam("catalogueCode") final String catalogueCode,
+                               @PathParam("start") final String start,
+                               @PathParam("end") final String end) {
+        LOGGER.trace("getDayPlan({}, {}, {})", catalogueCode, start, end);
+        return getDayPlanFromDateToDate(catalogueCode, start, end);
+    }
+
+    /**
      * Get week code based on catalogCode and a date
      * @param date
      * @param catalogueCode
@@ -245,6 +266,35 @@ public class WeekResolverService {
         catch( UnsupportedOperationException unsupportedOperationException) {
             LOGGER.error("Unsupported cataloguecode {}", catalogueCode);
             return Response.status(400, "Unsupported cataloguecode").build();
+        }
+        catch( JSONBException jsonbException ) {
+            LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
+            return Response.status(500, "Internal error when serializing result").build();
+        }
+    }
+
+    private Response getDayPlanFromDateToDate(final String catalogueCode, final String start, final String end) {
+        Map<String, String> days = new LinkedHashMap<>();
+
+        try {
+            WeekResolver wr = new WeekResolver(timeZone).withCatalogueCode(catalogueCode);
+
+            LocalDate startDate = wr.fromString(start);
+            LocalDate endDate = wr.fromString(end);
+
+            while (startDate.isBefore(endDate) || startDate.isEqual(endDate)) {
+                days.put(wr.stringFromDate(wr.fromLocalDate(startDate)), wr.getWeekCode(startDate).getWeekCode());
+                startDate = startDate.plusDays(1);
+            }
+            return Response.ok(jsonbContext.marshall(days), MediaType.APPLICATION_JSON).build();
+        }
+        catch( UnsupportedOperationException unsupportedOperationException) {
+            LOGGER.error("Unsupported cataloguecode {}", catalogueCode);
+            return Response.status(400, "Unsupported cataloguecode").build();
+        }
+        catch( DateTimeParseException dateTimeParseException ) {
+            LOGGER.error("Invalid date {} and/or {}: {}", start, end, dateTimeParseException.getCause());
+            return Response.status( 400, "Unable to parse the dates").build();
         }
         catch( JSONBException jsonbException ) {
             LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));

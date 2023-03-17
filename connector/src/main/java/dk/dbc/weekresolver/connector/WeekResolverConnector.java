@@ -67,6 +67,7 @@ public class WeekResolverConnector {
     }
 
     public WeekResolverResult getWeekCodeForDate(String catalogueCode, LocalDate date) throws WeekResolverConnectorException {
+        LOGGER.info("Getting weekcode for catalogueCode={} and date={}", catalogueCode, date);
         final Stopwatch stopwatch = new Stopwatch();
         try {
             final Response response = new HttpGet(failSafeHttpClient).withBaseUrl(baseUrl)
@@ -86,6 +87,7 @@ public class WeekResolverConnector {
     }
 
     public WeekResolverResult getCurrentWeekCodeForDate(String catalogueCode, LocalDate date) throws WeekResolverConnectorException {
+        LOGGER.info("Getting current weekcode for catalogueCode={} and date={}", catalogueCode, date);
         final Stopwatch stopwatch = new Stopwatch();
         try {
             final Response response = new HttpGet(failSafeHttpClient).withBaseUrl(baseUrl)
@@ -104,6 +106,7 @@ public class WeekResolverConnector {
     }
 
     public YearPlanResult getYearPlanForCodeAndYear(YearPlanFormat format, String catalogueCode, Integer year) throws WeekResolverConnectorException {
+        LOGGER.info("Getting year plan for catalogueCode={} and year={}", catalogueCode, year);
         final Stopwatch stopwatch = new Stopwatch();
         try {
             final Response response = new HttpGet(failSafeHttpClient).withBaseUrl(baseUrl)

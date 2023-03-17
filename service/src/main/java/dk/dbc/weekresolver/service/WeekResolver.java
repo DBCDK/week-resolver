@@ -238,7 +238,6 @@ public class WeekResolver {
         if( !configuration.getIgnoreClosingDays() && isEasterWeek(expectedDate.minusWeeks(1)) ) {
             expectedDate = expectedDate.plusWeeks(1);
             LOGGER.info("Same weekday the week before is within the Easter week, pushing 1 week to {}", expectedDate);
-
         }
 
         // Step 5: Is this a closing day ?
@@ -420,7 +419,7 @@ public class WeekResolver {
         // and we will end up adding a week as expected.
         while( isClosingDay(dateOfShiftDay, allowEndOfYear) && dateOfShiftDay.getDayOfWeek() != DayOfWeek.MONDAY ) {
             dateOfShiftDay = dateOfShiftDay.minusDays(1);
-            LOGGER.info("===Moving shiftday back 1 day to {}", dateOfShiftDay);
+            LOGGER.info("Moving shiftday back 1 day to {}", dateOfShiftDay);
         }
 
         LOGGER.info("Final shiftday is set to {}", dateOfShiftDay.getDayOfWeek());
@@ -487,19 +486,6 @@ public class WeekResolver {
                 LOGGER.info("{} is within week 53 or 01", expectedDate);
                 return true;
             }
-
-            // Check for first week in a new year (not 100% consolidated rule, but have been so for several years now)
-            // However if the given date is shiftday in week 1, then this is working day since the weekcode needs to
-            // increment on this day
-            //if( Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 1) {
-                /*if (expectedDate.getDayOfWeek() == shiftday) {
-                    LOGGER.info("{} is {} (shiftday) in the first week of the year", shiftday, expectedDate);
-                    return false;
-                } else {*/
-              //      LOGGER.info("{} is first week of the year", expectedDate);
-                //    return true;
-                //}
-            //}
         }
 
         // 1. January and pinched friday
@@ -646,15 +632,16 @@ public class WeekResolver {
         }
 
         // Check for 'store bededag', tounge-in-cheek english name 'prayers day'
-        // Todo: Remove or disable this after 'store bededag' 2023 since it has been cancelled from 2024
-        LocalDate prayersDay = easterSunday.plusDays(26);
-        if( expectedDate.isEqual(prayersDay) ) {
-            LOGGER.info("{} is prayers day ('store bededag')", expectedDate);
-            return true;
-        }
-        if( expectedDate.isEqual(prayersDay.plusDays(1)) && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY) {
-            LOGGER.info("{} is pinched friday after prayers day ('store bededag')", expectedDate);
-            return true;
+        if (expectedDate.getYear() < 2024) {
+            LocalDate prayersDay = easterSunday.plusDays(26);
+            if (expectedDate.isEqual(prayersDay)) {
+                LOGGER.info("{} is prayers day ('store bededag')", expectedDate);
+                return true;
+            }
+            if (expectedDate.isEqual(prayersDay.plusDays(1)) && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY) {
+                LOGGER.info("{} is pinched friday after prayers day ('store bededag')", expectedDate);
+                return true;
+            }
         }
 
         // Expected date is not somewhere in the Easter period or on any related closing days
@@ -755,7 +742,7 @@ public class WeekResolver {
         return description;
     }
 
-    private Date fromLocalDate(LocalDate date) {
+    public Date fromLocalDate(LocalDate date) {
         return Date.from(date.atStartOfDay(zoneId).toInstant());
     }
 
@@ -813,5 +800,9 @@ public class WeekResolver {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", locale);
         LocalDate localDate = fromDate(date);
         return (quoted ? "\"" : "") + prefix + localDate.format(formatter) + (quoted ? "\"" : "");
+    }
+
+    public LocalDate fromString(String date) {
+        return LocalDate.parse(date, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
     }
 }
