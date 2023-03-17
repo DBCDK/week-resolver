@@ -576,9 +576,48 @@ class WeekResolverTest {
         assertThat(wr.withDate("2023-05-04").getWeekCode().getWeekCode(), is("BKM202321"));
         assertThat(wr.withDate("2023-05-05").getWeekCode().getWeekCode(), is("BKM202321"));
 
-        // 2024
+        // Although Store Bededay has been cancelled by the almighty deity the prime minister,
+        // the days formerly known as 'Store Bededag' often appears so that the production date
+        // two weeks down the road (BKM = two weeks shift) coincides with other non-production days
+        // or the regular shiftday.
+
+        // 2024 - Friday = shiftday
+        assertThat(wr.withDate("2024-04-24").getWeekCode().getWeekCode(), is("BKM202419"));
+        assertThat(wr.withDate("2024-04-25").getWeekCode().getWeekCode(), is("BKM202420"));
+        assertThat(wr.withDate("2024-04-26").getWeekCode().getWeekCode(), is("BKM202420"));
+
+        // 2025 - no Store Bededag, but two weeks ahead is ascension day
         assertThat(wr.withDate("2025-05-14").getWeekCode().getWeekCode(), is("BKM202522"));
-        assertThat(wr.withDate("2025-05-15").getWeekCode().getWeekCode(), is("BKM202523"));  // Todo: This is wrong due to kristi himmelfart. Should be 202522
+        assertThat(wr.withDate("2025-05-15").getWeekCode().getWeekCode(), is("BKM202523"));
         assertThat(wr.withDate("2025-05-16").getWeekCode().getWeekCode(), is("BKM202523"));
+
+        // 2026 - no Store Bededag, but two weeks ahead is may 1.st, so shiftday moves back to thursday
+        assertThat(wr.withDate("2026-04-29").getWeekCode().getWeekCode(), is("BKM202620"));
+        assertThat(wr.withDate("2026-04-30").getWeekCode().getWeekCode(), is("BKM202621"));
+        assertThat(wr.withDate("2026-05-01").getWeekCode().getWeekCode(), is("BKM202621"));
+
+        // Catalogue code DPF, which has 3 weeks shift, will show the cancelled Store Bededag
+        // for some years, but not all
+        wr.withCatalogueCode("DPF");
+
+        // 2023
+        assertThat(wr.withDate("2023-05-03").getWeekCode().getWeekCode(), is("DPF202321"));
+        assertThat(wr.withDate("2023-05-04").getWeekCode().getWeekCode(), is("DPF202322"));
+        assertThat(wr.withDate("2023-05-05").getWeekCode().getWeekCode(), is("DPF202322"));
+
+        // 2024
+        assertThat(wr.withDate("2024-04-24").getWeekCode().getWeekCode(), is("DPF202420"));
+        assertThat(wr.withDate("2024-04-25").getWeekCode().getWeekCode(), is("DPF202420"));
+        assertThat(wr.withDate("2024-04-26").getWeekCode().getWeekCode(), is("DPF202421"));
+
+        // 2025 - Day before 'Grundlovsday' and related pinched friday
+        assertThat(wr.withDate("2025-05-14").getWeekCode().getWeekCode(), is("DPF202523"));
+        assertThat(wr.withDate("2025-05-15").getWeekCode().getWeekCode(), is("DPF202524"));
+        assertThat(wr.withDate("2025-05-16").getWeekCode().getWeekCode(), is("DPF202524"));
+
+        // 2026 - thursday is shiftday due to upcomming ascension
+        assertThat(wr.withDate("2026-04-29").getWeekCode().getWeekCode(), is("DPF202621"));
+        assertThat(wr.withDate("2026-04-30").getWeekCode().getWeekCode(), is("DPF202622"));
+        assertThat(wr.withDate("2026-05-01").getWeekCode().getWeekCode(), is("DPF202622"));
     }
 }

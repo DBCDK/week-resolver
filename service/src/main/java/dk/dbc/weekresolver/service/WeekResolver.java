@@ -223,6 +223,8 @@ public class WeekResolver {
                 ? configuration.getShiftDay()
                 : adjustShiftDay(expectedDate, configuration.getShiftDay(), configuration.getAllowEndOfYear());
 
+        LOGGER.info("======================== BEGIN WEEKCODE CALCULATION ==================================");
+
         // Step 2: Is this on or after the shiftday ?
         if( shiftDay != null && expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue() ) {
             expectedDate = expectedDate.plusWeeks(1);
@@ -271,6 +273,8 @@ public class WeekResolver {
         // Build final result.
         LOGGER.info("Date {} pushed to final date {} with weeknumber {}", customDate, expectedDate,
                 Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
+
+        LOGGER.info("======================== END WEEKCODE CALCULATION ==================================");
 
         // Build final result
         WeekResolverResult result = new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate);
