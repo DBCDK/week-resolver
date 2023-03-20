@@ -219,11 +219,10 @@ public class WeekResolver {
         //   step 6: check if we end up in week number 1 which has no production release
 
         // Step 1: Adjust shiftday, but only if we are not ignoring closing days
+        LOGGER.info("======================== BEGIN SHIFTDAY CALCULATION ==================================");
         DayOfWeek shiftDay = configuration.getIgnoreClosingDays() || configuration.getShiftDay() == null
                 ? configuration.getShiftDay()
                 : adjustShiftDay(expectedDate, configuration.getShiftDay(), configuration.getAllowEndOfYear());
-
-        LOGGER.info("======================== BEGIN WEEKCODE CALCULATION ==================================");
 
         // Step 2: Is this on or after the shiftday ?
         if( shiftDay != null && expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue() ) {
@@ -232,7 +231,15 @@ public class WeekResolver {
             LOGGER.info("Date shifted to monday next week due to shiftday to {}", expectedDate);
         }
 
+        // Step 3: If we have shifted to a closing day, then continue pushing until we reach a production day
+        while (!configuration.getIgnoreClosingDays() && (isClosingDay(expectedDate, configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate))) {
+            expectedDate = expectedDate.plusDays(1);
+            LOGGER.info("Date shifted 1 more day due to closing day or easter week to {}", expectedDate);
+        }
+        LOGGER.info("======================== END SHIFTDAY CALCULATION ==================================");
+
         // Step 3: add the selected number of weeks
+        LOGGER.info("======================== BEGIN WEEKCODE CALCULATION ==================================");
         expectedDate = expectedDate.plusWeeks(configuration.getAddWeeks());
         LOGGER.info("date shifted {} week(s) {}", configuration.getAddWeeks(), expectedDate);
 
@@ -273,12 +280,13 @@ public class WeekResolver {
         // Build final result.
         LOGGER.info("Date {} pushed to final date {} with weeknumber {}", customDate, expectedDate,
                 Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
-
         LOGGER.info("======================== END WEEKCODE CALCULATION ==================================");
 
         // Build final result
         WeekResolverResult result = new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate);
+        LOGGER.info("======================== BEGIN description CALCULATION ==================================");
         result.setDescription(calculateWeekDescription(configuration, customDate, result.getWeekCode()));
+        LOGGER.info("======================== END DESCRIPTION CALCULATION ==================================");
         return result;
     }
 
@@ -373,8 +381,6 @@ public class WeekResolver {
                 }
             }
             yearPlan.add(getResultAsRow(currentResult));
-
-
 
             previousResult = currentResult;
         };
@@ -702,8 +708,24 @@ public class WeekResolver {
             description.setNoProduction(true);
         }
 
-        // If week of no production, then leave other fields blank
+        // If week of no production, then leave other fields than the starting date blank
+        // (starting date must be set to be able to merge with the next row when presenting the data)
         if (description.getNoProduction()) {
+            if (configuration.getShiftDay() != null) {
+                LocalDate previousShiftDate = monday;
+
+                // Move back week after week until we reach a week when we have a shiftday
+                DayOfWeek previousShiftDay;
+                do {
+                    previousShiftDate = previousShiftDate.minusWeeks(1);
+                    previousShiftDay = adjustShiftDay(previousShiftDate, configuration.getShiftDay(), configuration.getAllowEndOfYear());
+                } while (previousShiftDay == null || previousShiftDay == DayOfWeek.MONDAY);
+
+                // Then adjust the date to the day before shiftday
+                previousShiftDate = previousShiftDate.plusDays(previousShiftDay.getValue() - 1);
+                description.setWeekCodeFirst(fromLocalDate(previousShiftDate));
+            }
+
             return description;
         }
 

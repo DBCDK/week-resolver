@@ -110,9 +110,9 @@ class WeekResolverTest {
         // Closed, not shiftday so add 2 weeks and adjust for closing days and easter last week = 18
         assertThat(wr.withDate("2019-04-03").getWeekCode().getWeekCode(), is("DPF201918"));
 
-        // 16. apr. = thursday => + 3 weeks = 7. may., week 19
+        // 16. apr. = thursday => + 3 weeks + easter = 14. may., week 20
         // Not closed and not shiftday = 19
-        assertThat(wr.withDate("2019-04-16").getWeekCode().getWeekCode(), is("DPF201919"));
+        assertThat(wr.withDate("2019-04-16").getWeekCode().getWeekCode(), is("DPF201920"));
 
         // 26. apr. = friday, shiftday => + 1 + 3 weeks = 24. may., week 21
         // Not closed but shiftday = 20
@@ -298,7 +298,7 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("MMV").withDate("2020-04-22").getWeekCode().getWeekCode(), is("MMV202019"));
         assertThat(wr.withCatalogueCode("FIV").withDate("2020-04-22").getWeekCode().getWeekCode(), is("FIV202019"));
 
-        assertThat(wr.withCatalogueCode("ERA").withDate("2020-04-08").getWeekCode().getWeekCode(), is("ERA202017"));
+        assertThat(wr.withCatalogueCode("ERA").withDate("2020-04-08").getWeekCode().getWeekCode(), is("ERA202018"));
         assertThat(wr.withCatalogueCode("ERE").withDate("2020-04-15").getWeekCode().getWeekCode(), is("ERE202018"));
         assertThat(wr.withCatalogueCode("ERL").withDate("2020-04-22").getWeekCode().getWeekCode(), is("ERL202019"));
         assertThat(wr.withCatalogueCode("NLL").withDate("2020-04-24").getWeekCode().getWeekCode(), is("NLL202020"));
@@ -321,13 +321,13 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("DBF").withDate("2020-03-25").getWeekCode().getWeekCode(), is("DBF202015"));
         assertThat(wr.withCatalogueCode("BKM").withDate("2020-03-25").getWeekCode().getWeekCode(), is("BKM202015"));
 
-        // Torsdag 02.04.20 afsluttes DBC+BKM202017. Torsdag morgen skal koden være 202017"
-        assertThat(wr.withCatalogueCode("DBF").withDate("2020-04-09").getWeekCode().getWeekCode(), is("DBF202017"));
-        assertThat(wr.withCatalogueCode("BKM").withDate("2020-04-09").getWeekCode().getWeekCode(), is("BKM202017"));
+        // Torsdag 02.04.20 afsluttes DBC+BKM202017. Torsdag morgen skal koden være 202018"
+        assertThat(wr.withCatalogueCode("DBF").withDate("2020-04-09").getWeekCode().getWeekCode(), is("DBF202018"));
+        assertThat(wr.withCatalogueCode("BKM").withDate("2020-04-09").getWeekCode().getWeekCode(), is("BKM202018"));
 
         // "Der er ingen afslutning i uge 15 (påskeugen)"
-        assertThat(wr.withCatalogueCode("DBF").withDate("2020-04-02").getWeekCode().getWeekCode(), is("DBF202017"));
-        assertThat(wr.withCatalogueCode("BKM").withDate("2020-04-02").getWeekCode().getWeekCode(), is("BKM202017"));
+        assertThat(wr.withCatalogueCode("DBF").withDate("2020-04-02").getWeekCode().getWeekCode(), is("DBF202018"));
+        assertThat(wr.withCatalogueCode("BKM").withDate("2020-04-02").getWeekCode().getWeekCode(), is("BKM202018"));
 
         // Fredag 17.04.20 afsluttes DBF+BKM2020202018. Fredag morgen skal koden være 202019"
         assertThat(wr.withCatalogueCode("DBF").withDate("2020-04-17").getWeekCode().getWeekCode(), is("DBF202019"));
@@ -397,11 +397,11 @@ class WeekResolverTest {
         YearPlanResult yearPlan = wr.getYearPlan(2022);
 
         // Check size
-        assertThat(yearPlan.size(), is(53));
+        assertThat(yearPlan.size(), is(52));
 
         // Check alignment
         assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202202"));
-        assertThat(yearPlan.getRows().get(52).getColumns().get(0), is("202302"));
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0), is("202302"));
     }
 
     @Test
@@ -410,11 +410,11 @@ class WeekResolverTest {
         YearPlanResult yearPlan = wr.getYearPlan(2023);
 
         // Check size
-        assertThat(yearPlan.size(), is(53));
+        assertThat(yearPlan.size(), is(52));
 
         // Check alignment
         assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202302"));
-        assertThat(yearPlan.getRows().get(52).getColumns().get(0), is("202402"));
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0), is("202402"));
 
         // Check beginning of the year
         assertThat(yearPlan.getRows().get(3).getColumns().get(1), is("\"2023-01-06\"")); // week 2, first assignment
@@ -424,51 +424,48 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(14).getColumns().get(2).contains("2023-03-29"), is(true)); // week 13, last assignment
         assertThat(yearPlan.getRows().get(14).getColumns().get(3).contains("TORSDAG"), is(true));    // week 13, shiftday
         assertThat(yearPlan.getRows().get(14).getColumns().get(3).contains("2023-03-30"), is(true)); // week 13, shiftday
-        assertThat(yearPlan.getRows().get(15).getColumns().get(2).isEmpty(), is(true));              // week 14, last assignment
-        assertThat(yearPlan.getRows().get(15).getColumns().get(3).isEmpty(), is(true));              // week 14, shiftday
-        assertThat(yearPlan.getRows().get(16).getColumns().get(1).contains("TORSDAG"), is(true));    // week 15, first assignment
-        assertThat(yearPlan.getRows().get(16).getColumns().get(1).contains("2023-03-30"), is(true)); // week 15, first assignment
-        assertThat(yearPlan.getRows().get(16).getColumns().get(2), is("\"2023-04-13\""));            // week 15, last assignment
-        assertThat(yearPlan.getRows().get(16).getColumns().get(3), is("\"2023-04-14\""));            // week 15, shiftday assignment
+        assertThat(yearPlan.getRows().get(15).getColumns().get(1).contains("TORSDAG"), is(true));    // week 15, first assignment
+        assertThat(yearPlan.getRows().get(15).getColumns().get(1).contains("2023-03-30"), is(true)); // week 15, first assignment
+        assertThat(yearPlan.getRows().get(15).getColumns().get(2), is("\"2023-04-13\""));            // week 15, last assignment
+        assertThat(yearPlan.getRows().get(15).getColumns().get(3), is("\"2023-04-14\""));            // week 15, shiftday assignment
 
         // Week before may 1st.
-        assertThat(yearPlan.getRows().get(18).getColumns().get(1), is("\"2023-04-21\""));            // week 17, first assignment
-        assertThat(yearPlan.getRows().get(18).getColumns().get(2).contains("ONSDAG"), is(true));     // week 17, last assignment
-        assertThat(yearPlan.getRows().get(18).getColumns().get(2).contains("2023-04-26"), is(true)); // week 17, last assignment
-        assertThat(yearPlan.getRows().get(18).getColumns().get(3).contains("TORSDAG"), is(true));    // week 17, shiftday
-        assertThat(yearPlan.getRows().get(18).getColumns().get(3).contains("2023-04-27"), is(true)); // week 17, shiftday
+        assertThat(yearPlan.getRows().get(17).getColumns().get(1), is("\"2023-04-21\""));            // week 17, first assignment
+        assertThat(yearPlan.getRows().get(17).getColumns().get(2).contains("ONSDAG"), is(true));     // week 17, last assignment
+        assertThat(yearPlan.getRows().get(17).getColumns().get(2).contains("2023-04-26"), is(true)); // week 17, last assignment
+        assertThat(yearPlan.getRows().get(17).getColumns().get(3).contains("TORSDAG"), is(true));    // week 17, shiftday
+        assertThat(yearPlan.getRows().get(17).getColumns().get(3).contains("2023-04-27"), is(true)); // week 17, shiftday
 
         // Ascension day
-        assertThat(yearPlan.getRows().get(21).getColumns().get(2).contains("TIRSDAG"), is(true));    // week 20, last assignment
-        assertThat(yearPlan.getRows().get(21).getColumns().get(2).contains("2023-05-16"), is(true)); // week 20, last assignment
-        assertThat(yearPlan.getRows().get(21).getColumns().get(3).contains("ONSDAG"), is(true));     // week 20, shiftday
-        assertThat(yearPlan.getRows().get(21).getColumns().get(3).contains("2023-05-17"), is(true)); // week 20, shiftday
+        assertThat(yearPlan.getRows().get(20).getColumns().get(2).contains("TIRSDAG"), is(true));    // week 20, last assignment
+        assertThat(yearPlan.getRows().get(20).getColumns().get(2).contains("2023-05-16"), is(true)); // week 20, last assignment
+        assertThat(yearPlan.getRows().get(20).getColumns().get(3).contains("ONSDAG"), is(true));     // week 20, shiftday
+        assertThat(yearPlan.getRows().get(20).getColumns().get(3).contains("2023-05-17"), is(true)); // week 20, shiftday
 
         // Pentecost
-        assertThat(yearPlan.getRows().get(22).getColumns().get(1).contains("ONSDAG"), is(true));     // week 21, first assignment
-        assertThat(yearPlan.getRows().get(22).getColumns().get(1).contains("2023-05-17"), is(true)); // week 21, first assignment
-        assertThat(yearPlan.getRows().get(22).getColumns().get(2).contains("ONSDAG"), is(true));     // week 21, last assignment
-        assertThat(yearPlan.getRows().get(22).getColumns().get(2).contains("2023-05-24"), is(true)); // week 21, last assignment
-        assertThat(yearPlan.getRows().get(22).getColumns().get(3).contains("TORSDAG"), is(true));    // week 21, shiftday
-        assertThat(yearPlan.getRows().get(22).getColumns().get(3).contains("2023-05-25"), is(true)); // week 21, shiftday
+        assertThat(yearPlan.getRows().get(21).getColumns().get(1).contains("ONSDAG"), is(true));     // week 21, first assignment
+        assertThat(yearPlan.getRows().get(21).getColumns().get(1).contains("2023-05-17"), is(true)); // week 21, first assignment
+        assertThat(yearPlan.getRows().get(21).getColumns().get(2).contains("ONSDAG"), is(true));     // week 21, last assignment
+        assertThat(yearPlan.getRows().get(21).getColumns().get(2).contains("2023-05-24"), is(true)); // week 21, last assignment
+        assertThat(yearPlan.getRows().get(21).getColumns().get(3).contains("TORSDAG"), is(true));    // week 21, shiftday
+        assertThat(yearPlan.getRows().get(21).getColumns().get(3).contains("2023-05-25"), is(true)); // week 21, shiftday
 
         // Week before "Grundlovsdag"
-        assertThat(yearPlan.getRows().get(23).getColumns().get(1).contains("TORSDAG"), is(true));    // week 22, first assignment
-        assertThat(yearPlan.getRows().get(23).getColumns().get(1).contains("2023-05-25"), is(true)); // week 22, first assignment
-        assertThat(yearPlan.getRows().get(23).getColumns().get(2).contains("ONSDAG"), is(true));     // week 22, last assignment
-        assertThat(yearPlan.getRows().get(23).getColumns().get(2).contains("2023-05-31"), is(true)); // week 22, last assignment
-        assertThat(yearPlan.getRows().get(23).getColumns().get(3).contains("TORSDAG"), is(true));    // week 22, shiftday
-        assertThat(yearPlan.getRows().get(23).getColumns().get(3).contains("2023-06-01"), is(true)); // week 22, shiftday
+        assertThat(yearPlan.getRows().get(22).getColumns().get(1).contains("TORSDAG"), is(true));    // week 22, first assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(1).contains("2023-05-25"), is(true)); // week 22, first assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(2).contains("ONSDAG"), is(true));     // week 22, last assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(2).contains("2023-05-31"), is(true)); // week 22, last assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(3).contains("TORSDAG"), is(true));    // week 22, shiftday
+        assertThat(yearPlan.getRows().get(22).getColumns().get(3).contains("2023-06-01"), is(true)); // week 22, shiftday
 
         // Weeks without production
         assertThat(yearPlan.getRows().get(1).getColumns().get(1), is("\"2022-12-16\""));  // week 52 previous year
         assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202302"));          // week 1 previous year
         assertThat(yearPlan.getRows().get(2).getColumns().get(1), is("\"2022-12-30\""));  // week 1
         assertThat(yearPlan.getRows().get(2).getColumns().get(0), is("202303"));          // week 1
-        assertThat(yearPlan.getRows().get(15).getColumns().get(1), is(""));               // week 14
-        assertThat(yearPlan.getRows().get(15).getColumns().get(0), is("202316"));         // week 14
-        assertThat(yearPlan.getRows().get(52).getColumns().get(1), is("\"2023-12-15\"")); // week 52
-        assertThat(yearPlan.getRows().get(52).getColumns().get(0), is("202402"));         // week 52
+        assertThat(yearPlan.getRows().get(14).getColumns().get(0), is("202316"));         // week 14
+        assertThat(yearPlan.getRows().get(51).getColumns().get(1), is("\"2023-12-15\"")); // week 52
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0), is("202402"));         // week 52
         yearPlan.getRows().forEach(r -> {
             if (!Set.of("202303", "202304", "202316", "202403").contains(r.getColumns().get(0))) {
                 assertThat(r.getColumns().get(1).isEmpty(), is(false));
@@ -482,11 +479,11 @@ class WeekResolverTest {
         YearPlanResult yearPlan = wr.getYearPlan(2024);
 
         // Check size
-        assertThat(yearPlan.size(), is(53));
+        assertThat(yearPlan.size(), is(52));
 
         // Check alignment
         assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202403"));
-        assertThat(yearPlan.getRows().get(52).getColumns().get(0), is("202503"));
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0), is("202503"));
     }
 
     @Test
@@ -495,11 +492,11 @@ class WeekResolverTest {
         YearPlanResult yearPlan = wr.getYearPlan(2025);
 
         // Check size
-        assertThat(yearPlan.size(), is(53));
+        assertThat(yearPlan.size(), is(52));
 
         // Check alignment
         assertThat(yearPlan.getRows().get(1).getColumns().get(0), is("202503"));
-        assertThat(yearPlan.getRows().get(52).getColumns().get(0), is("202603"));
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0), is("202603"));
     }
 
     @Test
@@ -619,5 +616,37 @@ class WeekResolverTest {
         assertThat(wr.withDate("2026-04-29").getWeekCode().getWeekCode(), is("DPF202621"));
         assertThat(wr.withDate("2026-04-30").getWeekCode().getWeekCode(), is("DPF202622"));
         assertThat(wr.withDate("2026-05-01").getWeekCode().getWeekCode(), is("DPF202622"));
+    }
+
+    @Test
+    void TestEaster2023() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+
+        // Week before the Easter week
+        assertThat(wr.withDate("2023-03-24").getWeekCode().getWeekCode(), is("BKM202316"));
+        assertThat(wr.withDate("2023-03-25").getWeekCode().getWeekCode(), is("BKM202316"));
+        assertThat(wr.withDate("2023-03-26").getWeekCode().getWeekCode(), is("BKM202316"));
+        assertThat(wr.withDate("2023-03-27").getWeekCode().getWeekCode(), is("BKM202316"));
+        assertThat(wr.withDate("2023-03-28").getWeekCode().getWeekCode(), is("BKM202316"));
+        assertThat(wr.withDate("2023-03-29").getWeekCode().getWeekCode(), is("BKM202316"));
+        assertThat(wr.withDate("2023-03-29").getWeekCode().getWeekCode(), is("BKM202316"));
+
+        assertThat(wr.withDate("2023-03-30").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-03-31").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-01").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-02").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-03").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-04").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-05").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-06").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-07").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-08").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-09").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-10").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-11").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-12").getWeekCode().getWeekCode(), is("BKM202317"));
+        assertThat(wr.withDate("2023-04-13").getWeekCode().getWeekCode(), is("BKM202317"));
+
+        assertThat(wr.withDate("2023-04-14").getWeekCode().getWeekCode(), is("BKM202318"));
     }
 }

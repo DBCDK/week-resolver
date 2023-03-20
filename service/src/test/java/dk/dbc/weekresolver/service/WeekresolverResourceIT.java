@@ -77,14 +77,14 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
     void getYearPlanForThisYearJson() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         YearPlanResult y = connector.getYearPlanForCode(YearPlanFormat.JSON, "BKM");
-        assertThat(y.getRows().size(), is(53));
+        assertThat(y.getRows().size(), is(52));
     }
 
     @Test
     void getYearPlanFor2022Json() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         YearPlanResult y = connector.getYearPlanForCodeAndYear(YearPlanFormat.JSON, "BKM", 2022);
-        assertThat(y.getRows().size(), is(53));
+        assertThat(y.getRows().size(), is(52));
         assertThat(y.getRows().get(1).getColumns().get(0), is("202202"));
     }
 
@@ -92,14 +92,14 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
     void getYearPlanForThisYearCsv() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         String csv = connector.getYearPlanCsvForCode(YearPlanFormat.CSV, "BKM");
-        assertThat(csv.split("\n").length, is(53));
+        assertThat(csv.split("\n").length, is(52));
     }
 
     @Test
     void getYearPlanFor2022Csv() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         String csv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2022);
-        assertThat(csv.split("\n").length, is(53));
+        assertThat(csv.split("\n").length, is(52));
         assertThat(csv.split("\n")[1].startsWith("202202;"), is(true));
     }
 }
