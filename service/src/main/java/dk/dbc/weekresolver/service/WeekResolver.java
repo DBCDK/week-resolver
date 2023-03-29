@@ -582,7 +582,7 @@ public class WeekResolver {
         }
     }
 
-    // Ahem.. "Constitution Day" is not the most correct translation of "Grundlovsday", by anywho.. :)
+    // Ahem.. "Constitution Day" is not the most correct translation of "Grundlovsday", but anywho.. :)
     private boolean isWeekBeforeConstitutionDay(LocalDate expectedDate) {
 
         // Get the date of sunday in this week and Easter sunday
