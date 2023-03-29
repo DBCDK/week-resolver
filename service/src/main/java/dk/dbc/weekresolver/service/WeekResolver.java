@@ -210,84 +210,62 @@ public class WeekResolver {
                     calculateWeekDescription(configuration, customDate, configuration.getFixedWeekCode()));
         }
 
-        // Algorithm:
-        //   step 1: Adjust the shiftday for the current week, since closing days may affect the shiftday
-        //   step 2: If on or after shiftday, shift to first day in the next week
-        //   step 3: take date and add [0,1,2,...] weeks
-        //   step 4: if the final code ends up in the week after Easter, then move forward to next week
-        //   step 5: if the date is a closing day then add 1 day untill we reach a working day
-        //   step 6: check if we end up in week number 1 which has no production release
-
-        // Step 1: Adjust shiftday, but only if we are not ignoring closing days
         LOGGER.info("======================== BEGIN SHIFTDAY CALCULATION ==================================");
-        DayOfWeek shiftDay = configuration.getIgnoreClosingDays() || configuration.getShiftDay() == null
-                ? configuration.getShiftDay()
-                : adjustShiftDay(expectedDate, configuration.getShiftDay(), configuration.getAllowEndOfYear());
+        if (!configuration.getIgnoreClosingDays()) {
 
-        // Step 2: Is this on or after the shiftday ?
-        if( shiftDay != null && expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue() ) {
-            expectedDate = expectedDate.plusWeeks(1);
-            expectedDate = expectedDate.minusDays( expectedDate.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue());
-            LOGGER.info("Date shifted to monday next week due to shiftday to {}", expectedDate);
-        }
+            // Step 1: Adjust shiftday, but only if we are not ignoring closing days
+            DayOfWeek shiftDay = configuration.getShiftDay() == null
+                    ? configuration.getShiftDay()
+                    : adjustShiftDay(expectedDate, configuration.getShiftDay(), configuration.getAllowEndOfYear());
 
-        // Step 3: If we have shifted to a closing day, then continue pushing until we reach a production day
-        while (!configuration.getIgnoreClosingDays() && (isClosingDay(expectedDate, configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate))) {
-            expectedDate = expectedDate.plusDays(1);
-            LOGGER.info("Date shifted 1 more day due to closing day or easter week to {}", expectedDate);
+            // Step 2: Is this on or after the shiftday ?
+            if (shiftDay == null || expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue()) {
+                expectedDate = getMonday(expectedDate.plusWeeks(1));
+                LOGGER.info("Date shifted to monday next week due to shiftday to {}", expectedDate);
+
+                LOGGER.info("Checking for closing days");
+                while (!configuration.getIgnoreClosingDays() && (isClosingDay(expectedDate, configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate))) {
+                    expectedDate = expectedDate.plusDays(1);
+                    LOGGER.info("Date shifted 1 more day due to closing day, easter week or first week of the year to {}", expectedDate);
+                }
+            }
+        } else {
+            LOGGER.info("Ignoring shiftday for this configuration. Date remains at {}", expectedDate);
         }
         LOGGER.info("======================== END SHIFTDAY CALCULATION ==================================");
 
-        // Step 3: add the selected number of weeks
+        // Step 3: If the week after the one we are currently in, are totally closed (christmas, easter),
+        //         then there is no way to handle BKM. and proof, so shift forward
         LOGGER.info("======================== BEGIN WEEKCODE CALCULATION ==================================");
+        while (isWithinClosingWeek(expectedDate.plusWeeks(1), configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate.plusWeeks(1))) {
+            expectedDate = getMonday(expectedDate.plusWeeks(1));
+            LOGGER.info("Date shifted to monday next week due to date within a closed week to {}", expectedDate);
+        }
+
+        // Step 4: add the selected number of weeks
         expectedDate = expectedDate.plusWeeks(configuration.getAddWeeks());
         LOGGER.info("date shifted {} week(s) {}", configuration.getAddWeeks(), expectedDate);
-
-        // Step 4: if the final code ends up in the week after Easter, then move forward to next week
-        if( !configuration.getIgnoreClosingDays() && isEasterWeek(expectedDate.minusWeeks(1)) ) {
-            expectedDate = expectedDate.plusWeeks(1);
-            LOGGER.info("Same weekday the week before is within the Easter week, pushing 1 week to {}", expectedDate);
-        }
-
-        // Step 5: Is this a closing day ?
-        while( !configuration.getIgnoreClosingDays() && isClosingDay(expectedDate, configuration.getAllowEndOfYear()) ) {
-            expectedDate = expectedDate.plusDays(1);
-            LOGGER.info("date shifted 1 day due to closing day to {}", expectedDate);
-        }
-
-        // Step 6: If the weekcode ends up in week 01, which has no production release, then move forward to
-        //         next week
-        if (!configuration.getIgnoreClosingDays() && !configuration.getAllowEndOfYear()
-                && Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))) == 1) {
-            LOGGER.info("Weekcode is 01 which has no production release (but is still a work week)");
-
-            // Next week, go back to monday
-            expectedDate = expectedDate.plusWeeks(1);
-            LOGGER.info("Shifted to next week with date {}", expectedDate);
-            while (expectedDate.getDayOfWeek() != DayOfWeek.MONDAY) {
-                LOGGER.info("{} is a {}, shifting back 1 day", expectedDate, expectedDate.getDayOfWeek());
-                expectedDate = expectedDate.minusDays(1);
-            }
-            LOGGER.info("Shifted to {} in the week after with date {}", expectedDate.getDayOfWeek(), expectedDate);
-
-            // Adjust for closing days
-            while( isClosingDay(expectedDate, true) ) {
-                expectedDate = expectedDate.plusDays(1);
-                LOGGER.info("date shifted 1 day due to closing day to {}", expectedDate);
-            }
-        }
-
-        // Build final result.
-        LOGGER.info("Date {} pushed to final date {} with weeknumber {}", customDate, expectedDate,
-                Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
         LOGGER.info("======================== END WEEKCODE CALCULATION ==================================");
 
         // Build final result
+        LOGGER.info("Date {} pushed to final date {} with weeknumber {}", customDate, expectedDate,
+                Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
         WeekResolverResult result = new WeekResolverResult(configuration, zoneId, locale, catalogueCode, expectedDate);
-        LOGGER.info("======================== BEGIN description CALCULATION ==================================");
+        LOGGER.info("======================== BEGIN DESCRIPTION CALCULATION ==================================");
         result.setDescription(calculateWeekDescription(configuration, customDate, result.getWeekCode()));
         LOGGER.info("======================== END DESCRIPTION CALCULATION ==================================");
         return result;
+    }
+
+    private Boolean isFirstWeekOfYear(LocalDate date) {
+        DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
+
+        if (Integer.parseInt(date.format(weekCodeFormatter)) == 1) {
+            LOGGER.info("{} is within week 01, which has no production release", date);
+            return true;
+        }
+
+        return false;
     }
 
     public WeekResolverResult getCurrentWeekCode() throws UnsupportedOperationException {
@@ -361,12 +339,13 @@ public class WeekResolver {
         currentDate = currentDate.minusWeeks(1);
 
         // Iterate through all mondays and get the description of each week
+        DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
         List<WeekResolverResult> results = new ArrayList<>();
         do {
             WeekResolverResult result = getWeekCode(currentDate);
             results.add(result);
             currentDate = currentDate.plusWeeks(1);
-        } while (currentDate.getYear() <= year);
+        } while (currentDate.getYear() <= year || (currentDate.getYear() == (year + 1) && Integer.parseInt(currentDate.format(weekCodeFormatter)) < 2));
 
         // Add rows with week descriptions. Check if we can merge some rows (typical the first/last weeks)
         WeekResolverResult previousResult = results.get(0);
@@ -490,10 +469,11 @@ public class WeekResolver {
                 return true;
             }
         } else {
-            // Check for week 53 and 01
+            // Check for week 52 and 53
             DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
-            if( Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 53 /*|| Integer.parseInt(expectedDate.format(weekCodeFormatter)) == 1 */) {
-                LOGGER.info("{} is within week 53 or 01", expectedDate);
+
+            if (List.of(52, 53).contains(Integer.parseInt(expectedDate.format(weekCodeFormatter)))) {
+                LOGGER.info("{} is within week 52 or 53", expectedDate);
                 return true;
             }
         }
@@ -517,6 +497,21 @@ public class WeekResolver {
         // Not a closing day
         LOGGER.info("{} is not a closing day", expectedDate);
         return false;
+    }
+
+    private Boolean isWithinClosingWeek(LocalDate date, boolean allowEndOfYearWeeks) {
+        LocalDate currentDate = getMonday(date);
+        while (currentDate.getDayOfWeek().getValue() < DayOfWeek.SATURDAY.getValue()) {
+            if (!isClosingDay(currentDate, allowEndOfYearWeeks)) {
+                return false;
+            }
+            currentDate = currentDate.plusDays(1);
+        }
+        return true;
+    }
+
+    private LocalDate getMonday(LocalDate date) {
+        return date.minusDays( date.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue());
     }
 
     /**

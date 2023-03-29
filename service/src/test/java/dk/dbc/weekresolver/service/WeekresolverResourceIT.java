@@ -85,7 +85,7 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         YearPlanResult y = connector.getYearPlanForCodeAndYear(YearPlanFormat.JSON, "BKM", 2022);
         assertThat(y.getRows().size(), is(52));
-        assertThat(y.getRows().get(1).getColumns().get(0), is("202202"));
+        assertThat(y.getRows().get(1).getColumns().get(0), is("202203"));
     }
 
     @Test
@@ -100,6 +100,6 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         String csv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2022);
         assertThat(csv.split("\n").length, is(52));
-        assertThat(csv.split("\n")[1].startsWith("202202;"), is(true));
+        assertThat(csv.split("\n")[1].startsWith("202203;"), is(true));
     }
 }
