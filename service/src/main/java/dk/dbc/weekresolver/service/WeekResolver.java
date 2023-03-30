@@ -404,11 +404,20 @@ public class WeekResolver {
         }
 
         // Adjust the shiftday back until it is not a closing day. This may potentially roll
-        // back into the last week, but if we reach monday, then the shiftday is in effect no matter what
+        // back into the last week, but if we reach monday, then the shiftday is in effect no matter what,
         // and we will end up adding a week as expected.
         while( isClosingDay(dateOfShiftDay, allowEndOfYear) && dateOfShiftDay.getDayOfWeek() != DayOfWeek.MONDAY ) {
             dateOfShiftDay = dateOfShiftDay.minusDays(1);
             LOGGER.info("Moving shiftday back 1 day to {}", dateOfShiftDay);
+        }
+
+        //  If the next week is week 52 (or 53), Christmas weeks, then move the shiftday back 1 day
+        LOGGER.info("Checking if next day {} is start of the Christmas days", dateOfShiftDay.plusDays(1));
+        DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
+        int weekOfShiftDay = Integer.parseInt(dateOfShiftDay.format(weekCodeFormatter));
+        if (weekOfShiftDay >= 51 && dateOfShiftDay.getDayOfWeek() != DayOfWeek.MONDAY) {
+            dateOfShiftDay = dateOfShiftDay.minusDays(1);
+            LOGGER.info("Shiftday adjusted to {} due to next week being Christmas week", dateOfShiftDay);
         }
 
         LOGGER.info("Final shiftday is set to {}", dateOfShiftDay.getDayOfWeek());
@@ -679,7 +688,7 @@ public class WeekResolver {
         // Find monday in this week since all calculations of dates is done from that day
         LocalDate monday = date.minusDays(date.getDayOfWeek().getValue() - 1);
 
-        // Set weeknumber of actual week
+        // Set week number of actual week
         description.setWeekNumber(monday.format(DateTimeFormatter.ofPattern("w", locale).withZone(zoneId)));
 
         // BKM code
@@ -738,24 +747,25 @@ public class WeekResolver {
             description.setWeekCodeLast(fromLocalDate(fromDate(description.getShiftDay()).minusDays(1)));
         }
 
-        // Book cart the next working day after shiftday
+        // Book cart the next working day after shiftday. Here we ignore Christmas weeks since
+        // the book cart can be handled on working days in the christmas weeks
         LocalDate shiftDay = fromDate(description.getShiftDay());
         do {
             shiftDay = shiftDay.plusDays(1);
-        } while (isClosingDay(shiftDay, configuration.getAllowEndOfYear()));
+        } while (isClosingDay(shiftDay, true));
         description.setBookCart(fromLocalDate(shiftDay));
-
-        // Proof. Tuesday in the next week. (No adjustments)
-        description.setProof(fromLocalDate(monday.plusDays(8)));
-
-        // BKM-red. Wednesday in the next week. (No adjustments)
-        description.setBkm(fromLocalDate(monday.plusDays(9)));
 
         // Proof can start at the day before tuesday in the next week, at 15.00. (No adjustments)
         description.setProofFrom(fromLocalDate(monday.plusDays(7)));
 
+        // Proof. Tuesday in the next week. (No adjustments)
+        description.setProof(fromLocalDate(monday.plusDays(8)));
+
         // Proof must be completed by tuesday in the next week at 17.00. (No adjustments)
         description.setProofTo(fromLocalDate(monday.plusDays(8)));
+
+        // BKM-red. Wednesday in the next week. (No adjustments)
+        description.setBkm(fromLocalDate(monday.plusDays(9)));
 
         // Publish date. Friday in the next week. (No adjustments)
         description.setPublish(fromLocalDate(monday.plusDays(11)));
