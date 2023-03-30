@@ -387,7 +387,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlan2022() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2022);
+        YearPlanResult yearPlan = wr.getYearPlan(2022, true);
 
         // Check size
         assertThat(yearPlan.size(), is(52));
@@ -400,7 +400,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlan2023() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2023);
+        YearPlanResult yearPlan = wr.getYearPlan(2023, true);
 
         // Check size
         assertThat(yearPlan.size(), is(52));
@@ -469,7 +469,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlanWithWeek2024() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2024);
+        YearPlanResult yearPlan = wr.getYearPlan(2024, true);
 
         // Check size
         assertThat(yearPlan.size(), is(52));
@@ -482,7 +482,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlanWithWeek2025() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2025);
+        YearPlanResult yearPlan = wr.getYearPlan(2025, true);
 
         // Check size
         assertThat(yearPlan.size(), is(52));

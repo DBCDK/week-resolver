@@ -325,7 +325,7 @@ public class WeekResolver {
         return result;
     }
 
-    public YearPlanResult getYearPlan(Integer year) {
+    public YearPlanResult getYearPlan(Integer year, Boolean showAbnormalDayNames) {
         YearPlanResult yearPlan = new YearPlanResult().withYear(String.format("%04d", year));
 
         // Add headers
@@ -359,7 +359,7 @@ public class WeekResolver {
                     yearPlan.getRows().remove(yearPlan.size() - 1);
                 }
             }
-            yearPlan.add(getResultAsRow(currentResult));
+            yearPlan.add(getResultAsRow(currentResult, showAbnormalDayNames));
 
             previousResult = currentResult;
         };
@@ -789,7 +789,7 @@ public class WeekResolver {
         );
     }
 
-    private List<String> getResultAsRow(WeekResolverResult result) {
+    private List<String> getResultAsRow(WeekResolverResult result, Boolean showAbnormalDayNames) {
         // Make sure that headers are returned in this order by getHeadersAsRow()
 
         if (result.getDescription().getNoProduction()) {
@@ -798,13 +798,13 @@ public class WeekResolver {
         }
 
         return List.of(result.getDescription().getWeekCodeShort(),
-                stringFromDate(isSpecialDay(result.getDescription().getWeekCodeFirst(), DayOfWeek.FRIDAY),
+                stringFromDate(isSpecialDay(result.getDescription().getWeekCodeFirst(), DayOfWeek.FRIDAY, showAbnormalDayNames),
                         result.getDescription().getWeekCodeFirst(), true),
-                stringFromDate(isSpecialDay(result.getDescription().getWeekCodeLast(), DayOfWeek.THURSDAY),
+                stringFromDate(isSpecialDay(result.getDescription().getWeekCodeLast(), DayOfWeek.THURSDAY, showAbnormalDayNames),
                         result.getDescription().getWeekCodeLast(), true),
-                stringFromDate(isSpecialDay(result.getDescription().getShiftDay(), DayOfWeek.FRIDAY),
+                stringFromDate(isSpecialDay(result.getDescription().getShiftDay(), DayOfWeek.FRIDAY, showAbnormalDayNames),
                         result.getDescription().getShiftDay(), true),
-                stringFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY),
+                stringFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY, showAbnormalDayNames),
                         result.getDescription().getBookCart(), true),
                 stringFromDate(result.getDescription().getProofFrom(), true),
                 stringFromDate(result.getDescription().getProof(), true),
@@ -814,13 +814,17 @@ public class WeekResolver {
                 result.getDescription().getWeekNumber());
     }
 
-    private String isSpecialDay(Date date, DayOfWeek expectedDayOfWeek) {
+    private String isSpecialDay(Date date, DayOfWeek expectedDayOfWeek, Boolean showAbnormalDayNames) {
         if (date == null) {
             return "--";
         }
         LocalDate actualDayOfWeek = fromDate(date);
         if (actualDayOfWeek.getDayOfWeek() != expectedDayOfWeek) {
-            return actualDayOfWeek.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).toUpperCase() + "   ";
+            if (showAbnormalDayNames) {
+                return actualDayOfWeek.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).toUpperCase() + "   ";
+            } else {
+                return "* ";
+            }
         } else {
             return "";
         }
