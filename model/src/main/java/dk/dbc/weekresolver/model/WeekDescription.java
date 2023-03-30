@@ -7,20 +7,6 @@ import java.util.List;
 
 public class WeekDescription {
 
-    public static List<String> Headers = List.of(
-        "Katalogkode",
-        "DBCKat ugekode start",
-        "DBCKat ugekode slut",
-        "DBCKat ugeafslutning"   ,
-        "Bogvogn",
-        "Ugekorrektur",
-        "BKM-red.",
-        "Ugekorrekturen køres",
-        "Slutredaktion (ugekorrektur)",
-        "Udgivelsesdato",
-        "Ugenummber"
-    );
-
     // DBF/DPF/BKM katalogkode
     private String weekCodeShort;
 

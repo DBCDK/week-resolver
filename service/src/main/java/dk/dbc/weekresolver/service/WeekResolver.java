@@ -329,7 +329,7 @@ public class WeekResolver {
         YearPlanResult yearPlan = new YearPlanResult().withYear(String.format("%04d", year));
 
         // Add headers
-        yearPlan.add(new ArrayList<>(WeekDescription.Headers));
+        yearPlan.add(new ArrayList<>(getHeadersAsRow()));
 
         // Find first day of the year. If not a monday, then move backwards to find the second-last monday in the previous year
         LocalDate currentDate = LocalDate.parse(String.format("%04d-01-01", year), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -771,10 +771,30 @@ public class WeekResolver {
         return LocalDate.ofInstant(date.toInstant(), zoneId);
     }
 
+    private List<String> getHeadersAsRow() {
+        // Make sure that results are returned in this order by getResultAsRow()
+
+        return List.of(
+                "Katalogkode",
+                "DBCKat ugekode start",
+                "DBCKat ugekode slut",
+                "DBCKat ugeafslutning",
+                "Bogvogn",
+                "Ugekorrekturen køres",
+                "Ugekorrektur",
+                "Slutredaktion (ugekorrektur)",
+                "BKM-red.",
+                "Udgivelsesdato",
+                "Ugenummber"
+        );
+    }
+
     private List<String> getResultAsRow(WeekResolverResult result) {
+        // Make sure that headers are returned in this order by getHeadersAsRow()
+
         if (result.getDescription().getNoProduction()) {
             return List.of(result.getDescription().getWeekCodeShort(), "", "", "", "", "", "", "", "", "",
-                    result.getDescription().getWeekNumber().toString());
+                    result.getDescription().getWeekNumber());
         }
 
         return List.of(result.getDescription().getWeekCodeShort(),
@@ -786,12 +806,12 @@ public class WeekResolver {
                         result.getDescription().getShiftDay(), true),
                 stringFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY),
                         result.getDescription().getBookCart(), true),
-                stringFromDate(result.getDescription().getProof(), true),
-                stringFromDate(result.getDescription().getBkm(), true),
                 stringFromDate(result.getDescription().getProofFrom(), true),
+                stringFromDate(result.getDescription().getProof(), true),
                 stringFromDate(result.getDescription().getProofTo(), true),
+                stringFromDate(result.getDescription().getBkm(), true),
                 stringFromDate(result.getDescription().getPublish(), true),
-                result.getDescription().getWeekNumber().toString());
+                result.getDescription().getWeekNumber());
     }
 
     private String isSpecialDay(Date date, DayOfWeek expectedDayOfWeek) {
