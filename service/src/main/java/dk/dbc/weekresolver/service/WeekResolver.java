@@ -742,35 +742,50 @@ public class WeekResolver {
         }
         description.setWeekCodeFirst(fromLocalDate(previousMonday.plusDays(previousShiftDay.getValue() - 1)));
 
-        // Last day this weekcode is assigned
-        if (description.getShiftDay() != null) {
-            description.setWeekCodeLast(fromLocalDate(fromDate(description.getShiftDay()).minusDays(1)));
+        // No further descriptions if this week has no shiftday
+        if (description.getShiftDay() == null) {
+            return description;
         }
 
+        // Last day this weekcode is assigned
+        description.setWeekCodeLast(fromLocalDate(fromDate(description.getShiftDay()).minusDays(1)));
+
         // Book cart the next working day after shiftday. Here we ignore Christmas weeks since
-        // the book cart can be handled on working days in the christmas weeks
-        LocalDate shiftDay = fromDate(description.getShiftDay());
+        // the book cart can be handled on working days in the Christmas weeks
+        LocalDate bookCart = fromDate(description.getShiftDay());
         do {
-            shiftDay = shiftDay.plusDays(1);
-        } while (isClosingDay(shiftDay, true));
-        description.setBookCart(fromLocalDate(shiftDay));
+            bookCart = bookCart.plusDays(1);
+        } while (isClosingDay(bookCart, true));
+        description.setBookCart(fromLocalDate(bookCart));
 
-        // Proof can start at the day before tuesday in the next week, at 15.00. (No adjustments)
-        description.setProofFrom(fromLocalDate(monday.plusDays(7)));
+        // Proof can start at 17.00 the day the book cart has been handled
+        description.setProofFrom(description.getBookCart());
 
-        // Proof. Tuesday in the next week. (No adjustments)
-        description.setProof(fromLocalDate(monday.plusDays(8)));
+        // Proof. The first working day after proof start, not in the Christmas week and before New Year's Eve,
+        LocalDate proof = fromDate(description.getProofFrom());
+        do {
+            proof = proof.plusDays(1);
+        } while (isClosingDay(proof, configuration.getAllowEndOfYear()) || isBetweenChristmasAndNewYearsEve(proof));
+        description.setProof(fromLocalDate(proof));
 
-        // Proof must be completed by tuesday in the next week at 17.00. (No adjustments)
-        description.setProofTo(fromLocalDate(monday.plusDays(8)));
+        // Proof must be completed by tuesday in the next week at 17.00. (No adjustments). Same as proof
+        description.setProofTo(description.getProof());
 
-        // BKM-red. Wednesday in the next week. (No adjustments)
-        description.setBkm(fromLocalDate(monday.plusDays(9)));
+        // BKM-red. Wednesday in the next week., the day after proof ended
+        description.setBkm(fromLocalDate(fromDate(description.getProofTo()).plusDays(1)));
 
-        // Publish date. Friday in the next week. (No adjustments)
-        description.setPublish(fromLocalDate(monday.plusDays(11)));
+        // Publish date. Last working day in the day of the proof
+        LocalDate publish = fromDate(description.getProof());
+        while (!isClosingDay(publish.plusDays(1), configuration.getAllowEndOfYear())) {
+            publish = publish.plusDays(1);
+        }
+        description.setPublish(fromLocalDate(publish));
 
         return description;
+    }
+
+    public boolean isBetweenChristmasAndNewYearsEve(LocalDate date) {
+        return date.getMonth() == Month.DECEMBER && date.getDayOfMonth() >= 24;
     }
 
     public Date fromLocalDate(LocalDate date) {
