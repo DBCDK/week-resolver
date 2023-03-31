@@ -5,6 +5,8 @@ import dk.dbc.weekresolver.model.YearPlanResult;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testcontainers.shaded.com.google.common.collect.RangeSet;
+import org.testcontainers.shaded.org.apache.commons.lang3.Range;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -15,6 +17,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.IntStream;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -568,7 +572,6 @@ class WeekResolverTest {
         results.add(wr.getWeekCode(monday.plusWeeks(6))); // 16/01-2023 = BKM202305
         assertThat(results.size(), is(7));
 
-        LOGGER.info("{}", results);
         results.forEach(r -> {
             LOGGER.info("{}", r.getWeekCode());
             if (r.getDescription().getWeekCodeFirst() != null) {
@@ -717,5 +720,60 @@ class WeekResolverTest {
         assertThat(wr.withDate("2024-01-04").getWeekCode().getWeekCode(), is("BKM202403"));
         assertThat(wr.withDate("2024-01-05").getWeekCode().getWeekCode(), is("BKM202404"));
         assertThat(wr.withDate("2024-01-06").getWeekCode().getWeekCode(), is("BKM202404"));
+    }
+
+    @Test
+    void testYearPlanAndWeekCodeCrossCheck() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+
+        // Check year plan and code for the previous year, up to 2 years into the future.
+        // This (almost certainly) ensures that an automatic build breaks at least a year
+        // before someone is going to use a year plan or codes from a given year.
+        int thisYear = LocalDate.now().getYear();
+        IntStream years = IntStream.range(thisYear - 1, thisYear + 3);
+
+        years.forEach(year -> {
+            YearPlanResult yearPlan = wr.getYearPlan(year, true);
+
+            // Check size
+            assertThat(yearPlan.size(), is(52));
+
+            // Check alignment
+            assertThat(yearPlan.getRows().get(1).getColumns().get(0), is(String.format("%d03", year)));
+            assertThat(yearPlan.getRows().get(51).getColumns().get(0), is(String.format("%d03", year + 1)));
+
+            // Check all days and their weekcodes
+            yearPlan.getRows().stream().skip(48).forEach(row -> {
+
+                // Get year plan code, first and last date for each week
+                String code = row.getColumns().get(0);
+                String first = row.getColumns().get(1);
+                String last = row.getColumns().get(2);
+
+                assertThat(code == null || code.isEmpty(), is(false));
+                assertThat(first == null || first.isEmpty(), is(false));
+                if (last == null || last.isEmpty()) {
+                    return;
+                }
+
+                // Clean first and last (they may have added day names due to abnormal weeks)
+                first = first.replaceAll("\"", "");
+                first = first.substring(first.length() - 10);
+                last = last.replaceAll("\"", "");
+                last = last.substring(last.length() - 10);
+
+                // Convert to dates
+                LocalDate firstDate = wr.fromString(first);
+                LocalDate lastDate = wr.fromString(last);
+
+                // Check all dates between first and last, and make sure they get the code indicated by the year plan
+                LocalDate date = firstDate;
+                while (date.isBefore(lastDate) || date.isEqual(lastDate)) {
+                    WeekResolverResult result = wr.getWeekCode(date);
+                    assertThat(result.getWeekCode(), is(result.getCatalogueCode() + code));
+                    date = date.plusDays(1);
+                }
+            });
+        });
     }
 }
