@@ -90,7 +90,7 @@ class WeekResolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         YearPlanResult y = connector.getYearPlanForCodeAndYear(YearPlanFormat.JSON, "BKM", 2022);
         assertThat(y.getRows().size(), is(52));
-        assertThat(y.getRows().get(1).getColumns().get(0), is("202203"));
+        assertThat(y.getRows().get(1).getColumns().get(0).getContent(), is("202203"));
     }
 
     @Test

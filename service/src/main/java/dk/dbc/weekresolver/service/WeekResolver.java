@@ -850,81 +850,94 @@ public class WeekResolver {
         return LocalDate.ofInstant(date.toInstant(), zoneId);
     }
 
-    private List<String> getHeadersAsRow() {
+    private List<YearPlanResult.YearPlanRowColumn> getHeadersAsRow() {
         // Make sure that results are returned in this order by getResultAsRow()
 
         return List.of(
-                "Katalogkode",
-                "DBCKat ugekode start",
-                "DBCKat ugekode slut",
-                "DBCKat ugeafslutning",
-                "Bogvogn",
-                "Ugekorrekturen køres",
-                "Ugekorrektur",
-                "Slutredaktion (ugekorrektur)",
-                "BKM-red.",
-                "Udgivelsesdato",
-                "Ugenummber"
+                new YearPlanResult.YearPlanRowColumn("Katalogkode", false, true),
+                new YearPlanResult.YearPlanRowColumn("DBCKat ugekode start", false, true),
+                new YearPlanResult.YearPlanRowColumn("DBCKat ugekode slut", false, true),
+                new YearPlanResult.YearPlanRowColumn("DBCKat ugeafslutning", false, true),
+                new YearPlanResult.YearPlanRowColumn("Bogvogn", false, true),
+                new YearPlanResult.YearPlanRowColumn("Ugekorrekturen køres", false, true),
+                new YearPlanResult.YearPlanRowColumn("Ugekorrektur", false, true),
+                new YearPlanResult.YearPlanRowColumn("Slutredaktion (ugekorrektur)", false, true),
+                new YearPlanResult.YearPlanRowColumn("BKM-red.", false, true),
+                new YearPlanResult.YearPlanRowColumn("Udgivelsesdato", false, true),
+                new YearPlanResult.YearPlanRowColumn("Ugenummber", false, true)
         );
     }
 
-    private List<String> getResultAsRow(WeekResolverResult result, Boolean showAbnormalDayNames) {
-        // Make sure that headers are returned in this order by getHeadersAsRow()
+    private List<YearPlanResult.YearPlanRowColumn> getResultAsRow(WeekResolverResult result, Boolean showAbnormalDayNames) {
+        // Make sure that headers are returned in same order as the rows are added below by getHeadersAsRow()
 
         if (result.getDescription().getNoProduction()) {
-            return List.of(result.getDescription().getWeekCodeShort(), "", "", "", "", "", "", "", "", "",
-                    result.getDescription().getWeekNumber());
+            return List.of(
+                    new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekCodeShort()),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekNumber())
+            );
         }
 
-        return List.of(result.getDescription().getWeekCodeShort(),
-                stringFromDate(isSpecialDay(result.getDescription().getWeekCodeFirst(), DayOfWeek.FRIDAY, showAbnormalDayNames),
-                        result.getDescription().getWeekCodeFirst(), true),
-                stringFromDate(isSpecialDay(result.getDescription().getWeekCodeLast(), DayOfWeek.THURSDAY, showAbnormalDayNames),
-                        result.getDescription().getWeekCodeLast(), true),
-                stringFromDate(isSpecialDay(result.getDescription().getShiftDay(), DayOfWeek.FRIDAY, showAbnormalDayNames),
-                        result.getDescription().getShiftDay(), true),
-                stringFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY, showAbnormalDayNames),
-                        result.getDescription().getBookCart(), true),
-                stringFromDate(result.getDescription().getProofFrom(), true),
-                stringFromDate(result.getDescription().getProof(), true),
-                stringFromDate(result.getDescription().getProofTo(), true),
-                stringFromDate(isSpecialDay(result.getDescription().getBkm(), DayOfWeek.WEDNESDAY, showAbnormalDayNames),
-                        result.getDescription().getBkm(), true),
-                stringFromDate(result.getDescription().getPublish(), true),
-                result.getDescription().getWeekNumber());
+        return List.of(
+                new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekCodeShort()),
+                rowContentFromDate(isSpecialDay(result.getDescription().getWeekCodeFirst(), DayOfWeek.FRIDAY),
+                        result.getDescription().getWeekCodeFirst(), true, showAbnormalDayNames),
+                rowContentFromDate(isSpecialDay(result.getDescription().getWeekCodeLast(), DayOfWeek.THURSDAY),
+                        result.getDescription().getWeekCodeLast(), true, showAbnormalDayNames),
+                rowContentFromDate(isSpecialDay(result.getDescription().getShiftDay(), DayOfWeek.FRIDAY),
+                        result.getDescription().getShiftDay(), true, showAbnormalDayNames),
+                rowContentFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY),
+                        result.getDescription().getBookCart(), true, showAbnormalDayNames),
+                rowContentFromDate(result.getDescription().getProofFrom(), true),
+                rowContentFromDate(result.getDescription().getProof(), true),
+                rowContentFromDate(result.getDescription().getProofTo(), true),
+                rowContentFromDate(isSpecialDay(result.getDescription().getBkm(), DayOfWeek.WEDNESDAY),
+                        result.getDescription().getBkm(), true, showAbnormalDayNames),
+                rowContentFromDate(result.getDescription().getPublish(), true),
+                new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekNumber())
+        );
     }
 
-    private String isSpecialDay(Date date, DayOfWeek expectedDayOfWeek, Boolean showAbnormalDayNames) {
+    private Boolean isSpecialDay(Date date, DayOfWeek expectedDayOfWeek) {
         if (date == null) {
-            return "--";
+            return false;
         }
         LocalDate actualDayOfWeek = fromDate(date);
-        if (actualDayOfWeek.getDayOfWeek() != expectedDayOfWeek) {
-            if (showAbnormalDayNames) {
-                return actualDayOfWeek.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).toUpperCase() + "   ";
-            } else {
-                return "* ";
-            }
-        } else {
-            return "";
-        }
+        return actualDayOfWeek.getDayOfWeek() != expectedDayOfWeek;
     }
 
-    public String stringFromDate(Date date) {
-        return stringFromDate(date, false);
+    public YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date) {
+        return rowContentFromDate(date, false);
     }
 
-    private String stringFromDate(Date date, boolean quoted) {
-        return stringFromDate("", date, quoted);
+    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date, boolean quoted) {
+        return rowContentFromDate(false, date, quoted, false);
     }
 
-    private String stringFromDate(String prefix, Date date, boolean quoted) {
+    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Boolean isAbnormalDay, Date date, boolean quoted, Boolean showAbnormalDayNames ) {
         if (date == null) {
-            return "\"\"";
+            return new YearPlanResult.YearPlanRowColumn(quoted ? "\"\"" : "");
         }
+
+        LocalDate actualDayOfWeek = fromDate(date);
+        String prefix = isAbnormalDay && showAbnormalDayNames
+                ? actualDayOfWeek.getDayOfWeek().getDisplayName(TextStyle.FULL, locale).toUpperCase() + "   "
+                : "";
+
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", locale);
         LocalDate localDate = fromDate(date);
-        return (quoted ? "\"" : "") + prefix + localDate.format(formatter) + (quoted ? "\"" : "");
+        return new YearPlanResult.YearPlanRowColumn(
+                (quoted ? "\"" : "") + prefix + localDate.format(formatter) + (quoted ? "\"" : ""),
+                isAbnormalDay);
     }
 
     public LocalDate fromString(String date) {

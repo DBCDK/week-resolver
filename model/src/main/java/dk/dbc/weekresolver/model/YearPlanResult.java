@@ -9,24 +9,105 @@ public class YearPlanResult implements Result {
         rows = new ArrayList<>();
     }
 
+    public static class YearPlanRowColumn {
+
+        private String content;
+
+        private Boolean isHeader;
+
+        private Boolean isAbnormalDay;
+
+        public YearPlanRowColumn() {
+            this.content = "";
+            this.isHeader = false;
+            this.isAbnormalDay = false;
+        }
+
+        public YearPlanRowColumn(String content) {
+            this.content = content;
+            this.isHeader = false;
+            this.isAbnormalDay = false;
+        }
+
+        public YearPlanRowColumn(String content, Boolean isAbnormalDay) {
+            this.content = content;
+            isHeader = false;
+            this.isAbnormalDay = isAbnormalDay;
+        }
+
+        public YearPlanRowColumn(String content, Boolean isAbnormalDay, Boolean isHeader) {
+            this.content = content;
+            this.isHeader = isHeader;
+            this.isAbnormalDay = isAbnormalDay;
+        }
+
+        public String getContent() {
+            return content;
+        }
+
+        public void setContent(String content) {
+            this.content = content;
+        }
+
+        public YearPlanRowColumn withContent(String content) {
+            this.content = content;
+            return this;
+        }
+
+        public Boolean getHeader() {
+            return isHeader;
+        }
+
+        public void setHeader(Boolean header) {
+            isHeader = header;
+        }
+
+        public YearPlanRowColumn withHeader(Boolean header) {
+            isHeader = header;
+            return this;
+        }
+
+        public Boolean getAbnormalDay() {
+            return isAbnormalDay;
+        }
+
+        public void setAbnormalDay(Boolean abnormalDay) {
+            isAbnormalDay = abnormalDay;
+        }
+
+        public YearPlanRowColumn withAbnormalDay(Boolean abnormalDay) {
+            isAbnormalDay = abnormalDay;
+            return this;
+        }
+
+        @Override
+        public String toString() {
+            return "YearPlanRowContent{" +
+                    "content='" + content + '\'' +
+                    ", isHeader=" + isHeader +
+                    ", isAbnormalDay=" + isAbnormalDay +
+                    '}';
+        }
+    }
+
     public static class YearPlanRow {
-        private List<String> columns;
+        private List<YearPlanRowColumn> columns;
 
         YearPlanRow() {}
 
-        YearPlanRow(List<String> columns) {
+        YearPlanRow(List<YearPlanRowColumn> columns) {
             this.columns = columns;
         }
 
-        public List<String> getColumns() {
+        public List<YearPlanRowColumn> getColumns() {
             return columns;
         }
 
-        public void setColumns(List<String> columns) {
+        public void setColumns(List<YearPlanRowColumn> columns) {
             this.columns = columns;
         }
 
-        public YearPlanRow withColumns(List<String> columns) {
+        public YearPlanRow withColumns(List<YearPlanRowColumn> columns) {
             this.columns = columns;
             return this;
         }
@@ -69,7 +150,7 @@ public class YearPlanResult implements Result {
         return this;
     }
 
-    public void add(List<String> columns) {
+    public void add(List<YearPlanRowColumn> columns) {
         rows.add(new YearPlanRow(columns));
     }
 

@@ -10,7 +10,9 @@ public class CsvFormatter {
 
     public static String format(YearPlanResult result) {
         return result.getRows().stream()
-                .map(row -> String.join(CSV_SEPARATOR, row.getColumns()))
+                .map(row -> row.getColumns().stream()
+                        .map(YearPlanResult.YearPlanRowColumn::getContent)
+                        .collect(Collectors.joining(CSV_SEPARATOR)))
                 .collect(Collectors.joining("\n"));
     }
 }

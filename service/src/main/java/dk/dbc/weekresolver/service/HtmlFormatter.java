@@ -33,8 +33,7 @@ public class HtmlFormatter {
         // Body
         builder.append("  <body>\n");
         builder.append("    <table>\n");
-        builder.append(formatHtmlRow(result.getRows().get(0), true));
-        result.getRows().stream().skip(1).forEach(r -> builder.append(formatHtmlRow(r, false)));
+        result.getRows().stream().forEach(r -> builder.append(formatHtmlRow(r)));
         builder.append("    </table>\n");
         builder.append("  </body>\n");
 
@@ -43,28 +42,29 @@ public class HtmlFormatter {
         return builder.toString();
     }
 
-    private static String formatHtmlRow(YearPlanResult.YearPlanRow row, boolean isHeader) {
+    private static String formatHtmlRow(YearPlanResult.YearPlanRow row) {
         StringBuilder builder = new StringBuilder();
 
         builder.append("      <tr>\n");
         row.getColumns().forEach(c ->
-                builder.append(formatHtmlColumn(c
-                        .replaceAll("\"", "")
-                        .replaceAll(" ", "&nbsp;"), isHeader)));
+                builder.append(formatHtmlColumn(c)));
         builder.append("      </tr>\n");
 
         return builder.toString();
     }
 
-    private static String formatHtmlColumn(String content, boolean isHeader) {
+    private static String formatHtmlColumn(YearPlanResult.YearPlanRowColumn column) {
         StringBuilder builder = new StringBuilder();
-        boolean modified = !isHeader && content.length() > "yyyy-mm-dd".length();
+
+        String content = column.getContent()
+                .replaceAll("\"", "")
+                .replaceAll(" ", "&nbsp;");
 
         builder.append("      <td>\n");
-        builder.append("        <p class=" + (modified ? "modified": "normal") + ">");
-        builder.append(isHeader ? "<b>" : "");
-        builder.append("<nobr>" + (content.length() == 0 ? "---" : content) + "</nobr>");
-        builder.append(isHeader ? "</b>" : "");
+        builder.append("        <p class=").append(column.getAbnormalDay() ? "modified" : "normal").append(">");
+        builder.append(column.getHeader() ? "<b>" : "");
+        builder.append("<nobr>").append(content.length() == 0 ? "---" : content).append("</nobr>");
+        builder.append(column.getHeader() ? "</b>" : "");
         builder.append("</p>\n");
         builder.append("      </td>\n");
 

@@ -23,11 +23,8 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Path("/api")
 public class WeekResolverService {
@@ -285,7 +282,7 @@ public class WeekResolverService {
             LocalDate endDate = wr.fromString(end);
 
             while (startDate.isBefore(endDate) || startDate.isEqual(endDate)) {
-                days.put(wr.stringFromDate(wr.fromLocalDate(startDate)), wr.getWeekCode(startDate).getWeekCode());
+                days.put(wr.rowContentFromDate(wr.fromLocalDate(startDate)).getContent(), wr.getWeekCode(startDate).getWeekCode());
                 startDate = startDate.plusDays(1);
             }
             return Response.ok(jsonbContext.marshall(days), MediaType.APPLICATION_JSON).build();
