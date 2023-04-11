@@ -247,6 +247,15 @@ public class WeekResolver {
         LOGGER.debug("date shifted {} week(s) {}", configuration.getAddWeeks(), expectedDate);
         LOGGER.debug("======================== END WEEKCODE CALCULATION ==================================");
 
+        // Step 5: Check that bkm-red. and publish does not collide, if so, then push another week (example is end of 2024)
+        //         We do this by checking that the week before the selected day has at least enough days
+        //         so that proof and BKM-red can be finished by thursday - so we need 3 working days in the previous
+        //         week to make sure this is fulfilled
+        if (previousWeekIsTooShort(expectedDate, 3)) {
+            expectedDate = getMonday(expectedDate.plusWeeks(1));
+            LOGGER.debug("Date shifted to monday next week due to previous week having too few working days to {}", expectedDate);
+        }
+
         // Build final result
         LOGGER.debug("Date {} pushed to final date {} with weeknumber {}", customDate, expectedDate,
                 Integer.parseInt(expectedDate.format(DateTimeFormatter.ofPattern("w", locale))));
@@ -255,6 +264,32 @@ public class WeekResolver {
         result.setDescription(calculateWeekDescription(configuration, customDate, result.getWeekCode()));
         LOGGER.debug("======================== END DESCRIPTION CALCULATION ==================================");
         return result;
+    }
+
+    private Boolean previousWeekIsTooShort(LocalDate date, int required) {
+        LocalDate previousDate = getMonday(date).minusDays(1);
+        LOGGER.debug("Checking for short week from {}", previousDate);
+
+        // Short weeks is only a problem around the year change, Easter is handled differently
+        // since a whole week disappears.
+        if (previousDate.getMonth() != Month.JANUARY) {
+            LOGGER.debug("Not a date within january, so no check for shoort weeks");
+            return false;
+        }
+
+        // Count the number of working days, then check if there is the required amount
+        int numWorkingDays = 0;
+        do {
+            LOGGER.debug("Checking for working day {}", previousDate);
+            if (!isClosingDay(previousDate, true)) { // also check working days in christmas weeks
+                LOGGER.debug("{} is a working day", previousDate);
+                numWorkingDays++;
+            }
+            previousDate = previousDate.minusDays(1);
+        } while(previousDate.getDayOfWeek().getValue() > DayOfWeek.MONDAY.getValue());
+
+        LOGGER.debug("Week has {} working days", numWorkingDays);
+        return numWorkingDays < required;
     }
 
     private Boolean isFirstWeekOfYear(LocalDate date) {
@@ -523,6 +558,10 @@ public class WeekResolver {
         return date.minusDays( date.getDayOfWeek().getValue() - DayOfWeek.MONDAY.getValue());
     }
 
+    private LocalDate getFriday(LocalDate date) {
+        return date.plusDays( DayOfWeek.FRIDAY.getValue() - date.getDayOfWeek().getValue());
+    }
+
     /**
      * Check if the given date is a date within the Easter week
      * @param expectedDate The date to check
@@ -728,6 +767,7 @@ public class WeekResolver {
                 // Then adjust the date to the day before shiftday
                 previousShiftDate = previousShiftDate.plusDays(previousShiftDay.getValue() - 1);
                 description.setWeekCodeFirst(fromLocalDate(previousShiftDate));
+                LOGGER.debug("WEEKCODE_FIRST = {}", description.getWeekCodeFirst());
             }
 
             return description;
@@ -741,6 +781,7 @@ public class WeekResolver {
             previousShiftDay = adjustShiftDay(previousMonday, configuration.getShiftDay(), configuration.getAllowEndOfYear());
         }
         description.setWeekCodeFirst(fromLocalDate(previousMonday.plusDays(previousShiftDay.getValue() - 1)));
+        LOGGER.debug("WEEKCODE_FIRST = {}", description.getWeekCodeFirst());
 
         // No further descriptions if this week has no shiftday
         if (description.getShiftDay() == null) {
@@ -749,6 +790,7 @@ public class WeekResolver {
 
         // Last day this weekcode is assigned
         description.setWeekCodeLast(fromLocalDate(fromDate(description.getShiftDay()).minusDays(1)));
+        LOGGER.debug("WEEKCODE_LAST = {}", description.getWeekCodeLast());
 
         // Book cart the next working day after shiftday. Here we ignore Christmas weeks since
         // the book cart can be handled on working days in the Christmas weeks
@@ -757,29 +799,41 @@ public class WeekResolver {
             bookCart = bookCart.plusDays(1);
         } while (isClosingDay(bookCart, true));
         description.setBookCart(fromLocalDate(bookCart));
+        LOGGER.debug("BOOKCART = {}", description.getBookCart());
 
         // Proof can start at 17.00 the day the book cart has been handled
         description.setProofFrom(description.getBookCart());
+        LOGGER.debug("PROOF_FROM = {}", description.getProofFrom());
 
         // Proof. The first working day after proof start, not in the Christmas week and before New Year's Eve,
+        // Proof must not be within the Easter week
         LocalDate proof = fromDate(description.getProofFrom());
         do {
             proof = proof.plusDays(1);
-        } while (isClosingDay(proof, configuration.getAllowEndOfYear()) || isBetweenChristmasAndNewYearsEve(proof));
+        } while (isClosingDay(proof, configuration.getAllowEndOfYear()) || isBetweenChristmasAndNewYearsEve(proof) || isEasterWeek(proof));
         description.setProof(fromLocalDate(proof));
+        LOGGER.debug("PROOF = {}", description.getProof());
 
         // Proof must be completed by tuesday in the next week at 17.00. (No adjustments). Same as proof
         description.setProofTo(description.getProof());
+        LOGGER.debug("PROOF_TO = {}", description.getProofTo());
 
         // BKM-red. Wednesday in the next week., the day after proof ended
-        description.setBkm(fromLocalDate(fromDate(description.getProofTo()).plusDays(1)));
+        // Make sure that BKM-red does not end up on a closing day
+        LocalDate bkm = fromDate(description.getProofTo());
+        do {
+            bkm = bkm.plusDays(1);
+        } while (isClosingDay(bkm, configuration.getAllowEndOfYear()) || isEasterWeek(bkm));
+        description.setBkm(fromLocalDate(bkm));
+        LOGGER.debug("BKM = {}", description.getBkm());
 
-        // Publish date. Last working day in the day of the proof
-        LocalDate publish = fromDate(description.getProof());
-        while (!isClosingDay(publish.plusDays(1), configuration.getAllowEndOfYear())) {
-            publish = publish.plusDays(1);
+        // Publish date. Last working day in the week of the proof.
+        LocalDate publish = getFriday(fromDate(description.getProofTo()));
+        while (isClosingDay(publish, configuration.getAllowEndOfYear()) && publish.isAfter(fromDate(description.getProofTo()))) {
+            publish = publish.minusDays(1);
         }
         description.setPublish(fromLocalDate(publish));
+        LOGGER.debug("PUBLISH = {}", description.getPublish());
 
         return description;
     }
@@ -834,7 +888,8 @@ public class WeekResolver {
                 stringFromDate(result.getDescription().getProofFrom(), true),
                 stringFromDate(result.getDescription().getProof(), true),
                 stringFromDate(result.getDescription().getProofTo(), true),
-                stringFromDate(result.getDescription().getBkm(), true),
+                stringFromDate(isSpecialDay(result.getDescription().getBkm(), DayOfWeek.WEDNESDAY, showAbnormalDayNames),
+                        result.getDescription().getBkm(), true),
                 stringFromDate(result.getDescription().getPublish(), true),
                 result.getDescription().getWeekNumber());
     }

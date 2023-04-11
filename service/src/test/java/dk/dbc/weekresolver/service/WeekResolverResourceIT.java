@@ -1,6 +1,10 @@
 package dk.dbc.weekresolver.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDate;
+import java.util.Objects;
 
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.weekresolver.connector.WeekResolverConnector;
@@ -16,10 +20,11 @@ import org.slf4j.LoggerFactory;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WeekresolverResourceIT.class);
+class WeekResolverResourceIT extends AbstractWeekresolverServiceContainerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverResourceIT.class);
 
     @Test
     void openapi() {
@@ -102,4 +107,24 @@ class WeekresolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         assertThat(csv.split("\n").length, is(52));
         assertThat(csv.split("\n")[1].startsWith("202203;"), is(true));
     }
+
+    @Test
+    void test2023CompleteCheck() throws IOException, WeekResolverConnectorException {
+        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
+        String[] actualCsv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2023).split("\n");
+
+        String content = Files.readString(
+                Path.of(Objects.requireNonNull(
+                        getClass().getClassLoader().getResource("2023.csv")).getPath()));
+        assertThat(content, is(notNullValue()));
+        String[] expectedCsv = content.split("\n");
+
+        assertThat(expectedCsv.length, is(actualCsv.length));
+
+        // Make sure that the year plan for 2023 does not change when modifying output for 2024
+        for (int i = 0; i < actualCsv.length; i++) {
+            assertThat(actualCsv[i], is(expectedCsv[i]));
+        }
+    }
+
 }
