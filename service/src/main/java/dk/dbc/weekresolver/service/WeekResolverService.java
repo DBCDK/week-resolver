@@ -172,9 +172,9 @@ public class WeekResolverService {
 
     /**
      * Get week code based on catalogCode and a date
-     * @param date
-     * @param catalogueCode
-     * @return
+     * @param date Date
+     * @param catalogueCode Catalogue code
+     * @return A weekcode result on success
      */
     private Response getWeekCodeFromDate(final String catalogueCode, final String date) {
         WeekResolverResult result;
@@ -204,9 +204,9 @@ public class WeekResolverService {
 
     /**
      * Get current week code based on catalogCode and a date
-     * @param date
-     * @param catalogueCode
-     * @return
+     * @param date Date
+     * @param catalogueCode Catalogue code
+     * @return A weekcode result on success
      */
     private Response getCurrentWeekCodeFromDate(final String catalogueCode, final String date) {
         WeekResolverResult result;
@@ -236,10 +236,10 @@ public class WeekResolverService {
 
     /**
      * Get year plan based on format, catalogCode and a year
-     * @param format
-     * @param catalogueCode
-     * @param year
-     * @return
+     * @param format Format
+     * @param catalogueCode  Catalogue code
+     * @param year Year
+     * @return A year plan on success
      */
     private Response getYearPlanFromCodeAndYear(final YearPlanFormat format, final String catalogueCode, final Integer year, Boolean showAbnormalDayNames) {
         YearPlanResult result;
