@@ -9,6 +9,7 @@ import java.util.Objects;
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.weekresolver.connector.WeekResolverConnector;
 import dk.dbc.weekresolver.connector.WeekResolverConnectorException;
+import dk.dbc.weekresolver.model.WeekCodeFulfilledResult;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanFormat;
 import dk.dbc.weekresolver.model.YearPlanResult;
@@ -127,4 +128,33 @@ class WeekResolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         }
     }
 
+    @Test
+    void getPastWeekCodeFulfilled() throws WeekResolverConnectorException {
+        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
+
+        String past = connector.getCurrentWeekCodeForDate("BKM", LocalDate.now().minusWeeks(1)).getWeekCode();
+
+        WeekCodeFulfilledResult result = connector.getWeekCodeFulfilled(past);
+        assertThat(result.getFulfilled(), is(true));
+    }
+
+    @Test
+    void getPresentWeekCodeFulfilled() throws WeekResolverConnectorException {
+        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
+
+        String present = connector.getCurrentWeekCode("BKM").getWeekCode();
+
+        WeekCodeFulfilledResult result = connector.getWeekCodeFulfilled(present);
+        assertThat(result.getFulfilled(), is(true));
+    }
+
+    @Test
+    void getFutureWeekCodeFulfilled() throws WeekResolverConnectorException {
+        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
+
+        String future = connector.getCurrentWeekCodeForDate("BKM", LocalDate.now().plusWeeks(1)).getWeekCode();
+
+        WeekCodeFulfilledResult result = connector.getWeekCodeFulfilled(future);
+        assertThat(result.getFulfilled(), is(false));
+    }
 }

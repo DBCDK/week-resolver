@@ -369,7 +369,7 @@ class WeekResolverTest {
         assertThat(wr.withDate("2022-12-15").getCurrentWeekCode().getWeekCode(), is("BKM202250"));
         assertThat(wr.withDate("2022-12-20").getCurrentWeekCode().getWeekCode(), is("BKM202251"));
         assertThat(wr.withDate("2022-12-21").getCurrentWeekCode().getWeekCode(), is("BKM202251"));
-        assertThat(wr.withDate("2022-12-22").getCurrentWeekCode().getWeekCode(), is("BKM202252"));
+        assertThat(wr.withDate("2022-12-22").getCurrentWeekCode().getWeekCode(), is("BKM202251"));
         assertThat(wr.withDate("2022-12-23").getCurrentWeekCode().getWeekCode(), is("BKM202252"));
 
         // Christmas
@@ -382,10 +382,12 @@ class WeekResolverTest {
         // "Kristi Himmelfart"
         assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-19").getCurrentWeekCode().getWeekCode(), is("DBF202021"));
         assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-19").getCurrentWeekCode().getWeekCode(), is("BKM202021"));
-        assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-20").getCurrentWeekCode().getWeekCode(), is("DBF202022"));
-        assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-20").getCurrentWeekCode().getWeekCode(), is("BKM202022"));
-        assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-21").getCurrentWeekCode().getWeekCode(), is("DBF202022"));
-        assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-21").getCurrentWeekCode().getWeekCode(), is("BKM202022"));
+        assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-20").getCurrentWeekCode().getWeekCode(), is("DBF202021"));
+        assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-20").getCurrentWeekCode().getWeekCode(), is("BKM202021"));
+        assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-21").getCurrentWeekCode().getWeekCode(), is("DBF202021"));
+        assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-21").getCurrentWeekCode().getWeekCode(), is("BKM202021"));
+        assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-22").getCurrentWeekCode().getWeekCode(), is("DBF202022"));
+        assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-22").getCurrentWeekCode().getWeekCode(), is("BKM202022"));
     }
 
     @Test
@@ -505,7 +507,7 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(50).getColumns().get(1).getContent(), is("\"2023-12-15\"")); // week 52
         assertThat(yearPlan.getRows().get(50).getColumns().get(0).getContent(), is("202402"));         // week 52
         yearPlan.getRows().forEach(r -> {
-            if (!Set.of("202303", "202304", "202316", "202403").contains(r.getColumns().get(0))) {
+            if (!Set.of("202303", "202304", "202316", "202403").contains(r.getColumns().get(0).getContent())) {
                 assertThat(r.getColumns().get(1).getContent().isEmpty(), is(false));
             }
         });

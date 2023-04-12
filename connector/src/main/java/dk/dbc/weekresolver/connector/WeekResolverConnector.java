@@ -4,6 +4,7 @@ import dk.dbc.httpclient.FailSafeHttpClient;
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.invariant.InvariantUtil;
 import dk.dbc.util.Stopwatch;
+import dk.dbc.weekresolver.model.WeekCodeFulfilledResult;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanFormat;
 import dk.dbc.weekresolver.model.YearPlanResult;
@@ -133,6 +134,20 @@ public class WeekResolverConnector {
             return response.readEntity(String.class);
         } finally {
             LOGGER.info("getWeekCode took {} ms", stopwatch.getElapsedTime(TimeUnit.MILLISECONDS));
+        }
+    }
+
+    public WeekCodeFulfilledResult getWeekCodeFulfilled(String weekCode) throws WeekResolverConnectorException {
+        LOGGER.info("Checking if weekcode {} is fulfilled", weekCode);
+        final Stopwatch stopwatch = new Stopwatch();
+        try {
+            final Response response = new HttpGet(failSafeHttpClient).withBaseUrl(baseUrl)
+                    .withPathElements("api", "v1", "fulfilled", weekCode).execute();
+            assertResponseStatus(response);
+
+            return response.readEntity(WeekCodeFulfilledResult.class);
+        } finally {
+            LOGGER.info("getWeekCodeFulfilled took {} ms", stopwatch.getElapsedTime(TimeUnit.MILLISECONDS));
         }
     }
 

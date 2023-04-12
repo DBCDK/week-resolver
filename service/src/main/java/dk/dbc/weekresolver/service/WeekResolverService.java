@@ -3,6 +3,7 @@ package dk.dbc.weekresolver.service;
 import dk.dbc.commons.jsonb.JSONBContext;
 import dk.dbc.commons.jsonb.JSONBException;
 
+import dk.dbc.weekresolver.model.WeekCodeFulfilledResult;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanFormat;
 import dk.dbc.weekresolver.model.YearPlanResult;
@@ -168,6 +169,54 @@ public class WeekResolverService {
                                @PathParam("end") final String end) {
         LOGGER.trace("getDayPlan({}, {}, {})", catalogueCode, start, end);
         return getDayPlanFromDateToDate(catalogueCode, start, end);
+    }
+
+    /**
+     * Endpoint for checking if a weekcode has been fulfilled (current weekcode is same or newer)
+     *
+     * @param weekCode Week code
+     * @return a HTTP 200 with a WeekCodeFulfilledResult object
+     * @throws UnsupportedOperationException if the specified catalogue code is unknown or unsupported
+     */
+    @GET
+    @Path("v1/fulfilled/{weekCode}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getWeekCodeFulfilled(@PathParam("weekCode") final String weekCode) {
+        LOGGER.trace("getWeekCodeFulfilled({})", weekCode);
+
+        if (weekCode == null || weekCode.length() != 9) {
+            LOGGER.error("Incorrect weekcode in request to getWeekCodeFulfilled({})", weekCode);
+            return Response.status(400, "Invalid week code").build();
+        }
+
+        try {
+            WeekResolverResult currentResult = new WeekResolver(timeZone)
+                    .withDate(LocalDate.now().toString())
+                    .withCatalogueCode(weekCode.substring(0, 3).toUpperCase())
+                    .getCurrentWeekCode();
+            LOGGER.info("Current weekcode for {} is {}", currentResult.getCatalogueCode(), currentResult.getWeekCode());
+
+            // Extract weeks and compare them
+            Integer currentYearWeek = Integer.parseInt(currentResult.getWeekCode().substring(3));
+            Integer requestedYearWeek = Integer.parseInt(weekCode.substring(3));
+
+            LOGGER.info("Checking if (current) {} is equal to or later than (requested) {}", currentYearWeek, requestedYearWeek);
+            WeekCodeFulfilledResult result = new WeekCodeFulfilledResult()
+                    .withRequestedWeekCode(weekCode.toUpperCase())
+                    .withCurrentWeekCodeResult(currentResult)
+                    .withFulfilled(currentYearWeek >= requestedYearWeek);
+            LOGGER.info("Requested week code {} is fulfilled = {}", weekCode.toUpperCase(), result.getFulfilled());
+            return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
+        } catch( UnsupportedOperationException unsupportedOperationException) {
+            LOGGER.error("Unsupported cataloguecode {}", weekCode.substring(0, 3));
+            return Response.status(400, "Unsupported cataloguecode").build();
+        } catch( DateTimeParseException dateTimeParseException ) {
+            LOGGER.error("Invalid date {}: {}", LocalDate.now().toString(), dateTimeParseException.getCause());
+            return Response.status( 400, "Unable to parse the date").build();
+        } catch (JSONBException jsonbException) {
+            LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
+            return Response.status(500, "Internal error when serializing result").build();
+        }
     }
 
     /**
