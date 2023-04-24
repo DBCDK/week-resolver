@@ -26,7 +26,7 @@ pipeline {
         stage("verify") {
             steps {
                 sh "mvn -D sourcepath=src/main/java verify pmd:pmd javadoc:aggregate"
-                junit "target/surefire-reports/TEST-*.xml"
+                junit "service/target/surefire-reports/TEST-*.xml"
             }
         }
         stage("warnings") {
