@@ -55,7 +55,7 @@ pipeline {
             }
             steps {
                 script {
-                    docker.image("docker-metascrum.artifacts.dbccloud.dk/weekresolver:${env.BRANCH_NAME}-${env.BUILD_NUMBER}").push()
+                    docker.image("docker-metascrum.artifacts.dbccloud.dk/weekresolver-service:${env.BRANCH_NAME}-${env.BUILD_NUMBER}").push()
                     image.push()
                 }
 
