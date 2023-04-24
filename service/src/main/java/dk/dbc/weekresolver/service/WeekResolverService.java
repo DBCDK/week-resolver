@@ -194,13 +194,13 @@ public class WeekResolverService {
                     .withDate(LocalDate.now().toString())
                     .withCatalogueCode(weekCode.substring(0, 3).toUpperCase())
                     .getCurrentWeekCode();
-            LOGGER.info("Current weekcode for {} is {}", currentResult.getCatalogueCode(), currentResult.getWeekCode());
+            LOGGER.debug("Current weekcode for {} is {}", currentResult.getCatalogueCode(), currentResult.getWeekCode());
 
             // Extract weeks and compare them
             Integer currentYearWeek = Integer.parseInt(currentResult.getWeekCode().substring(3));
             Integer requestedYearWeek = Integer.parseInt(weekCode.substring(3));
 
-            LOGGER.info("Checking if (current) {} is equal to or later than (requested) {}", currentYearWeek, requestedYearWeek);
+            LOGGER.debug("Checking if (current) {} is equal to or later than (requested) {}", currentYearWeek, requestedYearWeek);
             WeekCodeFulfilledResult result = new WeekCodeFulfilledResult()
                     .withRequestedWeekCode(weekCode.toUpperCase())
                     .withCurrentWeekCodeResult(currentResult)

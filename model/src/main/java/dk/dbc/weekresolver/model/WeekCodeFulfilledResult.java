@@ -1,6 +1,6 @@
 package dk.dbc.weekresolver.model;
 
-public class WeekCodeFulfilledResult {
+public class WeekCodeFulfilledResult implements Result {
 
     private Boolean isFulfilled;
 
