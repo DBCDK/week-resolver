@@ -3,7 +3,7 @@ package dk.dbc.weekresolver.model;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
-//THERE IS NOTHING HERE
+
 public class WeekDescription {
 
     // DBF/DPF/BKM katalogkode
