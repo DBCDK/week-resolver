@@ -294,17 +294,6 @@ public class WeekResolver {
         return numWorkingDays < required;
     }
 
-    private Boolean isFirstWeekOfYear(LocalDate date) {
-        DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
-
-        if (Integer.parseInt(date.format(weekCodeFormatter)) == 1) {
-            LOGGER.debug("{} is within week 01, which has no production release", date);
-            return true;
-        }
-
-        return false;
-    }
-
     public WeekResolverResult getCurrentWeekCode() throws UnsupportedOperationException {
         return  getCurrentWeekCode(date);
     }
@@ -351,8 +340,6 @@ public class WeekResolver {
 
             // Check if we have passed the shiftday. There is no adjustments and no checks for closing
             // days, since we just want the code for the actual day.
-            //DayOfWeek shiftDay = adjustShiftDay(expectedDate, configuration.getShiftDay(), true);
-            //if (shiftDay == null || expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue()) {
             if (configuration.getShiftDay() != null && expectedDate.getDayOfWeek().getValue() >= configuration.getShiftDay().getValue()) {
                 expectedDate = expectedDate.plusWeeks(1);
             }
@@ -384,7 +371,7 @@ public class WeekResolver {
             WeekResolverResult result = getWeekCode(currentDate);
             results.add(result);
             currentDate = currentDate.plusWeeks(1);
-        } while (currentDate.getYear() <= year || (currentDate.getYear() == (year + 1) && Integer.parseInt(currentDate.format(weekCodeFormatter)) < 2));
+        } while (currentDate.getYear() <= year || (currentDate.getYear() == year + 1 && Integer.parseInt(currentDate.format(weekCodeFormatter)) < 2));
 
         // Add rows with week descriptions. Check if we can merge some rows (typical the first/last weeks)
         WeekResolverResult previousResult = results.get(0);
@@ -401,7 +388,7 @@ public class WeekResolver {
             yearPlan.add(getResultAsRow(currentResult, showAbnormalDayNames));
 
             previousResult = currentResult;
-        };
+        }
 
         // Remove the
         return yearPlan;
