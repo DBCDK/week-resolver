@@ -55,8 +55,7 @@ pipeline {
             }
             steps {
                 script {
-                    def image = docker.build("docker-metascrum.artifacts.dbccloud.dk/weekresolver:${env.BRANCH_NAME}-${env.BUILD_NUMBER}",
-                            "-f service/src/main/docker/Dockerfile --pull --no-cache .")
+                    docker.image("docker-metascrum.artifacts.dbccloud.dk/weekresolver:${env.BRANCH_NAME}-${env.BUILD_NUMBER}").push()
                     image.push()
                 }
 
