@@ -56,7 +56,6 @@ pipeline {
             steps {
                 script {
                     docker.image("docker-metascrum.artifacts.dbccloud.dk/weekresolver-service:${env.BRANCH_NAME}-${env.BUILD_NUMBER}").push()
-                    image.push()
                 }
 
             }
@@ -75,7 +74,7 @@ pipeline {
             steps {
                 script {
                     sh """  
-                        set-new-version weekresolver.yml ${env.GITLAB_PRIVATE_TOKEN} metascrum/week-resolver-secrets  ${env.BRANCH_NAME}-${env.BUILD_NUMBER} -b staging
+                        set-new-version weekresolver-service.yml ${env.GITLAB_PRIVATE_TOKEN} metascrum/weekresolver-secrets  ${env.BRANCH_NAME}-${env.BUILD_NUMBER} -b staging
                     """
                 }
             }
