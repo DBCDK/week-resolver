@@ -351,11 +351,11 @@ public class WeekResolver {
         return result;
     }
 
-    public YearPlanResult getYearPlan(Integer year, Boolean showAbnormalDayNames) {
+    public YearPlanResult getYearPlan(Integer year, Boolean showAbnormalDayNames, Boolean displayAllDays) {
         YearPlanResult yearPlan = new YearPlanResult().withYear(String.format("%04d", year));
 
         // Add headers
-        yearPlan.add(new ArrayList<>(getHeadersAsRow()));
+        yearPlan.add(new ArrayList<>(getHeadersAsRow(displayAllDays)));
 
         // Find first day of the year. If not a monday, then move backwards to find the second-last monday in the previous year
         LocalDate currentDate = LocalDate.parse(String.format("%04d-01-01", year), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -385,7 +385,7 @@ public class WeekResolver {
                     yearPlan.getRows().remove(yearPlan.size() - 1);
                 }
             }
-            yearPlan.add(getResultAsRow(currentResult, showAbnormalDayNames));
+            yearPlan.add(getResultAsRow(currentResult, showAbnormalDayNames, displayAllDays));
 
             previousResult = currentResult;
         }
@@ -841,7 +841,7 @@ public class WeekResolver {
         return LocalDate.ofInstant(date.toInstant(), zoneId);
     }
 
-    private List<YearPlanResult.YearPlanRowColumn> getHeadersAsRow() {
+    private List<YearPlanResult.YearPlanRowColumn> getHeadersAsRow(Boolean displayAllDays) {
         // Make sure that results are returned in this order by getResultAsRow()
 
         return List.of(
@@ -850,16 +850,16 @@ public class WeekResolver {
                 new YearPlanResult.YearPlanRowColumn("DBCKat ugekode slut", false, true),
                 new YearPlanResult.YearPlanRowColumn("DBCKat ugeafslutning", false, true),
                 new YearPlanResult.YearPlanRowColumn("Bogvogn", false, true),
-                new YearPlanResult.YearPlanRowColumn("Ugekorrekturen køres", false, true),
+                new YearPlanResult.YearPlanRowColumn("Ugekorrekturen køres", false, displayAllDays),
                 new YearPlanResult.YearPlanRowColumn("Ugekorrektur", false, true),
-                new YearPlanResult.YearPlanRowColumn("Slutredaktion (ugekorrektur)", false, true),
+                new YearPlanResult.YearPlanRowColumn("Slutredaktion (ugekorrektur)", false, displayAllDays),
                 new YearPlanResult.YearPlanRowColumn("BKM-red.", false, true),
                 new YearPlanResult.YearPlanRowColumn("Udgivelsesdato", false, true),
                 new YearPlanResult.YearPlanRowColumn("Ugenummber", false, true)
         );
     }
 
-    private List<YearPlanResult.YearPlanRowColumn> getResultAsRow(WeekResolverResult result, Boolean showAbnormalDayNames) {
+    private List<YearPlanResult.YearPlanRowColumn> getResultAsRow(WeekResolverResult result, Boolean showAbnormalDayNames, Boolean displayAllDays) {
         // Make sure that headers are returned in same order as the rows are added below by getHeadersAsRow()
 
         if (result.getDescription().getNoProduction()) {
@@ -869,9 +869,9 @@ public class WeekResolver {
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn().withVisible(displayAllDays),
                     new YearPlanResult.YearPlanRowColumn(),
-                    new YearPlanResult.YearPlanRowColumn(),
-                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn().withVisible(displayAllDays),
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekNumber())
@@ -881,19 +881,19 @@ public class WeekResolver {
         return List.of(
                 new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekCodeShort()),
                 rowContentFromDate(isSpecialDay(result.getDescription().getWeekCodeFirst(), DayOfWeek.FRIDAY),
-                        result.getDescription().getWeekCodeFirst(), true, showAbnormalDayNames),
+                        result.getDescription().getWeekCodeFirst(), true, showAbnormalDayNames, true),
                 rowContentFromDate(isSpecialDay(result.getDescription().getWeekCodeLast(), DayOfWeek.THURSDAY),
-                        result.getDescription().getWeekCodeLast(), true, showAbnormalDayNames),
+                        result.getDescription().getWeekCodeLast(), true, showAbnormalDayNames, true),
                 rowContentFromDate(isSpecialDay(result.getDescription().getShiftDay(), DayOfWeek.FRIDAY),
-                        result.getDescription().getShiftDay(), true, showAbnormalDayNames),
+                        result.getDescription().getShiftDay(), true, showAbnormalDayNames, true),
                 rowContentFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY),
-                        result.getDescription().getBookCart(), true, showAbnormalDayNames),
-                rowContentFromDate(result.getDescription().getProofFrom(), true),
-                rowContentFromDate(result.getDescription().getProof(), true),
-                rowContentFromDate(result.getDescription().getProofTo(), true),
+                        result.getDescription().getBookCart(), true, showAbnormalDayNames, true),
+                rowContentFromDate(result.getDescription().getProofFrom(), true, displayAllDays),
+                rowContentFromDate(result.getDescription().getProof(), true, true),
+                rowContentFromDate(result.getDescription().getProofTo(), true, displayAllDays),
                 rowContentFromDate(isSpecialDay(result.getDescription().getBkm(), DayOfWeek.WEDNESDAY),
-                        result.getDescription().getBkm(), true, showAbnormalDayNames),
-                rowContentFromDate(result.getDescription().getPublish(), true),
+                        result.getDescription().getBkm(), true, showAbnormalDayNames, true),
+                rowContentFromDate(result.getDescription().getPublish(), true, true),
                 new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekNumber())
         );
     }
@@ -907,16 +907,16 @@ public class WeekResolver {
     }
 
     public YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date) {
-        return rowContentFromDate(date, false);
+        return rowContentFromDate(date, false, true);
     }
 
-    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date, boolean quoted) {
-        return rowContentFromDate(false, date, quoted, false);
+    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date, boolean quoted, boolean displayAllDays) {
+        return rowContentFromDate(false, date, quoted, false, displayAllDays);
     }
 
-    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Boolean isAbnormalDay, Date date, boolean quoted, Boolean showAbnormalDayNames ) {
+    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Boolean isAbnormalDay, Date date, boolean quoted, Boolean showAbnormalDayNames, boolean displayAllDays) {
         if (date == null) {
-            return new YearPlanResult.YearPlanRowColumn(quoted ? "\"\"" : "");
+            return new YearPlanResult.YearPlanRowColumn(quoted ? "\"\"" : "", false, displayAllDays);
         }
 
         LocalDate actualDayOfWeek = fromDate(date);
@@ -928,7 +928,7 @@ public class WeekResolver {
         LocalDate localDate = fromDate(date);
         return new YearPlanResult.YearPlanRowColumn(
                 (quoted ? "\"" : "") + prefix + localDate.format(formatter) + (quoted ? "\"" : ""),
-                isAbnormalDay);
+                isAbnormalDay, displayAllDays);
     }
 
     public LocalDate fromString(String date) {

@@ -4,6 +4,8 @@ import dk.dbc.commons.jsonb.JSONBContext;
 import dk.dbc.commons.jsonb.JSONBException;
 
 import dk.dbc.weekresolver.model.WeekCodeFulfilledResult;
+import dk.dbc.weekresolver.model.WeekResolverQueryParameterDays;
+import dk.dbc.weekresolver.model.WeekResolverQueryParameterDisplay;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanFormat;
 import dk.dbc.weekresolver.model.YearPlanResult;
@@ -121,7 +123,8 @@ public class WeekResolverService {
     @Produces({MediaType.APPLICATION_JSON, TEXT_CSV})
     public Response getYearPlanForCode(@PathParam("format") final YearPlanFormat format,
                                        @PathParam("catalogueCode") final String catalogueCode,
-                                       @DefaultValue ("on") @QueryParam("days") final String days) {
+                                       @DefaultValue ("ON") @QueryParam("days") final String days,
+                                       @DefaultValue("BKM") @QueryParam("display") final String display) {
         LOGGER.info("getYearPlanForCode({}, {}, {})", format, catalogueCode, days);
 
         // Avoid week 53 problems by moving to no later than november
@@ -130,7 +133,9 @@ public class WeekResolverService {
             now = now.minusMonths(1);
         }
 
-        return getYearPlanFromCodeAndYear(format, catalogueCode, now.getYear(), days.equals("on"));
+        return getYearPlanFromCodeAndYear(format, catalogueCode, now.getYear(),
+                days.equals(WeekResolverQueryParameterDays.ON.name()),
+                display.equals(WeekResolverQueryParameterDisplay.ALL.name()));
     }
 
 
@@ -148,9 +153,12 @@ public class WeekResolverService {
     public Response getYearPlanForCodeAndYear(@PathParam("format") final YearPlanFormat format,
                                               @PathParam("catalogueCode") final String catalogueCode,
                                               @PathParam("year") final Integer year,
-                                              @DefaultValue ("on") @QueryParam("days") final String days) {
+                                              @DefaultValue ("ON") @QueryParam("days") final String days,
+                                              @DefaultValue("BKM") @QueryParam("display") final String display) {
         LOGGER.info("getYearPlanForCodeAndYear({}, {}, {}, {})", format, catalogueCode, year, days);
-        return getYearPlanFromCodeAndYear(format, catalogueCode, year, days.equals("on"));
+        return getYearPlanFromCodeAndYear(format, catalogueCode, year,
+                days.equals(WeekResolverQueryParameterDays.ON.name()),
+                display.equals(WeekResolverQueryParameterDisplay.ALL.name()));
     }
 
     /**
@@ -290,13 +298,14 @@ public class WeekResolverService {
      * @param year Year
      * @return A year plan on success
      */
-    private Response getYearPlanFromCodeAndYear(final YearPlanFormat format, final String catalogueCode, final Integer year, Boolean showAbnormalDayNames) {
+    private Response getYearPlanFromCodeAndYear(final YearPlanFormat format, final String catalogueCode, final Integer year,
+                                                Boolean showAbnormalDayNames, Boolean displayAllDates) {
         YearPlanResult result;
 
         try {
             result = new WeekResolver(timeZone)
                     .withCatalogueCode(catalogueCode)
-                    .getYearPlan(year, showAbnormalDayNames);
+                    .getYearPlan(year, showAbnormalDayNames, displayAllDates);
 
             if (format == YearPlanFormat.JSON) {
                 return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();

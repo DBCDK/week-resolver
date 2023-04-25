@@ -393,7 +393,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlan2022() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2022, true);
+        YearPlanResult yearPlan = wr.getYearPlan(2022, true, true);
 
         // Check size
         assertThat(yearPlan.size(), is(52));
@@ -406,7 +406,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlan2023() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2023, true);
+        YearPlanResult yearPlan = wr.getYearPlan(2023, true, true);
 
         // Check size
         assertThat(yearPlan.size(), is(52));
@@ -516,7 +516,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlanWithWeek2024() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2024, true);
+        YearPlanResult yearPlan = wr.getYearPlan(2024, true, true);
 
         // Check size
         assertThat(yearPlan.size(), is(51));
@@ -610,7 +610,7 @@ class WeekResolverTest {
     @Test
     void testGetYearPlanWithWeek2025() {
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
-        YearPlanResult yearPlan = wr.getYearPlan(2025, true);
+        YearPlanResult yearPlan = wr.getYearPlan(2025, true, true);
 
         // Check size
         assertThat(yearPlan.size(), is(51));
@@ -784,7 +784,7 @@ class WeekResolverTest {
         IntStream years = IntStream.range(thisYear - 1, thisYear + 3);
 
         years.forEach(year -> {
-            YearPlanResult yearPlan = wr.getYearPlan(year, true);
+            YearPlanResult yearPlan = wr.getYearPlan(year, true, true);
 
             // Check size
             assertThat(yearPlan.size(), anyOf(is(51), is(52)));

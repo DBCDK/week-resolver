@@ -17,28 +17,34 @@ public class YearPlanResult implements Result {
 
         private Boolean isAbnormalDay;
 
+        private Boolean isVisible;
+
         public YearPlanRowColumn() {
             this.content = "";
             this.isHeader = false;
             this.isAbnormalDay = false;
+            this.isVisible = true;
         }
 
         public YearPlanRowColumn(String content) {
             this.content = content;
             this.isHeader = false;
             this.isAbnormalDay = false;
+            this.isVisible = true;
         }
 
-        public YearPlanRowColumn(String content, Boolean isAbnormalDay) {
+        public YearPlanRowColumn(String content, Boolean isAbnormalDay, Boolean isVisible) {
             this.content = content;
             isHeader = false;
             this.isAbnormalDay = isAbnormalDay;
+            this.isVisible = isVisible;
         }
 
-        public YearPlanRowColumn(String content, Boolean isAbnormalDay, Boolean isHeader) {
+        public YearPlanRowColumn(String content, Boolean isAbnormalDay, Boolean isHeader, Boolean isVisible) {
             this.content = content;
             this.isHeader = isHeader;
             this.isAbnormalDay = isAbnormalDay;
+            this.isVisible = isVisible;
         }
 
         public String getContent() {
@@ -67,7 +73,7 @@ public class YearPlanResult implements Result {
             return this;
         }
 
-        public Boolean getAbnormalDay() {
+        public Boolean getIsAbnormalDay() {
             return isAbnormalDay;
         }
 
@@ -80,12 +86,26 @@ public class YearPlanResult implements Result {
             return this;
         }
 
+        public Boolean getIsVisible() {
+            return isVisible;
+        }
+
+        public void setVisible(Boolean visible) {
+            isVisible = visible;
+        }
+
+        public YearPlanRowColumn withVisible(Boolean visible) {
+            isVisible = visible;
+            return this;
+        }
+
         @Override
         public String toString() {
-            return "YearPlanRowContent{" +
+            return "YearPlanRowColumn{" +
                     "content='" + content + '\'' +
                     ", isHeader=" + isHeader +
                     ", isAbnormalDay=" + isAbnormalDay +
+                    ", isVisible=" + isVisible +
                     '}';
         }
     }

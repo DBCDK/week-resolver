@@ -46,7 +46,7 @@ public class HtmlFormatter {
         StringBuilder builder = new StringBuilder();
 
         builder.append("      <tr>\n");
-        row.getColumns().forEach(c ->
+        row.getColumns().stream().filter(YearPlanResult.YearPlanRowColumn::getIsVisible).forEach(c ->
                 builder.append(formatHtmlColumn(c)));
         builder.append("      </tr>\n");
 
@@ -61,7 +61,7 @@ public class HtmlFormatter {
                 .replaceAll(" ", "&nbsp;");
 
         builder.append("      <td>\n");
-        builder.append("        <p class=").append(column.getAbnormalDay() ? "modified" : "normal").append(">");
+        builder.append("        <p class=").append(column.getIsAbnormalDay() ? "modified" : "normal").append(">");
         builder.append(column.getHeader() ? "<b>" : "");
         builder.append("<nobr>").append(content.length() == 0 ? "---" : content).append("</nobr>");
         builder.append(column.getHeader() ? "</b>" : "");
