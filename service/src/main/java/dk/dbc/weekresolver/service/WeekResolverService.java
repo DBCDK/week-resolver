@@ -234,7 +234,7 @@ public class WeekResolverService {
                     .withCatalogueCode(catalogueCode)
                     .getWeekCode();
 
-            LOGGER.trace("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
+            LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
             return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
         }
         catch( UnsupportedOperationException unsupportedOperationException) {
@@ -266,7 +266,7 @@ public class WeekResolverService {
                     .withCatalogueCode(catalogueCode)
                     .getCurrentWeekCode();
 
-            LOGGER.trace("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
+            LOGGER.info("Calculated weekcode by use of cataloguecode {} is {}", result.getCatalogueCode(), result.getWeekCode());
             return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
         }
         catch( UnsupportedOperationException unsupportedOperationException) {
