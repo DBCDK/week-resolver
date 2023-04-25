@@ -636,19 +636,6 @@ class WeekResolverTest {
         results.add(wr.getWeekCode(monday.plusWeeks(6))); // 16/01-2023 = BKM202305
         assertThat(results.size(), is(7));
 
-        results.forEach(r -> {
-            LOGGER.info("{}", r.getWeekCode());
-            if (r.getDescription().getWeekCodeFirst() != null) {
-                LOGGER.info("  first {}", r.getDescription().getWeekCodeFirst() != null ?  wr.fromDate(r.getDescription().getWeekCodeFirst()) : "");
-                LOGGER.info("  last  {}", r.getDescription().getWeekCodeLast() != null ? wr.fromDate(r.getDescription().getWeekCodeLast()) : "");
-                LOGGER.info("  shift {}", r.getDescription().getShiftDay() != null ? wr.fromDate(r.getDescription().getShiftDay()) : "");
-            } else {
-                LOGGER.info("  first --");
-                LOGGER.info("  last  --");
-                LOGGER.info("  shift --");
-            }
-        });
-
         assertThat(results.get(0).getWeekCode(), is("BKM202251"));
         assertThat(wr.rowContentFromDate(results.get(0).getDescription().getWeekCodeFirst()).getContent(), is("2022-12-02"));
         assertThat(wr.rowContentFromDate(results.get(0).getDescription().getWeekCodeLast()).getContent(), is("2022-12-08"));

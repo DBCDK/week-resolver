@@ -50,7 +50,7 @@ public class WeekResolverService {
     @Path("v1/date/{catalogueCode}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getWeekCode(@PathParam("catalogueCode") final String catalogueCode) {
-        LOGGER.trace("getWeekCode({})", catalogueCode);
+        LOGGER.info("getWeekCode({})", catalogueCode);
 
         return getWeekCodeFromDate(catalogueCode, LocalDate.now().toString());
     }
@@ -69,7 +69,7 @@ public class WeekResolverService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getWeekCodeForDate(@PathParam("catalogueCode") final String catalogueCode,
                                 @PathParam("date") final String date) {
-        LOGGER.trace("getWeekCode({}, {})", catalogueCode, date);
+        LOGGER.info("getWeekCode({}, {})", catalogueCode, date);
 
         return getWeekCodeFromDate(catalogueCode, date);
     }
@@ -86,7 +86,7 @@ public class WeekResolverService {
     @Path("v1/current/{catalogueCode}")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCurrentWeekCode(@PathParam("catalogueCode") final String catalogueCode) {
-        LOGGER.trace("getCurrentWeekCode({})", catalogueCode);
+        LOGGER.info("getCurrentWeekCode({})", catalogueCode);
 
         return getCurrentWeekCodeFromDate(catalogueCode, LocalDate.now().toString());
     }
@@ -104,7 +104,7 @@ public class WeekResolverService {
     @Produces(MediaType.APPLICATION_JSON)
     public Response getCurrentWeekCodeForDate(@PathParam("catalogueCode") final String catalogueCode,
                                               @PathParam("date") final String date) {
-        LOGGER.trace("getCurrentWeekCode({}, {})", catalogueCode, date);
+        LOGGER.info("getCurrentWeekCode({}, {})", catalogueCode, date);
 
         return getCurrentWeekCodeFromDate(catalogueCode, date);
     }
@@ -122,7 +122,7 @@ public class WeekResolverService {
     public Response getYearPlanForCode(@PathParam("format") final YearPlanFormat format,
                                        @PathParam("catalogueCode") final String catalogueCode,
                                        @DefaultValue ("on") @QueryParam("days") final String days) {
-        LOGGER.trace("getYearPlanForCode({}, {}, {})", format, catalogueCode, days);
+        LOGGER.info("getYearPlanForCode({}, {}, {})", format, catalogueCode, days);
 
         // Avoid week 53 problems by moving to no later than november
         LocalDate now = LocalDate.now();
@@ -149,7 +149,7 @@ public class WeekResolverService {
                                               @PathParam("catalogueCode") final String catalogueCode,
                                               @PathParam("year") final Integer year,
                                               @DefaultValue ("on") @QueryParam("days") final String days) {
-        LOGGER.trace("getYearPlanForCodeAndYear({}, {}, {}, {})", format, catalogueCode, year, days);
+        LOGGER.info("getYearPlanForCodeAndYear({}, {}, {}, {})", format, catalogueCode, year, days);
         return getYearPlanFromCodeAndYear(format, catalogueCode, year, days.equals("on"));
     }
 
@@ -167,7 +167,7 @@ public class WeekResolverService {
     public Response getDayPlan(@PathParam("catalogueCode") final String catalogueCode,
                                @PathParam("start") final String start,
                                @PathParam("end") final String end) {
-        LOGGER.trace("getDayPlan({}, {}, {})", catalogueCode, start, end);
+        LOGGER.info("getDayPlan({}, {}, {})", catalogueCode, start, end);
         return getDayPlanFromDateToDate(catalogueCode, start, end);
     }
 
@@ -182,7 +182,7 @@ public class WeekResolverService {
     @Path("v1/fulfilled/{weekCode}")
     @Produces({MediaType.APPLICATION_JSON})
     public Response getWeekCodeFulfilled(@PathParam("weekCode") final String weekCode) {
-        LOGGER.trace("getWeekCodeFulfilled({})", weekCode);
+        LOGGER.info("getWeekCodeFulfilled({})", weekCode);
 
         if (weekCode == null || weekCode.length() != 9) {
             LOGGER.error("Incorrect weekcode in request to getWeekCodeFulfilled({})", weekCode);

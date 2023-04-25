@@ -195,7 +195,7 @@ public class WeekResolver {
      * @throws UnsupportedOperationException if the cataloguecode is not supported
      */
     public WeekResolverResult getWeekCode(LocalDate customDate) throws UnsupportedOperationException {
-        LOGGER.info("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, customDate);
+        LOGGER.debug("Calculating weekcode for catalogueCode={} and date={}", catalogueCode, customDate);
 
         // Get the current date
         LocalDate expectedDate = customDate;
@@ -305,7 +305,7 @@ public class WeekResolver {
      * @throws UnsupportedOperationException if the cataloguecode is not supported
      */
     public WeekResolverResult getCurrentWeekCode(LocalDate customDate) throws UnsupportedOperationException {
-        LOGGER.info("Calculating current weekcode for catalogueCode={} and date={}", catalogueCode, customDate);
+        LOGGER.debug("Calculating current weekcode for catalogueCode={} and date={}", catalogueCode, customDate);
 
         // Get the current date
         LocalDate expectedDate = customDate;
