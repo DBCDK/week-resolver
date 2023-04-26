@@ -281,6 +281,7 @@ public class WeekResolver {
             LOGGER.debug("{} is in week {}", date, week);
             return true;
         }
+        LOGGER.debug("{} is NOT in week {}", date, week);
         return false;
     }
 
