@@ -5,6 +5,8 @@ import dk.dbc.httpclient.HttpGet;
 import dk.dbc.invariant.InvariantUtil;
 import dk.dbc.util.Stopwatch;
 import dk.dbc.weekresolver.model.WeekCodeFulfilledResult;
+import dk.dbc.weekresolver.model.WeekResolverQueryParameterDays;
+import dk.dbc.weekresolver.model.WeekResolverQueryParameterDisplay;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanFormat;
 import dk.dbc.weekresolver.model.YearPlanResult;
@@ -111,7 +113,10 @@ public class WeekResolverConnector {
         final Stopwatch stopwatch = new Stopwatch();
         try {
             final Response response = new HttpGet(failSafeHttpClient).withBaseUrl(baseUrl)
-                    .withPathElements("api", "v1", "year", format.name(), catalogueCode, String.format("%04d", year)).execute();
+                    .withPathElements("api", "v1", "year", format.name(), catalogueCode, String.format("%04d", year))
+                    .withQueryParameter("days", WeekResolverQueryParameterDays.ON.name())
+                    .withQueryParameter("display", WeekResolverQueryParameterDisplay.ALL.name())
+                    .execute();
             assertResponseStatus(response);
 
             return response.readEntity(YearPlanResult.class);
@@ -128,7 +133,10 @@ public class WeekResolverConnector {
         final Stopwatch stopwatch = new Stopwatch();
         try {
             final Response response = new HttpGet(failSafeHttpClient).withBaseUrl(baseUrl)
-                    .withPathElements("api", "v1", "year", format.name(), catalogueCode, String.format("%04d", year)).execute();
+                    .withPathElements("api", "v1", "year", format.name(), catalogueCode, String.format("%04d", year))
+                    .withQueryParameter("days", WeekResolverQueryParameterDays.ON.name())
+                    .withQueryParameter("display", WeekResolverQueryParameterDisplay.ALL.name())
+                    .execute();
             assertResponseStatus(response);
 
             return response.readEntity(String.class);

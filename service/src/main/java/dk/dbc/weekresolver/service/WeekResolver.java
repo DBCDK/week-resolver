@@ -94,6 +94,7 @@ public class WeekResolver {
         codes.put("DAR", new WeekCodeConfiguration().addWeeks(1));
         codes.put("KBA", new WeekCodeConfiguration().addWeeks(1));
         codes.put("SDA", new WeekCodeConfiguration().addWeeks(1));
+        codes.put("SBA", new WeekCodeConfiguration().addWeeks(1));
 
         // Shiftday friday, add 1 week
         codes.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
@@ -253,9 +254,15 @@ public class WeekResolver {
         //         We do this by checking that the week before the selected day has at least enough days
         //         so that proof and BKM-red can be finished by thursday - so we need 3 working days in the previous
         //         week to make sure this is fulfilled
-        if (previousWeekIsTooShort(expectedDate, 3)) {
+        if (previousWeekIsTooShort(expectedDate, 4)) {
             expectedDate = getMonday(expectedDate.plusWeeks(1));
             LOGGER.debug("Date shifted to monday next week due to previous week having too few working days to {}", expectedDate);
+        }
+
+        // Step 6: Never land in week 01, unless allowed by configuration
+        while (isWeek(expectedDate, 1) && !configuration.getAllowEndOfYear()) {
+            expectedDate = expectedDate.plusDays(1);
+            LOGGER.debug("Date shifted 1 day due to date in week 1 to {}", expectedDate);
         }
 
         // Build final result
@@ -268,6 +275,34 @@ public class WeekResolver {
         return result;
     }
 
+    private Boolean isWeek(LocalDate date, int week) {
+        DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
+        if (Integer.parseInt(date.format(weekCodeFormatter)) == week ) {
+            LOGGER.debug("{} is in week {}", date, week);
+            return true;
+        }
+        LOGGER.debug("{} is NOT in week {}", date, week);
+        return false;
+    }
+
+    private int numberOfWorkingDaysInWeekOf(LocalDate date) {
+        LocalDate workingDay = getMonday(date);
+        LOGGER.debug("Checking number of working days in week of {}", date);
+
+        int numWorkingDays = 0;
+        do {
+            LOGGER.debug("Checking for working day {}", workingDay);
+            if (!isClosingDay(workingDay, true)) { // also check working days in christmas weeks
+                LOGGER.debug("{} could be a working day", workingDay);
+                numWorkingDays++;
+            }
+            workingDay = workingDay.plusDays(1);
+        } while(workingDay.getDayOfWeek().getValue() > DayOfWeek.MONDAY.getValue());
+
+        LOGGER.debug("week of {} has {} working days", date, numWorkingDays);
+        return numWorkingDays;
+    }
+
     private Boolean previousWeekIsTooShort(LocalDate date, int required) {
         LocalDate previousDate = getMonday(date).minusDays(1);
         LOGGER.debug("Checking for short week from {}", previousDate);
@@ -275,22 +310,13 @@ public class WeekResolver {
         // Short weeks is only a problem around the year change, Easter is handled differently
         // since a whole week disappears.
         if (previousDate.getMonth() != Month.JANUARY) {
-            LOGGER.debug("Not a date within january, so no check for shoort weeks");
+            LOGGER.debug("Not a date within january, so no check for short weeks");
             return false;
         }
 
         // Count the number of working days, then check if there is the required amount
-        int numWorkingDays = 0;
-        do {
-            LOGGER.debug("Checking for working day {}", previousDate);
-            if (!isClosingDay(previousDate, true)) { // also check working days in christmas weeks
-                LOGGER.debug("{} is a working day", previousDate);
-                numWorkingDays++;
-            }
-            previousDate = previousDate.minusDays(1);
-        } while(previousDate.getDayOfWeek().getValue() > DayOfWeek.MONDAY.getValue());
+        int numWorkingDays = numberOfWorkingDaysInWeekOf(previousDate);
 
-        LOGGER.debug("Week has {} working days", numWorkingDays);
         return numWorkingDays < required;
     }
 
@@ -351,11 +377,11 @@ public class WeekResolver {
         return result;
     }
 
-    public YearPlanResult getYearPlan(Integer year, Boolean showAbnormalDayNames) {
+    public YearPlanResult getYearPlan(Integer year, Boolean showAbnormalDayNames, Boolean displayAllDays) {
         YearPlanResult yearPlan = new YearPlanResult().withYear(String.format("%04d", year));
 
         // Add headers
-        yearPlan.add(new ArrayList<>(getHeadersAsRow()));
+        yearPlan.add(new ArrayList<>(getHeadersAsRow(displayAllDays)));
 
         // Find first day of the year. If not a monday, then move backwards to find the second-last monday in the previous year
         LocalDate currentDate = LocalDate.parse(String.format("%04d-01-01", year), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
@@ -385,7 +411,7 @@ public class WeekResolver {
                     yearPlan.getRows().remove(yearPlan.size() - 1);
                 }
             }
-            yearPlan.add(getResultAsRow(currentResult, showAbnormalDayNames));
+            yearPlan.add(getResultAsRow(currentResult, showAbnormalDayNames, displayAllDays));
 
             previousResult = currentResult;
         }
@@ -509,7 +535,21 @@ public class WeekResolver {
 
             if (List.of(52, 53).contains(Integer.parseInt(expectedDate.format(weekCodeFormatter)))) {
                 LOGGER.debug("{} is within week 52 or 53", expectedDate);
-                return true;
+
+                // After much deliberation, we landed on an empirical rule that states that..:
+                //   "if there is 4 or more coherent working days in week 52, then it is ok to place
+                //    shiftday and the book cart in week 52, otherwise not"
+                if (isWeek(expectedDate, 52)) {
+                    int numberOfWorkingDays = numberOfWorkingDaysInWeekOf(expectedDate);
+                    LOGGER.debug("{} is within week 52 and has {} working days", expectedDate, numberOfWorkingDays);
+                    if (numberOfWorkingDays >= 4) {
+                        LOGGER.debug("Allowing week 52 due to empirical rule: There is 4 or more coherent working days");
+                    } else {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
             }
         }
 
@@ -535,6 +575,7 @@ public class WeekResolver {
     }
 
     private Boolean isWithinClosingWeek(LocalDate date, boolean allowEndOfYearWeeks) {
+        LOGGER.debug("Checking if {} is within a closed week", date);
         LocalDate currentDate = getMonday(date);
         while (currentDate.getDayOfWeek().getValue() < DayOfWeek.SATURDAY.getValue()) {
             if (!isClosingDay(currentDate, allowEndOfYearWeeks)) {
@@ -841,7 +882,7 @@ public class WeekResolver {
         return LocalDate.ofInstant(date.toInstant(), zoneId);
     }
 
-    private List<YearPlanResult.YearPlanRowColumn> getHeadersAsRow() {
+    private List<YearPlanResult.YearPlanRowColumn> getHeadersAsRow(Boolean displayAllDays) {
         // Make sure that results are returned in this order by getResultAsRow()
 
         return List.of(
@@ -850,16 +891,16 @@ public class WeekResolver {
                 new YearPlanResult.YearPlanRowColumn("DBCKat ugekode slut", false, true),
                 new YearPlanResult.YearPlanRowColumn("DBCKat ugeafslutning", false, true),
                 new YearPlanResult.YearPlanRowColumn("Bogvogn", false, true),
-                new YearPlanResult.YearPlanRowColumn("Ugekorrekturen køres", false, true),
+                new YearPlanResult.YearPlanRowColumn("Ugekorrekturen køres", false, displayAllDays),
                 new YearPlanResult.YearPlanRowColumn("Ugekorrektur", false, true),
-                new YearPlanResult.YearPlanRowColumn("Slutredaktion (ugekorrektur)", false, true),
+                new YearPlanResult.YearPlanRowColumn("Slutredaktion (ugekorrektur)", false, displayAllDays),
                 new YearPlanResult.YearPlanRowColumn("BKM-red.", false, true),
                 new YearPlanResult.YearPlanRowColumn("Udgivelsesdato", false, true),
                 new YearPlanResult.YearPlanRowColumn("Ugenummber", false, true)
         );
     }
 
-    private List<YearPlanResult.YearPlanRowColumn> getResultAsRow(WeekResolverResult result, Boolean showAbnormalDayNames) {
+    private List<YearPlanResult.YearPlanRowColumn> getResultAsRow(WeekResolverResult result, Boolean showAbnormalDayNames, Boolean displayAllDays) {
         // Make sure that headers are returned in same order as the rows are added below by getHeadersAsRow()
 
         if (result.getDescription().getNoProduction()) {
@@ -869,9 +910,9 @@ public class WeekResolver {
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn().withVisible(displayAllDays),
                     new YearPlanResult.YearPlanRowColumn(),
-                    new YearPlanResult.YearPlanRowColumn(),
-                    new YearPlanResult.YearPlanRowColumn(),
+                    new YearPlanResult.YearPlanRowColumn().withVisible(displayAllDays),
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(),
                     new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekNumber())
@@ -881,19 +922,19 @@ public class WeekResolver {
         return List.of(
                 new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekCodeShort()),
                 rowContentFromDate(isSpecialDay(result.getDescription().getWeekCodeFirst(), DayOfWeek.FRIDAY),
-                        result.getDescription().getWeekCodeFirst(), true, showAbnormalDayNames),
+                        result.getDescription().getWeekCodeFirst(), true, showAbnormalDayNames, true),
                 rowContentFromDate(isSpecialDay(result.getDescription().getWeekCodeLast(), DayOfWeek.THURSDAY),
-                        result.getDescription().getWeekCodeLast(), true, showAbnormalDayNames),
+                        result.getDescription().getWeekCodeLast(), true, showAbnormalDayNames, true),
                 rowContentFromDate(isSpecialDay(result.getDescription().getShiftDay(), DayOfWeek.FRIDAY),
-                        result.getDescription().getShiftDay(), true, showAbnormalDayNames),
+                        result.getDescription().getShiftDay(), true, showAbnormalDayNames, true),
                 rowContentFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY),
-                        result.getDescription().getBookCart(), true, showAbnormalDayNames),
-                rowContentFromDate(result.getDescription().getProofFrom(), true),
-                rowContentFromDate(result.getDescription().getProof(), true),
-                rowContentFromDate(result.getDescription().getProofTo(), true),
+                        result.getDescription().getBookCart(), true, showAbnormalDayNames, true),
+                rowContentFromDate(result.getDescription().getProofFrom(), true, displayAllDays),
+                rowContentFromDate(result.getDescription().getProof(), true, true),
+                rowContentFromDate(result.getDescription().getProofTo(), true, displayAllDays),
                 rowContentFromDate(isSpecialDay(result.getDescription().getBkm(), DayOfWeek.WEDNESDAY),
-                        result.getDescription().getBkm(), true, showAbnormalDayNames),
-                rowContentFromDate(result.getDescription().getPublish(), true),
+                        result.getDescription().getBkm(), true, showAbnormalDayNames, true),
+                rowContentFromDate(result.getDescription().getPublish(), true, true),
                 new YearPlanResult.YearPlanRowColumn(result.getDescription().getWeekNumber())
         );
     }
@@ -907,16 +948,16 @@ public class WeekResolver {
     }
 
     public YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date) {
-        return rowContentFromDate(date, false);
+        return rowContentFromDate(date, false, true);
     }
 
-    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date, boolean quoted) {
-        return rowContentFromDate(false, date, quoted, false);
+    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Date date, boolean quoted, boolean displayAllDays) {
+        return rowContentFromDate(false, date, quoted, false, displayAllDays);
     }
 
-    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Boolean isAbnormalDay, Date date, boolean quoted, Boolean showAbnormalDayNames ) {
+    private YearPlanResult.YearPlanRowColumn rowContentFromDate(Boolean isAbnormalDay, Date date, boolean quoted, Boolean showAbnormalDayNames, boolean displayAllDays) {
         if (date == null) {
-            return new YearPlanResult.YearPlanRowColumn(quoted ? "\"\"" : "");
+            return new YearPlanResult.YearPlanRowColumn(quoted ? "\"\"" : "", false, displayAllDays);
         }
 
         LocalDate actualDayOfWeek = fromDate(date);
@@ -928,7 +969,7 @@ public class WeekResolver {
         LocalDate localDate = fromDate(date);
         return new YearPlanResult.YearPlanRowColumn(
                 (quoted ? "\"" : "") + prefix + localDate.format(formatter) + (quoted ? "\"" : ""),
-                isAbnormalDay);
+                isAbnormalDay, displayAllDays);
     }
 
     public LocalDate fromString(String date) {
