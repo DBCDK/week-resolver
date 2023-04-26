@@ -94,6 +94,7 @@ public class WeekResolver {
         codes.put("DAR", new WeekCodeConfiguration().addWeeks(1));
         codes.put("KBA", new WeekCodeConfiguration().addWeeks(1));
         codes.put("SDA", new WeekCodeConfiguration().addWeeks(1));
+        codes.put("SBA", new WeekCodeConfiguration().addWeeks(1));
 
         // Shiftday friday, add 1 week
         codes.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
