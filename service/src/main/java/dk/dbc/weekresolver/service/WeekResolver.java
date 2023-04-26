@@ -253,9 +253,15 @@ public class WeekResolver {
         //         We do this by checking that the week before the selected day has at least enough days
         //         so that proof and BKM-red can be finished by thursday - so we need 3 working days in the previous
         //         week to make sure this is fulfilled
-        if (previousWeekIsTooShort(expectedDate, 3)) {
+        if (previousWeekIsTooShort(expectedDate, 4)) {
             expectedDate = getMonday(expectedDate.plusWeeks(1));
             LOGGER.debug("Date shifted to monday next week due to previous week having too few working days to {}", expectedDate);
+        }
+
+        // Step 6: Never land in week 01, unless allowed by configuration
+        while (isWeek(expectedDate, 1) && !configuration.getAllowEndOfYear()) {
+            expectedDate = expectedDate.plusDays(1);
+            LOGGER.debug("Date shifted 1 day due to date in week 1 to {}", expectedDate);
         }
 
         // Build final result
@@ -268,6 +274,33 @@ public class WeekResolver {
         return result;
     }
 
+    private Boolean isWeek(LocalDate date, int week) {
+        DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
+        if (Integer.parseInt(date.format(weekCodeFormatter)) == week ) {
+            LOGGER.debug("{} is in week {}", date, week);
+            return true;
+        }
+        return false;
+    }
+
+    private int numberOfWorkingDaysInWeekOf(LocalDate date) {
+        LocalDate workingDay = getMonday(date);
+        LOGGER.debug("Checking number of working days in week of {}", date);
+
+        int numWorkingDays = 0;
+        do {
+            LOGGER.debug("Checking for working day {}", workingDay);
+            if (!isClosingDay(workingDay, true)) { // also check working days in christmas weeks
+                LOGGER.debug("{} could be a working day", workingDay);
+                numWorkingDays++;
+            }
+            workingDay = workingDay.plusDays(1);
+        } while(workingDay.getDayOfWeek().getValue() > DayOfWeek.MONDAY.getValue());
+
+        LOGGER.debug("week of {} has {} working days", date, numWorkingDays);
+        return numWorkingDays;
+    }
+
     private Boolean previousWeekIsTooShort(LocalDate date, int required) {
         LocalDate previousDate = getMonday(date).minusDays(1);
         LOGGER.debug("Checking for short week from {}", previousDate);
@@ -275,22 +308,13 @@ public class WeekResolver {
         // Short weeks is only a problem around the year change, Easter is handled differently
         // since a whole week disappears.
         if (previousDate.getMonth() != Month.JANUARY) {
-            LOGGER.debug("Not a date within january, so no check for shoort weeks");
+            LOGGER.debug("Not a date within january, so no check for short weeks");
             return false;
         }
 
         // Count the number of working days, then check if there is the required amount
-        int numWorkingDays = 0;
-        do {
-            LOGGER.debug("Checking for working day {}", previousDate);
-            if (!isClosingDay(previousDate, true)) { // also check working days in christmas weeks
-                LOGGER.debug("{} is a working day", previousDate);
-                numWorkingDays++;
-            }
-            previousDate = previousDate.minusDays(1);
-        } while(previousDate.getDayOfWeek().getValue() > DayOfWeek.MONDAY.getValue());
+        int numWorkingDays = numberOfWorkingDaysInWeekOf(previousDate);
 
-        LOGGER.debug("Week has {} working days", numWorkingDays);
         return numWorkingDays < required;
     }
 
@@ -509,7 +533,21 @@ public class WeekResolver {
 
             if (List.of(52, 53).contains(Integer.parseInt(expectedDate.format(weekCodeFormatter)))) {
                 LOGGER.debug("{} is within week 52 or 53", expectedDate);
-                return true;
+
+                // After much deliberation, we landed on an empirical rule that states that..:
+                //   "if there is 4 or more coherent working days in week 52, then it is ok to place
+                //    shiftday and the book cart in week 52, otherwise not"
+                if (isWeek(expectedDate, 52)) {
+                    int numberOfWorkingDays = numberOfWorkingDaysInWeekOf(expectedDate);
+                    LOGGER.debug("{} is within week 52 and has {} working days", expectedDate, numberOfWorkingDays);
+                    if (numberOfWorkingDays >= 4) {
+                        LOGGER.debug("Allowing week 52 due to empirical rule: There is 4 or more coherent working days");
+                    } else {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
             }
         }
 
@@ -535,6 +573,7 @@ public class WeekResolver {
     }
 
     private Boolean isWithinClosingWeek(LocalDate date, boolean allowEndOfYearWeeks) {
+        LOGGER.debug("Checking if {} is within a closed week", date);
         LocalDate currentDate = getMonday(date);
         while (currentDate.getDayOfWeek().getValue() < DayOfWeek.SATURDAY.getValue()) {
             if (!isClosingDay(currentDate, allowEndOfYearWeeks)) {
