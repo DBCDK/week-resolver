@@ -213,7 +213,7 @@ public class WeekResolverService {
                     .withRequestedWeekCode(weekCode.toUpperCase())
                     .withCurrentWeekCodeResult(currentResult)
                     .withFulfilled(currentYearWeek >= requestedYearWeek);
-            LOGGER.info("Requested week code {} is fulfilled = {}", weekCode.toUpperCase(), result.getFulfilled());
+            LOGGER.info("Requested week code {} is fulfilled = {}", weekCode.toUpperCase(), result.getIsFulfilled());
             return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
         } catch( UnsupportedOperationException unsupportedOperationException) {
             LOGGER.error("Unsupported cataloguecode {}", weekCode.substring(0, 3));

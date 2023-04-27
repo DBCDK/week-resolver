@@ -192,7 +192,7 @@ class WeekResolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         String past = connector.getCurrentWeekCodeForDate("BKM", LocalDate.now().minusWeeks(1)).getWeekCode();
 
         WeekCodeFulfilledResult result = connector.getWeekCodeFulfilled(past);
-        assertThat(result.getFulfilled(), is(true));
+        assertThat(result.getIsFulfilled(), is(true));
     }
 
     @Test
@@ -202,7 +202,7 @@ class WeekResolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         String present = connector.getCurrentWeekCode("BKM").getWeekCode();
 
         WeekCodeFulfilledResult result = connector.getWeekCodeFulfilled(present);
-        assertThat(result.getFulfilled(), is(true));
+        assertThat(result.getIsFulfilled(), is(true));
     }
 
     @Test
@@ -212,6 +212,6 @@ class WeekResolverResourceIT extends AbstractWeekresolverServiceContainerTest {
         String future = connector.getCurrentWeekCodeForDate("BKM", LocalDate.now().plusWeeks(1)).getWeekCode();
 
         WeekCodeFulfilledResult result = connector.getWeekCodeFulfilled(future);
-        assertThat(result.getFulfilled(), is(false));
+        assertThat(result.getIsFulfilled(), is(false));
     }
 }

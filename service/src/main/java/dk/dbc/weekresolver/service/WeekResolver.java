@@ -74,7 +74,6 @@ public class WeekResolver {
         CODES.put("ACN", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         CODES.put("ACP", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         CODES.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        CODES.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
         CODES.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
 
         // Shiftday friday, add 1 week
@@ -94,6 +93,9 @@ public class WeekResolver {
         CODES.put("DAR", new WeekCodeConfiguration().addWeeks(1));
         CODES.put("KBA", new WeekCodeConfiguration().addWeeks(1));
         CODES.put("SBA", new WeekCodeConfiguration().addWeeks(1));
+
+        // No shiftday, add 1 week, allowing end-of-year and closingdays
+        CODES.put("ARK", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
 
         // Shiftday friday, add 1 week
         CODES.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));

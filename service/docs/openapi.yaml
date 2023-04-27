@@ -14,6 +14,10 @@ tags:
   - name: yearplan
     description: Year plan
   - name: dayplan
+  - name: configuration
+    description: Code configuration
+  - name: fulfilled
+    description: Check for fulfilled weekcode
 
 paths:
   /date/{catalogueCode}:
@@ -185,7 +189,6 @@ paths:
           schema:
             type: string
             description: End date in the format 'YYYY-MM-DD'
-
       responses:
         '200':
           description: successful operation
@@ -193,6 +196,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/DayPlanResult'
+
+  /fulfilled/{weekCode}:
+    get:
+      tags:
+        - fulfilled
+      summary: Test if a given weekcode has been fulfilled (matches current or older weekcode)
+      operationId: getWeekCodeFulfilled
+      parameters:
+        - in: path
+          name: weekCode
+          required: true
+          schema:
+            type: string
+            description: Weekcode
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeekCodeFulfilledResult'
+
+  /codes:
+    get:
+      tags:
+        - configuration
+      summary: Return the current code configuration
+      operationId: getCodes
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Codes'
 
 components:
   schemas:
@@ -268,3 +306,34 @@ components:
         noProduction:
           type: boolean
           description: If set to true, then no production is done in this week
+
+    WeekCodeFulfilledResult:
+      type: object
+      properties:
+        isFulfilled:
+          type: boolean
+        requestedWeekCode:
+          type: string
+        currentWeekCodeResult:
+            $ref: '#/components/schemas/WeekResolverResult'
+
+    Code:
+      type: object
+      properties:
+        fixedWeekCode:
+          type: string
+        addWeeks:
+          type: integer
+        shiftDay:
+          type: string
+        allowEndOfYear:
+          type: boolean
+        ignoreClosingDays:
+          type: boolean
+        useMonthNumber:
+          type: boolean
+
+    Codes:
+      type: array
+      items:
+          $ref: '#/components/schemas/Code'

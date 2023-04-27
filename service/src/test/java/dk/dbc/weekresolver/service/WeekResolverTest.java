@@ -247,7 +247,7 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("ACN").withDate("2021-08-23").getWeekCode().getWeekCode(), is("ACN202134"));
         assertThat(wr.withCatalogueCode("ACP").withDate("2021-08-31").getWeekCode().getWeekCode(), is("ACP202135"));
         assertThat(wr.withCatalogueCode("ACT").withDate("2020-04-22").getWeekCode().getWeekCode(), is("ACT202017"));
-        assertThat(wr.withCatalogueCode("ARK").withDate("2020-04-22").getWeekCode().getWeekCode(), is("ARK202017"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2020-04-22").getWeekCode().getWeekCode(), is("ARK202018"));
         assertThat(wr.withCatalogueCode("BLG").withDate("2020-04-22").getWeekCode().getWeekCode(), is("BLG202017"));
 
         // +1 week
@@ -891,7 +891,20 @@ class WeekResolverTest {
             assertThat(wr.withCatalogueCode(code).withDate("2023-04-30").getWeekCode().getWeekCode(), is(code + "202318"));
             assertThat(wr.withCatalogueCode(code).withDate("2023-05-01").getWeekCode().getWeekCode(), is(code + "202319"));
         });
-
     }
 
+    @Test
+    void TestCatalogueCodeARK() {
+        WeekResolver wr = new WeekResolver(zone);
+
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-23").getWeekCode().getWeekCode(), is("ARK202317"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-24").getWeekCode().getWeekCode(), is("ARK202318"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-25").getWeekCode().getWeekCode(), is("ARK202318"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-26").getWeekCode().getWeekCode(), is("ARK202318"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-27").getWeekCode().getWeekCode(), is("ARK202318"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-28").getWeekCode().getWeekCode(), is("ARK202318"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-29").getWeekCode().getWeekCode(), is("ARK202318"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-30").getWeekCode().getWeekCode(), is("ARK202318"));
+        assertThat(wr.withCatalogueCode("ARK").withDate("2023-05-01").getWeekCode().getWeekCode(), is("ARK202319"));
+    }
 }
