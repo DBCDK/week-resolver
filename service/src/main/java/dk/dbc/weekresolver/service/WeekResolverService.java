@@ -228,6 +228,19 @@ public class WeekResolverService {
     }
 
     /**
+     * Endpoint for getting current code configuration
+     *
+     * @return a HTTP 200 with the configuration
+     */
+    @GET
+    @Path("v1/codes")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getCodes() throws JSONBException {
+        LOGGER.info("getCodes()");
+        return Response.ok(jsonbContext.marshall(WeekResolver.CODES), MediaType.APPLICATION_JSON).build();
+    }
+
+    /**
      * Get week code based on catalogCode and a date
      * @param date Date
      * @param catalogueCode Catalogue code
@@ -358,6 +371,4 @@ public class WeekResolverService {
             return Response.status(500, "Internal error when serializing result").build();
         }
     }
-
-
 }

@@ -63,86 +63,86 @@ public class WeekResolver {
         EASTER_SUNDAYS.add(LocalDate.parse("2040-04-01"));
     }
 
-    private static final HashMap<String, WeekCodeConfiguration> codes = new HashMap<>();
+    public static final HashMap<String, WeekCodeConfiguration> CODES = new HashMap<>();
     static {
         // No shiftday, no added weeks, allowing end-of-year and closingdays
-        codes.put("ACC", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        codes.put("ACE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        codes.put("ACF", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACM", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACN", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACP", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
-        codes.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
-        codes.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        CODES.put("ACC", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        CODES.put("ACE", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        CODES.put("ACF", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        CODES.put("ACK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        CODES.put("ACM", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        CODES.put("ACN", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        CODES.put("ACP", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        CODES.put("ACT", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays()); // DMatV2
+        CODES.put("ARK", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
+        CODES.put("BLG", new WeekCodeConfiguration().allowEndOfYear().ignoreClosingDays());
 
         // Shiftday friday, add 1 week
-        codes.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("BKX", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 3 weeks, allow end-of-year
-        codes.put("DPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (automarc)
-        codes.put("FPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
-        codes.put("GPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (periodicJobs)
+        CODES.put("DPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (automarc)
+        CODES.put("FPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear());
+        CODES.put("GPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (periodicJobs)
 
         // Shiftday friday, add 1 week, allow end-of-year and ignore closing days
-        codes.put("EMO", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
-        codes.put("EMS", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+        CODES.put("EMO", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+        CODES.put("EMS", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
 
         // No shiftday , add 1 week
-        codes.put("DAN", new WeekCodeConfiguration().addWeeks(1));
-        codes.put("DAR", new WeekCodeConfiguration().addWeeks(1));
-        codes.put("KBA", new WeekCodeConfiguration().addWeeks(1));
-        codes.put("SBA", new WeekCodeConfiguration().addWeeks(1));
+        CODES.put("DAN", new WeekCodeConfiguration().addWeeks(1));
+        CODES.put("DAR", new WeekCodeConfiguration().addWeeks(1));
+        CODES.put("KBA", new WeekCodeConfiguration().addWeeks(1));
+        CODES.put("SBA", new WeekCodeConfiguration().addWeeks(1));
 
         // Shiftday friday, add 1 week
-        codes.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 2 weeks
-        codes.put("DBR", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("DLR", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("DBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("DLF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("DBI", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("FSB", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("BKM", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DataIO, DMatV2
-        codes.put("DMO", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("FSC", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("IDU", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("SNE", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("LEK", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("MMV", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("FIV", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("ERA", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("ERE", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("NLL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("NLY", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
-        codes.put("ERL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("DBR", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("DLR", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("DBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("DLF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("DBI", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("FSB", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("BKM", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DataIO, DMatV2
+        CODES.put("DMO", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("FSC", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("IDU", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("SNE", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("LEK", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("MMV", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("FIV", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("ERA", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("ERE", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("NLL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("NLY", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("ERL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
 
         // Shiftday friday, add 1 week. Will be modified when the record is being edited
-        codes.put("BKR", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("BKR", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
         // Greenland
-        codes.put("GBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("GBF", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
 
         // Use default, most often used, value DIS197605. This may have to be corrected if the record
         // is indeed an old unowned KB record or the like
-        codes.put("DIS", new WeekCodeConfiguration().withFixedWeekCode("197605"));
+        CODES.put("DIS", new WeekCodeConfiguration().withFixedWeekCode("197605"));
 
         // Use code for incomplete record. Finished record may become 197604 or 197607
-        codes.put("OPR", new WeekCodeConfiguration().withFixedWeekCode("197601"));
+        CODES.put("OPR", new WeekCodeConfiguration().withFixedWeekCode("197601"));
 
         // Use the month number instead of the week number
-        codes.put("PLA", new WeekCodeConfiguration().useMonthNumber().withShiftDay(DayOfWeek.FRIDAY));
-        codes.put("PLN", new WeekCodeConfiguration().useMonthNumber().withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("PLA", new WeekCodeConfiguration().useMonthNumber().withShiftDay(DayOfWeek.FRIDAY));
+        CODES.put("PLN", new WeekCodeConfiguration().useMonthNumber().withShiftDay(DayOfWeek.FRIDAY));
 
         // Use fixed codes for these cataloguecodes
-        codes.put("DBT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
-        codes.put("SDT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
-        codes.put("DIG", new WeekCodeConfiguration().withFixedWeekCode("198507"));
-        codes.put("FFK", new WeekCodeConfiguration().withFixedWeekCode("999999"));
-        codes.put("FSF", new WeekCodeConfiguration().withFixedWeekCode("999999"));
-        codes.put("HOB", new WeekCodeConfiguration().withFixedWeekCode("197300"));
+        CODES.put("DBT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        CODES.put("SDT", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        CODES.put("DIG", new WeekCodeConfiguration().withFixedWeekCode("198507"));
+        CODES.put("FFK", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        CODES.put("FSF", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        CODES.put("HOB", new WeekCodeConfiguration().withFixedWeekCode("197300"));
     }
 
     // Make sure we all agree on when week numbers start
@@ -184,6 +184,8 @@ public class WeekResolver {
         return this;
     }
 
+
+
     public WeekResolverResult getWeekCode() throws UnsupportedOperationException {
         return getWeekCode(date);
     }
@@ -201,10 +203,10 @@ public class WeekResolver {
         LocalDate expectedDate = customDate;
 
         // Select configuration of weekcode calculation
-        if( !codes.containsKey(catalogueCode.toUpperCase()) ){
+        if( !CODES.containsKey(catalogueCode.toUpperCase()) ){
             throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
-        WeekCodeConfiguration configuration = codes.get(catalogueCode.toUpperCase());
+        WeekCodeConfiguration configuration = CODES.get(catalogueCode.toUpperCase());
 
         // If the configuration has a fixed weekcode, return this
         if( configuration.getFixedWeekCode() != null ) {
@@ -340,10 +342,10 @@ public class WeekResolver {
         LocalDate expectedDate = customDate;
 
         // Select configuration of weekcode calculation
-        if( !codes.containsKey(catalogueCode.toUpperCase()) ){
+        if( !CODES.containsKey(catalogueCode.toUpperCase()) ){
             throw new UnsupportedOperationException(String.format("Cataloguecode %s is not supported", catalogueCode));
         }
-        WeekCodeConfiguration configuration = codes.get(catalogueCode.toUpperCase());
+        WeekCodeConfiguration configuration = CODES.get(catalogueCode.toUpperCase());
 
         // If the configuration has a fixed weekcode, return this
         if( configuration.getFixedWeekCode() != null ) {
