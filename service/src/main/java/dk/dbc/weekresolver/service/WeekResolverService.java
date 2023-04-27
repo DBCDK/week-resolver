@@ -213,7 +213,7 @@ public class WeekResolverService {
                     .withRequestedWeekCode(weekCode.toUpperCase())
                     .withCurrentWeekCodeResult(currentResult)
                     .withFulfilled(currentYearWeek >= requestedYearWeek);
-            LOGGER.info("Requested week code {} is fulfilled = {}", weekCode.toUpperCase(), result.getFulfilled());
+            LOGGER.info("Requested week code {} is fulfilled = {}", weekCode.toUpperCase(), result.getIsFulfilled());
             return Response.ok(jsonbContext.marshall(result), MediaType.APPLICATION_JSON).build();
         } catch( UnsupportedOperationException unsupportedOperationException) {
             LOGGER.error("Unsupported cataloguecode {}", weekCode.substring(0, 3));
@@ -225,6 +225,19 @@ public class WeekResolverService {
             LOGGER.error(String.format("Failed to serialize result object: %s", jsonbException.getCause()));
             return Response.status(500, "Internal error when serializing result").build();
         }
+    }
+
+    /**
+     * Endpoint for getting current code configuration
+     *
+     * @return a HTTP 200 with the configuration
+     */
+    @GET
+    @Path("v1/codes")
+    @Produces({MediaType.APPLICATION_JSON})
+    public Response getCodes() throws JSONBException {
+        LOGGER.info("getCodes()");
+        return Response.ok(jsonbContext.marshall(WeekResolver.CODES), MediaType.APPLICATION_JSON).build();
     }
 
     /**
@@ -358,6 +371,4 @@ public class WeekResolverService {
             return Response.status(500, "Internal error when serializing result").build();
         }
     }
-
-
 }

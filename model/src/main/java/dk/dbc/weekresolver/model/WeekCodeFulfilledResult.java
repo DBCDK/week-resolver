@@ -8,11 +8,11 @@ public class WeekCodeFulfilledResult implements Result {
 
     private WeekResolverResult currentWeekCodeResult;
 
-    public Boolean getFulfilled() {
+    public Boolean getIsFulfilled() {
         return isFulfilled;
     }
 
-    public void setFulfilled(Boolean fulfilled) {
+    public void setIsFulfilled(Boolean fulfilled) {
         isFulfilled = fulfilled;
     }
 
