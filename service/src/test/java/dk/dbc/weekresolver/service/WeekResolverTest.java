@@ -255,8 +255,8 @@ class WeekResolverTest {
         // This is different from the specification of the future use of EMS/EMO
         assertThat(wr.withCatalogueCode("EMO").withDate("2020-04-22").getWeekCode().getWeekCode(), is("EMO202018"));
         assertThat(wr.withCatalogueCode("EMS").withDate("2020-04-22").getWeekCode().getWeekCode(), is("EMS202018"));
-        assertThat(wr.withCatalogueCode("DAN").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DAN202019"));
-        assertThat(wr.withCatalogueCode("DAR").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DAR202019"));
+        assertThat(wr.withCatalogueCode("DAN").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DAN202018"));
+        assertThat(wr.withCatalogueCode("DAR").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DAR202018"));
 
         // +2 weeks
         assertThat(wr.withCatalogueCode("DLR").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DLR202019"));
@@ -875,4 +875,23 @@ class WeekResolverTest {
         assertThat(wr.withDate("2025-01-03").getWeekCode().getWeekCode(), is("BKM202504"));
         assertThat(wr.withDate("2025-01-06").getWeekCode().getWeekCode(), is("BKM202504"));
     }
+
+    @Test
+    void TestCatalogueCodeDAN_DAR_SBA_KBA() {
+        WeekResolver wr = new WeekResolver(zone);
+
+        Set.of("DAN", "DAR", "SBA", "KBA").forEach(code -> {
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-23").getWeekCode().getWeekCode(), is(code + "202317"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-24").getWeekCode().getWeekCode(), is(code + "202318"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-25").getWeekCode().getWeekCode(), is(code + "202318"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-26").getWeekCode().getWeekCode(), is(code + "202318"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-27").getWeekCode().getWeekCode(), is(code + "202318"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-28").getWeekCode().getWeekCode(), is(code + "202318"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-29").getWeekCode().getWeekCode(), is(code + "202318"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-04-30").getWeekCode().getWeekCode(), is(code + "202318"));
+            assertThat(wr.withCatalogueCode(code).withDate("2023-05-01").getWeekCode().getWeekCode(), is(code + "202319"));
+        });
+
+    }
+
 }

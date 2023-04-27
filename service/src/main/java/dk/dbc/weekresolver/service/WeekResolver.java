@@ -93,7 +93,6 @@ public class WeekResolver {
         codes.put("DAN", new WeekCodeConfiguration().addWeeks(1));
         codes.put("DAR", new WeekCodeConfiguration().addWeeks(1));
         codes.put("KBA", new WeekCodeConfiguration().addWeeks(1));
-        codes.put("SDA", new WeekCodeConfiguration().addWeeks(1));
         codes.put("SBA", new WeekCodeConfiguration().addWeeks(1));
 
         // Shiftday friday, add 1 week
@@ -216,20 +215,24 @@ public class WeekResolver {
         LOGGER.debug("======================== BEGIN SHIFTDAY CALCULATION ==================================");
         if (!configuration.getIgnoreClosingDays()) {
 
-            // Step 1: Adjust shiftday, but only if we are not ignoring closing days
-            DayOfWeek shiftDay = configuration.getShiftDay() == null
-                    ? configuration.getShiftDay()
-                    : adjustShiftDay(expectedDate, configuration.getShiftDay(), configuration.getAllowEndOfYear());
+            // Step 1: Adjust shiftday, but only if we are not ignoring closing days and/or shiftday
+            if (configuration.getShiftDay() == null) {
+                LOGGER.debug("No shiftday for this code, date unchanged at {}", expectedDate);
+            } else {
 
-            // Step 2: Is this on or after the shiftday ?
-            if (shiftDay == null || expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue()) {
-                expectedDate = getMonday(expectedDate.plusWeeks(1));
-                LOGGER.debug("Date shifted to monday next week due to shiftday to {}", expectedDate);
+                // Adjust shiftday
+                DayOfWeek shiftDay = adjustShiftDay(expectedDate, configuration.getShiftDay(), configuration.getAllowEndOfYear());
 
-                LOGGER.debug("Checking for closing days");
-                while (!configuration.getIgnoreClosingDays() && (isClosingDay(expectedDate, configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate))) {
-                    expectedDate = expectedDate.plusDays(1);
-                    LOGGER.debug("Date shifted 1 more day due to closing day, easter week or first week of the year to {}", expectedDate);
+                // Step 2: Is this on or after the shiftday ?
+                if (shiftDay == null || expectedDate.getDayOfWeek().getValue() >= shiftDay.getValue()) {
+                    expectedDate = getMonday(expectedDate.plusWeeks(1));
+                    LOGGER.debug("Date shifted to monday next week due to shiftday {} to {}", shiftDay, expectedDate);
+
+                    LOGGER.debug("Checking for closing days");
+                    while (!configuration.getIgnoreClosingDays() && (isClosingDay(expectedDate, configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate))) {
+                        expectedDate = expectedDate.plusDays(1);
+                        LOGGER.debug("Date shifted 1 more day due to closing day, easter week or first week of the year to {}", expectedDate);
+                    }
                 }
             }
         } else {
@@ -248,7 +251,6 @@ public class WeekResolver {
         // Step 4: add the selected number of weeks
         expectedDate = expectedDate.plusWeeks(configuration.getAddWeeks());
         LOGGER.debug("date shifted {} week(s) {}", configuration.getAddWeeks(), expectedDate);
-        LOGGER.debug("======================== END WEEKCODE CALCULATION ==================================");
 
         // Step 5: Check that bkm-red. and publish does not collide, if so, then push another week (example is end of 2024)
         //         We do this by checking that the week before the selected day has at least enough days
@@ -264,6 +266,7 @@ public class WeekResolver {
             expectedDate = expectedDate.plusDays(1);
             LOGGER.debug("Date shifted 1 day due to date in week 1 to {}", expectedDate);
         }
+        LOGGER.debug("======================== END WEEKCODE CALCULATION ==================================");
 
         // Build final result
         LOGGER.debug("Date {} pushed to final date {} with weeknumber {}", customDate, expectedDate,
@@ -421,6 +424,7 @@ public class WeekResolver {
     }
 
     private DayOfWeek adjustShiftDay(LocalDate expectedDate, DayOfWeek shiftDay, boolean allowEndOfYear) {
+        LOGGER.debug("Adjusting shiftday for {} with shiftday {}", expectedDate, shiftDay);
 
         // Find the date of the shiftday in this week
         LocalDate dateOfShiftDay = expectedDate;
