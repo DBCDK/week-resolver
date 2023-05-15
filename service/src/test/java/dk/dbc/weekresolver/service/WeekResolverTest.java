@@ -259,6 +259,9 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("DAR").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DAR202018"));
 
         // +2 weeks
+        assertThat(wr.withCatalogueCode("LIT").withDate("2023-05-15").getWeekCode().getWeekCode(), is("LIT202322"));
+
+        // +2 weeks
         assertThat(wr.withCatalogueCode("DLR").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DLR202019"));
         assertThat(wr.withCatalogueCode("DLF").withDate("2020-04-29").getWeekCode().getWeekCode(), is("DLF202020"));
         assertThat(wr.withCatalogueCode("DBR").withDate("2019-12-26").getWeekCode().getWeekCode(), is("DBR202003"));
