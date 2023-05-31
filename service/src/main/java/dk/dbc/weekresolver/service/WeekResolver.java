@@ -123,6 +123,7 @@ public class WeekResolver {
         CODES.put("NLL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
         CODES.put("NLY", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
         CODES.put("ERL", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY)); // DMatV2
+        CODES.put("FLX", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY));
 
         // Shiftday friday, add 1 week. Will be modified when the record is being edited
         CODES.put("BKR", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
