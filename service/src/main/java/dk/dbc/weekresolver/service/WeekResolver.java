@@ -96,6 +96,7 @@ public class WeekResolver {
         CODES.put("DAR", new WeekCodeConfiguration().addWeeks(1));
         CODES.put("KBA", new WeekCodeConfiguration().addWeeks(1));
         CODES.put("SBA", new WeekCodeConfiguration().addWeeks(1));
+        CODES.put("ABU", new WeekCodeConfiguration().addWeeks(1)); // Deprecated 201834, but apparently still used by dbckat ??
 
         // No shiftday, add 1 week, allowing end-of-year and closingdays
         CODES.put("ARK", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
