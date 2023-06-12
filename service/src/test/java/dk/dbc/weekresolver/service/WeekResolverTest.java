@@ -3,14 +3,14 @@ package dk.dbc.weekresolver.service;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanResult;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -24,8 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WeekResolverTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverTest.class);
-
     final static String zone = "Europe/Copenhagen";
 
     @Test
@@ -397,6 +395,49 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-21").getCurrentWeekCode().getWeekCode(), is("BKM202021"));
         assertThat(wr.withCatalogueCode("DBF").withDate("2020-05-22").getCurrentWeekCode().getWeekCode(), is("DBF202022"));
         assertThat(wr.withCatalogueCode("BKM").withDate("2020-05-22").getCurrentWeekCode().getWeekCode(), is("BKM202022"));
+    }
+
+    @Test
+    void testCurrentWeekCodeAllWeeksOf2023() {
+        WeekResolver resolverWithShiftday = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver resolverWithoutShiftday = new WeekResolver(zone).withCatalogueCode("ACC");
+
+        Calendar.getInstance().setFirstDayOfWeek(Calendar.MONDAY);
+        Calendar.getInstance().setMinimalDaysInFirstWeek(7);
+
+        final ZoneId zoneId = ZoneId.of(zone);
+        final Locale locale = new Locale("da", "DK");
+        final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", locale).withZone(zoneId);
+        final DateTimeFormatter weekFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
+
+        LocalDate date = LocalDate.parse("2023-01-01", dateFormatter);
+
+        while (date.getYear() == 2023) {
+            int week = Integer.parseInt(date.format(weekFormatter));
+
+            WeekResolverResult resultWithShiftday = resolverWithShiftday.getCurrentWeekCode(date);
+            WeekResolverResult resultWithoutShiftday = resolverWithoutShiftday.getCurrentWeekCode(date);
+
+            // For visual verification, if needed
+            /*System.out.println(String.format("%02d/%02d-%d  =  %02d  ==>  %s (%02d) / %s (%02d)",
+                    date.getDayOfMonth(), date.getMonth().getValue(), date.getYear(), week,
+                    resultWithShiftday.getWeekCode(), resultWithShiftday.getWeekNumber(),
+                    resultWithoutShiftday.getWeekCode(), resultWithoutShiftday.getWeekNumber()));*/
+
+            // For codes with shiftday (friday), the week rolls over on friday.
+            // Handle edge cases with week 52 on saturday and sunday
+            if (date.getDayOfWeek().getValue() < DayOfWeek.FRIDAY.getValue()) {
+                assertThat("mon-fri weekcode equals week number with shiftday", resultWithShiftday.getWeekNumber(), is(week));
+            } else {
+                Integer expectedWeek = week == 52 ? 1 : week + 1;
+                assertThat("say-sun weekcode equals week number + 1 with shiftday", resultWithShiftday.getWeekNumber(), is(expectedWeek));
+            }
+
+            // For codes without shiftday (and no closing days) the weekcode follows the week number
+            assertThat("weekcode equals week number without shiftday", resultWithoutShiftday.getWeekNumber(), is(week));
+
+            date = date.plusDays(1);
+        }
     }
 
     @Test
