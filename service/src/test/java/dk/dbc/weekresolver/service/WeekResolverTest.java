@@ -146,12 +146,12 @@ class WeekResolverTest {
         //   - Allow end of year weeks
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMO");
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
-        assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMO201948")); // saturday, week 47 = 48
-        assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMO201948")); // sunday, week 47 = 48
-        assertThat(wr.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMO201949")); // monday, week 48 = 49
-        assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("EMO202001")); // wednesday, week 52 = 01
-        assertThat(wr.withDate("2020-04-09").getWeekCode().getWeekCode(), is("EMO202016")); // thursday, week 15 = 16
-        assertThat(wr.withDate("2020-05-01").getWeekCode().getWeekCode(), is("EMO202019")); // friday may 1.st (closing day ignored), week 18 = 19
+        assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMO201950")); // saturday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMO201950")); // sunday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMO201950")); // monday, week 48 = 50
+        assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("EMO202002")); // wednesday, week 52 = 02
+        assertThat(wr.withDate("2020-04-09").getWeekCode().getWeekCode(), is("EMO202017")); // thursday, week 15 = 17
+        assertThat(wr.withDate("2019-05-01").getWeekCode().getWeekCode(), is("EMO201920")); // wednesday, may 1.st (closing day ignored), week 18 = 20
     }
 
     @Test
@@ -164,12 +164,12 @@ class WeekResolverTest {
         //   - Allow end of year weeks
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMS");
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
-        assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMS201948")); // saturday, week 47 = 48
-        assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201948")); // sunday, week 47 = 48
-        assertThat(wr.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201949")); // monday, week 48 = 49
-        assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("EMS202001")); // wednesday, week 52 = 01
-        assertThat(wr.withDate("2020-04-09").getWeekCode().getWeekCode(), is("EMS202016")); // thursday, week 15 = 16
-        assertThat(wr.withDate("2020-05-01").getWeekCode().getWeekCode(), is("EMS202019")); // friday may 1.st (closing day ignored), week 18 = 19
+        assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMS201950")); // saturday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201950")); // sunday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201950")); // monday, week 48 = 50
+        assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("EMS202002")); // wednesday, week 52 = 02
+        assertThat(wr.withDate("2020-04-09").getWeekCode().getWeekCode(), is("EMS202017")); // thursday, week 15 = 17
+        assertThat(wr.withDate("2025-05-01").getWeekCode().getWeekCode(), is("EMS202520")); // thursday, may 1.st (closing day ignored), week 18 = 20
     }
 
     @Test
@@ -205,18 +205,18 @@ class WeekResolverTest {
         WeekResolver wr3 = new WeekResolver().withCatalogueCode("EMS").withLocale(new Locale("da", "DK"));
         WeekResolver wr4 = new WeekResolver().withCatalogueCode("EMS").withLocale(new Locale("en", "US")); // Uses sunday as week begin
 
-        assertThat(wr1.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201948")); // sunday, week 47 = 48
-        assertThat(wr1.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201949")); // monday, week 48 = 49
+        assertThat(wr1.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201950")); // sunday, week 47 = 50
+        assertThat(wr1.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201950")); // monday, week 48 = 50
 
-        assertThat(wr2.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201948")); // sunday, week 47 = 48
-        assertThat(wr2.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201949")); // monday, week 48 = 49
+        assertThat(wr2.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201950")); // sunday, week 47 = 50
+        assertThat(wr2.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201950")); // monday, week 48 = 50
 
-        assertThat(wr3.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201948")); // sunday, week 47 = 48
-        assertThat(wr4.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201949")); // monday, week 48 = 49
+        assertThat(wr3.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201950")); // sunday, week 47 = 50
+        assertThat(wr4.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201950")); // monday, week 48 = 50
 
-        assertThat(wr4.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMS201948")); // saturday, week 47 = 48
-        assertThat(wr4.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201949")); // sunday, week 47 (week 48 in us) = 49
-        assertThat(wr4.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201949")); // monday, week 48 = 49
+        assertThat(wr4.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMS201950")); // saturday, week 47 = 50
+        assertThat(wr4.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201950")); // sunday, week 47 (week 48 in us) = 50
+        assertThat(wr4.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMS201950")); // monday, week 48 = 50
     }
 
     @Test
@@ -251,8 +251,8 @@ class WeekResolverTest {
         // +1 week
         // Note: When checked, existing records from this date has EM[S|O]202019, that is current week + 1
         // This is different from the specification of the future use of EMS/EMO
-        assertThat(wr.withCatalogueCode("EMO").withDate("2020-04-22").getWeekCode().getWeekCode(), is("EMO202018"));
-        assertThat(wr.withCatalogueCode("EMS").withDate("2020-04-22").getWeekCode().getWeekCode(), is("EMS202018"));
+        assertThat(wr.withCatalogueCode("EMO").withDate("2020-04-22").getWeekCode().getWeekCode(), is("EMO202019"));
+        assertThat(wr.withCatalogueCode("EMS").withDate("2020-04-22").getWeekCode().getWeekCode(), is("EMS202019"));
         assertThat(wr.withCatalogueCode("DAN").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DAN202018"));
         assertThat(wr.withCatalogueCode("DAR").withDate("2020-04-22").getWeekCode().getWeekCode(), is("DAR202018"));
         assertThat(wr.withCatalogueCode("ABU").withDate("2023-06-01").getWeekCode().getWeekCode(), is("ABU202323"));

@@ -85,8 +85,8 @@ public class WeekResolver {
         CODES.put("GPF", new WeekCodeConfiguration().addWeeks(3).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear()); // DataIO (periodicJobs)
 
         // Shiftday friday, add 1 week, allow end-of-year and ignore closing days
-        CODES.put("EMO", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
-        CODES.put("EMS", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
+        CODES.put("EMO", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
+        CODES.put("EMS", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
 
         // Shiftday friday, add 2 weeks, allow end-of-year and ignore closing days
         CODES.put("LIT", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
@@ -245,7 +245,17 @@ public class WeekResolver {
                 }
             }
         } else {
-            LOGGER.debug("Ignoring shiftday for this configuration. Date remains at {}", expectedDate);
+            if (configuration.getShiftDay() != null) {
+                LOGGER.debug("Ignoring closing days but has a shiftday, date is {}", expectedDate);
+                if (expectedDate.getDayOfWeek().getValue() >= configuration.getShiftDay().getValue()) {
+                    expectedDate = getMonday(expectedDate.plusWeeks(1));
+                    LOGGER.debug("Date shifted to monday next week due to shiftday {} to {}", configuration.getShiftDay(), expectedDate);
+                } else {
+                    LOGGER.debug("Date is before shiftday. Date remains at {}", expectedDate);
+                }
+            } else  {
+                LOGGER.debug("No shiftday for this configuration. Date remains at {}", expectedDate);
+            }
         }
         LOGGER.debug("======================== END SHIFTDAY CALCULATION ==================================");
 
@@ -264,8 +274,9 @@ public class WeekResolver {
         // Step 5: Check that bkm-red. and publish does not collide, if so, then push another week (example is end of 2024)
         //         We do this by checking that the week before the selected day has at least enough days
         //         so that proof and BKM-red can be finished by thursday - so we need 3 working days in the previous
-        //         week to make sure this is fulfilled
-        if (previousWeekIsTooShort(expectedDate, 4)) {
+        //         week to make sure this is fulfilled.
+        //         The check is ignored if 'ignoreClosingDays' is set
+        if (!configuration.getIgnoreClosingDays() && previousWeekIsTooShort(expectedDate, 4)) {
             expectedDate = getMonday(expectedDate.plusWeeks(1));
             LOGGER.debug("Date shifted to monday next week due to previous week having too few working days to {}", expectedDate);
         }
