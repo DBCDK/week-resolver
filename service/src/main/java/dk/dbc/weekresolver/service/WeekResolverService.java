@@ -3,6 +3,7 @@ package dk.dbc.weekresolver.service;
 import dk.dbc.commons.jsonb.JSONBContext;
 import dk.dbc.commons.jsonb.JSONBException;
 
+import dk.dbc.weekresolver.model.WeekCodeConfiguration;
 import dk.dbc.weekresolver.model.WeekCodeFulfilledResult;
 import dk.dbc.weekresolver.model.WeekResolverQueryParameterDays;
 import dk.dbc.weekresolver.model.WeekResolverQueryParameterDisplay;
@@ -26,8 +27,12 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Path("/api")
 public class WeekResolverService {
@@ -237,7 +242,13 @@ public class WeekResolverService {
     @Produces({MediaType.APPLICATION_JSON})
     public Response getCodes() throws JSONBException {
         LOGGER.info("getCodes()");
-        return Response.ok(jsonbContext.marshall(WeekResolver.CODES), MediaType.APPLICATION_JSON).build();
+
+        SortedMap<String, WeekCodeConfiguration> sortedMap = new TreeMap<>();
+        for (String code : WeekResolver.CODES.keySet().stream().sorted().collect(Collectors.toCollection(ArrayList::new))) {
+            sortedMap.putIfAbsent(code, WeekResolver.CODES.get(code));
+        }
+
+        return Response.ok(jsonbContext.marshall(sortedMap), MediaType.APPLICATION_JSON).build();
     }
 
     /**
