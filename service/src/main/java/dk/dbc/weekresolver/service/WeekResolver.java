@@ -101,6 +101,9 @@ public class WeekResolver {
         // No shiftday, add 1 week, allowing end-of-year and closingdays
         CODES.put("ARK", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
 
+        // No shiftday, add 2 weeks, allowing end-of-year and closingdays
+        CODES.put("VPT", new WeekCodeConfiguration().addWeeks(2).allowEndOfYear().ignoreClosingDays());
+
         // Shiftday friday, add 1 week
         CODES.put("UTI", new WeekCodeConfiguration().addWeeks(1).withShiftDay(DayOfWeek.FRIDAY));
 
