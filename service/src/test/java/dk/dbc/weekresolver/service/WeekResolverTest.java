@@ -140,8 +140,8 @@ class WeekResolverTest {
     void TestCatalogueCodeEMO() {
 
         // EMO:
-        //   - current week number + 1
-        //   - Shiftday is sunday
+        //   - current week number + 2
+        //   - Shiftday is friday
         //   - No handling of closing days
         //   - Allow end of year weeks
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMO");
@@ -158,8 +158,8 @@ class WeekResolverTest {
     void TestCatalogueCodeEMS() {
 
         // EMS:
-        //   - current week number + 1
-        //   - Shiftday is sunday
+        //   - current week number + 2
+        //   - Shiftday is friday
         //   - No handling of closing days
         //   - Allow end of year weeks
         WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMS");
@@ -170,6 +170,42 @@ class WeekResolverTest {
         assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("EMS202002")); // wednesday, week 52 = 02
         assertThat(wr.withDate("2020-04-09").getWeekCode().getWeekCode(), is("EMS202017")); // thursday, week 15 = 17
         assertThat(wr.withDate("2025-05-01").getWeekCode().getWeekCode(), is("EMS202520")); // thursday, may 1.st (closing day ignored), week 18 = 20
+    }
+
+    @Test
+    void TestCatalogueCodeEMK() {
+
+        // EMK:
+        //   - current week number + 2
+        //   - Shiftday is friday
+        //   - No handling of closing days
+        //   - Allow end of year weeks
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMK");
+        assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
+        assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMK201950")); // saturday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMK201950")); // sunday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMK201950")); // monday, week 48 = 50
+        assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("EMK202002")); // wednesday, week 52 = 02
+        assertThat(wr.withDate("2020-04-09").getWeekCode().getWeekCode(), is("EMK202017")); // thursday, week 15 = 17
+        assertThat(wr.withDate("2025-05-01").getWeekCode().getWeekCode(), is("EMK202520")); // thursday, may 1.st (closing day ignored), week 18 = 20
+    }
+
+    @Test
+    void TestCatalogueCodeEMM() {
+
+        // EMM:
+        //   - current week number + 2
+        //   - Shiftday is friday
+        //   - No handling of closing days
+        //   - Allow end of year weeks
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMM");
+        assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
+        assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMM201950")); // saturday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMM201950")); // sunday, week 47 = 50 (after shiftday)
+        assertThat(wr.withDate("2019-11-25").getWeekCode().getWeekCode(), is("EMM201950")); // monday, week 48 = 50
+        assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("EMM202002")); // wednesday, week 52 = 02
+        assertThat(wr.withDate("2020-04-09").getWeekCode().getWeekCode(), is("EMM202017")); // thursday, week 15 = 17
+        assertThat(wr.withDate("2025-05-01").getWeekCode().getWeekCode(), is("EMM202520")); // thursday, may 1.st (closing day ignored), week 18 = 20
     }
 
     @Test

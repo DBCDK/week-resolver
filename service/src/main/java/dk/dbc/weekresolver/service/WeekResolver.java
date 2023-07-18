@@ -87,6 +87,8 @@ public class WeekResolver {
         // Shiftday friday, add 1 week, allow end-of-year and ignore closing days
         CODES.put("EMO", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
         CODES.put("EMS", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
+        CODES.put("EMM", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
+        CODES.put("EMK", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
 
         // Shiftday friday, add 2 weeks, allow end-of-year and ignore closing days
         CODES.put("LIT", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
