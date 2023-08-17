@@ -10,6 +10,7 @@ import dk.dbc.weekresolver.model.WeekResolverQueryParameterDisplay;
 import dk.dbc.weekresolver.model.WeekResolverResult;
 import dk.dbc.weekresolver.model.YearPlanFormat;
 import dk.dbc.weekresolver.model.YearPlanResult;
+import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.QueryParam;
@@ -34,6 +35,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
 
+@Stateless
 @Path("/api")
 public class WeekResolverService {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverService.class);
