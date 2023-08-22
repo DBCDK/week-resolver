@@ -49,6 +49,14 @@ pipeline {
                       failedTotalAll: "10"])
             }
         }
+        stage("deploy") {
+            when {
+              branch "master"
+            }
+            steps {
+              sh "mvn jar:jar deploy:deploy"
+            }
+        }
         stage("build docker container") {
             when {
                 branch "master"
