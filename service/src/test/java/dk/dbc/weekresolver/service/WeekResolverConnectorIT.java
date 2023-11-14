@@ -14,7 +14,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-class WeekresolverConnectorIT extends AbstractWeekresolverServiceContainerTest {
+class WeekResolverConnectorIT extends AbstractWeekResolverServiceContainerTest {
 
     @Test
     public void testConnector() throws WeekResolverConnectorException {

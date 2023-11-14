@@ -673,7 +673,8 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(16).getColumns().get(8).getContent().contains("2024-05-02"), is(true)); // BKM-red.
         assertThat(yearPlan.getRows().get(16).getColumns().get(9).getContent(), is("\"2024-05-03\""));            // Publish
         assertThat(yearPlan.getRows().get(16).getColumns().get(10).getContent(), is("17"));                       // Week number
-        // --
+
+        // Check proof and publish around ascension Day
         assertThat(yearPlan.getRows().get(17).getColumns().get(0).getContent(), is("202420"));                    // Week code
         assertThat(yearPlan.getRows().get(17).getColumns().get(1).getContent(), is("\"2024-04-26\""));            // Weekcode first
         assertThat(yearPlan.getRows().get(17).getColumns().get(2).getContent(), is("\"2024-05-02\""));            // Weekcode last
@@ -683,7 +684,7 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(17).getColumns().get(6).getContent(), is("\"2024-05-07\""));            // Proof
         assertThat(yearPlan.getRows().get(17).getColumns().get(7).getContent(), is("\"2024-05-07\""));            // Proof ends
         assertThat(yearPlan.getRows().get(17).getColumns().get(8).getContent(), is("\"2024-05-08\""));            // BKM-red.
-        assertThat(yearPlan.getRows().get(17).getColumns().get(9).getContent(), is("\"2024-05-08\""));            // Publish
+        assertThat(yearPlan.getRows().get(17).getColumns().get(9).getContent(), is("\"2024-05-10\""));            // Publish
         assertThat(yearPlan.getRows().get(17).getColumns().get(10).getContent(), is("18"));                       // Week number
 
         // Check proof and publish just before Constitution day

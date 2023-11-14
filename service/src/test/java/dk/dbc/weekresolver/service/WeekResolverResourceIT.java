@@ -24,7 +24,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-class WeekResolverResourceIT extends AbstractWeekresolverServiceContainerTest {
+class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverResourceIT.class);
 
     @Test

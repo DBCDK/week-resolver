@@ -888,11 +888,8 @@ public class WeekResolver {
         description.setBkm(fromLocalDate(bkm));
         LOGGER.debug("BKM = {}", description.getBkm());
 
-        // Publish date. Last working day in the week of the proof.
+        // Publish date. Always friday
         LocalDate publish = getFriday(fromDate(description.getProofTo()));
-        while (isClosingDay(publish, configuration.getAllowEndOfYear()) && publish.isAfter(fromDate(description.getProofTo()))) {
-            publish = publish.minusDays(1);
-        }
         description.setPublish(fromLocalDate(publish));
         LOGGER.debug("PUBLISH = {}", description.getPublish());
 

@@ -12,8 +12,8 @@ import org.testcontainers.containers.wait.strategy.Wait;
 
 import java.time.Duration;
 
-public abstract class AbstractWeekresolverServiceContainerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWeekresolverServiceContainerTest.class);
+public abstract class AbstractWeekResolverServiceContainerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractWeekResolverServiceContainerTest.class);
 
     static final GenericContainer<?> weekresolverServiceContainer;
     static final String weekresolverServiceBaseUrl;
