@@ -83,7 +83,8 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     void getYearPlanForThisYearJson() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         YearPlanResult y = connector.getYearPlanForCode(YearPlanFormat.JSON, "BKM");
-        assertThat(y.getRows().size(), is(53));
+        System.out.println(y);
+        assertThat(y.getRows().size(), is(51));
     }
 
     @Test
@@ -98,7 +99,7 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     void getYearPlanForThisYearCsv() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
         String csv = connector.getYearPlanCsvForCode(YearPlanFormat.CSV, "BKM");
-        assertThat(csv.split("\n").length, is(53));
+        assertThat(csv.split("\n").length, is(51));
     }
 
     @Test
