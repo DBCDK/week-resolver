@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 
 import dk.dbc.weekresolver.model.WeekCodeConfiguration;
 import dk.dbc.weekresolver.model.WeekDescription;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.ws.rs.BadRequestException;
+import org.slf4j.spi.LocationAwareLogger;
 
 public class WeekResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolver.class);
@@ -522,10 +524,6 @@ public class WeekResolver {
         // 1. maj and pinched friday
         if( expectedDate.getMonth() == Month.MAY && expectedDate.getDayOfMonth() == 1 ) {
             LOGGER.debug("{} is 1. may", expectedDate);
-            return true;
-        }
-        if( expectedDate.getMonth() == Month.MAY && expectedDate.getDayOfMonth() == 2 && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
-            LOGGER.debug("{} is pinched friday after 1. may", expectedDate);
             return true;
         }
 

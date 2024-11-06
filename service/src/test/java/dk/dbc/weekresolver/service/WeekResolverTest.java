@@ -1013,4 +1013,27 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("VPT").withDate("2023-12-18").getWeekCode().getWeekCode(), is("VPT202401"));
         assertThat(wr.withCatalogueCode("VPT").withDate("2023-12-25").getWeekCode().getWeekCode(), is("VPT202402"));
     }
+
+    @Test
+    void Test2025MayFirstIsThursday() {
+        // From: https://dbcjira.atlassian.net/browse/MS-4889
+        // This change reverses a previous decision that a thursday following may 1.
+        // should move the shiftday
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+
+        assertThat("2025-04-23", wr.withDate("2025-04-23").getWeekCode().getWeekCode(), is("BKM202519"));
+        assertThat("2025-04-24", wr.withDate("2025-04-24").getWeekCode().getWeekCode(), is("BKM202519"));
+        assertThat("2025-04-25",wr.withDate("2025-04-25").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-26",wr.withDate("2025-04-26").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-27",wr.withDate("2025-04-27").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-28",wr.withDate("2025-04-28").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-29",wr.withDate("2025-04-29").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-30",wr.withDate("2025-04-30").getWeekCode().getWeekCode(), is("BKM202520"));
+
+        assertThat("2025-05-01",wr.withDate("2025-05-01").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-05-02",wr.withDate("2025-05-02").getWeekCode().getWeekCode(), is("BKM202521"));
+
+        assertThat("2025-05-08",wr.withDate("2025-05-08").getWeekCode().getWeekCode(), is("BKM202521"));
+        assertThat("2025-05-09",wr.withDate("2025-05-09").getWeekCode().getWeekCode(), is("BKM202522"));
+    }
 }
