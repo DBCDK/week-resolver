@@ -387,12 +387,6 @@ public class WeekResolver {
         //   step 3: Otherwise check if we are on or before shiftday
 
         if (!configuration.getIgnoreClosingDays()) {
-            /*if (isClosingDay(expectedDate, true)) {
-                // Move forward to next production day, but stop at sunday since we should return the following week, not any later week
-                while (isClosingDay(expectedDate, true) && expectedDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                    expectedDate = expectedDate.plusDays(1);
-                }
-            }*/
 
             // Check if we have passed the shiftday. There is no adjustments and no checks for closing
             // days, since we just want the code for the actual day.
