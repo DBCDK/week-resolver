@@ -464,6 +464,13 @@ public class WeekResolver {
         LOGGER.debug("Checking if {} is in the pentecost week", expectedDate);
         if( isPentecostWeek(expectedDate) && shiftDay == DayOfWeek.FRIDAY ) {
             LOGGER.debug("Sunday this week is pentecost and shiftday is friday. Move shiftday to thursday");
+
+            // Pentecost may conflict with "Grundlovsdag", in which case the shiftday must move back another day
+            LocalDate shiftdayCandidate = getFriday(expectedDate).minusDays(1);
+            if (isClosingDay(shiftdayCandidate, false)) {
+                LOGGER.debug("{} minus 1 day (thursday) is a closing day, move back to wednesday", expectedDate);
+                return DayOfWeek.WEDNESDAY;
+            }
             return DayOfWeek.THURSDAY;
         }
         // 3: If the expected date falls in the week before may 1st. or "Grundlovsdag", then move
@@ -846,9 +853,17 @@ public class WeekResolver {
         LOGGER.debug("WEEKCODE_LAST = {}", description.getWeekCodeLast());
 
         // Book cart the next working day after shiftday. Here we ignore Christmas weeks since
-        // the book cart can be handled on working days in the Christmas weeks
+        // the book cart can be handled on working days in the Christmas weeks. Also the book cart
+        // is allowed on the pinched friday after "Grundlovsdag", when pentecost is in that weekend
+        // (and "Grundlovsdag" is a thursday)
         LocalDate bookCart = fromDate(description.getShiftDay());
         do {
+            // Exception: If "Grundlovsdag" and pentecost conflicts, such that
+            // we have a pinced friday after "Grundlovsdag". Place the book cart here
+            if (bookCart.getMonth() == Month.JUNE && bookCart.getDayOfMonth() == 6 && bookCart.getDayOfWeek() == DayOfWeek.FRIDAY) {
+                LOGGER.debug("Book cart is allowed to run on pinched friday {} between pentecost and \"Grundlovsdag\"", bookCart);
+                break;
+            }
             bookCart = bookCart.plusDays(1);
         } while (isClosingDay(bookCart, true));
         description.setBookCart(fromLocalDate(bookCart));
