@@ -1116,16 +1116,16 @@ class WeekResolverTest {
         assertThat(yearPlan.size(), is(52));
 
         // Check that "BKM Redaktion" is correct in 202603
-        //assertThat(yearPlan.getRows().get(50).getColumns().get(0).getContent().contains("202603"), is(true));     // Weekcode
+        assertThat(yearPlan.getRows().get(50).getColumns().get(0).getContent().contains("202603"), is(true));     // Weekcode
         assertThat(yearPlan.getRows().get(50).getColumns().get(8).getContent().contains("2026-01-07"), is(true)); // week 03, BKM redaktion
-        //assertThat(yearPlan.getRows().get(50).getColumns().get(9).getContent().contains("2026-01-09"), is(true)); // week 03, publishing date
+        assertThat(yearPlan.getRows().get(50).getColumns().get(9).getContent().contains("2026-01-09"), is(true)); // week 03, publishing date
 
         // Check that the first weeks of 2026 has collapsed correctly
-        /*assertThat(yearPlan.getRows().get(51).getColumns().get(0).getContent().contains("202604"), is(true));     // Weekcode
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0).getContent().contains("202604"), is(true));     // Weekcode
         assertThat(yearPlan.getRows().get(51).getColumns().get(1).getContent().contains("2025-12-19"), is(true)); // week 04, first assignment
         assertThat(yearPlan.getRows().get(51).getColumns().get(2).getContent().contains("2026-01-08"), is(true)); // week 04, last assignment
         assertThat(yearPlan.getRows().get(51).getColumns().get(3).getContent().contains("2026-01-09"), is(true)); // week 04, shiftday
         assertThat(yearPlan.getRows().get(51).getColumns().get(4).getContent().contains("2026-01-12"), is(true)); // week 04, book cart
-        assertThat(yearPlan.getRows().get(51).getColumns().get(10).getContent().contains("52 + 1 + 2"), is(true)); // contained week numbers*/
+        assertThat(yearPlan.getRows().get(51).getColumns().get(10).getContent().contains("52 + 1 + 2"), is(true)); // contained week numbers
     }
 }
