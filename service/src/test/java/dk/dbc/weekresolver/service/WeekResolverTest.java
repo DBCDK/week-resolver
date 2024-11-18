@@ -514,9 +514,8 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(51).getColumns().get(4).getContent().contains("FREDAG"), is(true)); // Weekcode last
         assertThat(yearPlan.getRows().get(51).getColumns().get(5).getContent(), is("\"2022-12-30\"")); // Proof starts
         assertThat(yearPlan.getRows().get(51).getColumns().get(6).getContent(), is("\"2023-01-02\"")); // Proof
-        assertThat(yearPlan.getRows().get(51).getColumns().get(7).getContent(), is("\"2023-01-02\"")); // Proof ends
-        assertThat(yearPlan.getRows().get(51).getColumns().get(8).getContent().contains("2023-01-03"), is(true)); // BKM-red.
-        assertThat(yearPlan.getRows().get(51).getColumns().get(8).getContent().contains("TIRSDAG"), is(true)); // Weekcode last
+        assertThat(yearPlan.getRows().get(51).getColumns().get(7).getContent(), is("\"2023-01-03\"")); // Proof ends
+        assertThat(yearPlan.getRows().get(51).getColumns().get(8).getContent().contains("2023-01-04"), is(true)); // BKM-red.
         assertThat(yearPlan.getRows().get(51).getColumns().get(9).getContent(), is("\"2023-01-06\"")); // Publish
         assertThat(yearPlan.getRows().get(51).getColumns().get(10).getContent(), is("51 + 52"));       // Week number
     }
@@ -733,11 +732,11 @@ class WeekResolverTest {
         YearPlanResult yearPlan = wr.getYearPlan(2025, true, true);
 
         // Check size
-        assertThat(yearPlan.size(), is(51));
+        assertThat(yearPlan.size(), is(52));
 
         // Check alignment
         assertThat(yearPlan.getRows().get(1).getColumns().get(0).getContent(), is("202503"));
-        assertThat(yearPlan.getRows().get(50).getColumns().get(0).getContent(), is("202603"));
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0).getContent(), is("202604"));
     }
 
     @Test
@@ -910,8 +909,8 @@ class WeekResolverTest {
             assertThat(yearPlan.size(), anyOf(is(51), is(52), is(53)));
 
             // Check alignment
-            assertThat(yearPlan.getRows().get(1).getColumns().get(0).getContent(), anyOf(is(String.format("%d02", year)), is(String.format("%d03", year))));
-            assertThat(yearPlan.getRows().get(yearPlan.size() - 1).getColumns().get(0).getContent(), is(String.format("%d03", year + 1)));
+            assertThat(yearPlan.getRows().get(1).getColumns().get(0).getContent(), anyOf(is(String.format("%d02", year)), is(String.format("%d03", year)), is(String.format("%d04", year))));
+            assertThat(yearPlan.getRows().get(yearPlan.size() - 1).getColumns().get(0).getContent(), anyOf(is(String.format("%d03", year + 1)), is(String.format("%d04", year + 1))));
 
             // Check all days and their weekcodes
             yearPlan.getRows().stream().skip(1).forEach(row -> {
@@ -1012,5 +1011,121 @@ class WeekResolverTest {
         assertThat(wr.withCatalogueCode("VPT").withDate("2023-12-11").getWeekCode().getWeekCode(), is("VPT202352"));
         assertThat(wr.withCatalogueCode("VPT").withDate("2023-12-18").getWeekCode().getWeekCode(), is("VPT202401"));
         assertThat(wr.withCatalogueCode("VPT").withDate("2023-12-25").getWeekCode().getWeekCode(), is("VPT202402"));
+    }
+
+    @Test
+    void Test2025MayFirstIsThursday() {
+        // From: https://dbcjira.atlassian.net/browse/MS-4889
+        // This change reverses a previous decision that a thursday following may 1.
+        // should move the shiftday
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+
+        assertThat("2025-04-23", wr.withDate("2025-04-23").getWeekCode().getWeekCode(), is("BKM202519"));
+        assertThat("2025-04-24", wr.withDate("2025-04-24").getWeekCode().getWeekCode(), is("BKM202519"));
+        assertThat("2025-04-25",wr.withDate("2025-04-25").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-26",wr.withDate("2025-04-26").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-27",wr.withDate("2025-04-27").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-28",wr.withDate("2025-04-28").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-29",wr.withDate("2025-04-29").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-04-30",wr.withDate("2025-04-30").getWeekCode().getWeekCode(), is("BKM202520"));
+
+        assertThat("2025-05-01",wr.withDate("2025-05-01").getWeekCode().getWeekCode(), is("BKM202520"));
+        assertThat("2025-05-02",wr.withDate("2025-05-02").getWeekCode().getWeekCode(), is("BKM202521"));
+
+        assertThat("2025-05-08",wr.withDate("2025-05-08").getWeekCode().getWeekCode(), is("BKM202521"));
+        assertThat("2025-05-09",wr.withDate("2025-05-09").getWeekCode().getWeekCode(), is("BKM202522"));
+    }
+
+    @Test
+    void Test2025EarlyShiftdayDueToAscensionDay() {
+        // From: https://dbcjira.atlassian.net/browse/MS-4889
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+
+        assertThat("2025-05-22",wr.withDate("2025-05-22").getWeekCode().getWeekCode(), is("BKM202523"));
+
+        assertThat("2025-05-23",wr.withDate("2025-05-23").getWeekCode().getWeekCode(), is("BKM202524"));
+        assertThat("2025-05-24",wr.withDate("2025-05-24").getWeekCode().getWeekCode(), is("BKM202524"));
+        assertThat("2025-05-25",wr.withDate("2025-05-25").getWeekCode().getWeekCode(), is("BKM202524"));
+        assertThat("2025-05-26",wr.withDate("2025-05-26").getWeekCode().getWeekCode(), is("BKM202524"));
+        assertThat("2025-05-27",wr.withDate("2025-05-27").getWeekCode().getWeekCode(), is("BKM202524"));
+
+        assertThat("2025-05-28",wr.withDate("2025-05-28").getWeekCode().getWeekCode(), is("BKM202525"));
+        assertThat("2025-05-29",wr.withDate("2025-05-29").getWeekCode().getWeekCode(), is("BKM202525"));
+        assertThat("2025-05-30",wr.withDate("2025-05-30").getWeekCode().getWeekCode(), is("BKM202525"));
+        assertThat("2025-05-31",wr.withDate("2025-05-31").getWeekCode().getWeekCode(), is("BKM202525"));
+        assertThat("2025-06-01",wr.withDate("2025-06-01").getWeekCode().getWeekCode(), is("BKM202525"));
+        assertThat("2025-06-02",wr.withDate("2025-06-02").getWeekCode().getWeekCode(), is("BKM202525"));
+        assertThat("2025-06-03",wr.withDate("2025-06-03").getWeekCode().getWeekCode(), is("BKM202525"));
+
+        assertThat("2025-06-04",wr.withDate("2025-06-04").getWeekCode().getWeekCode(), is("BKM202526"));
+        assertThat("2025-06-05",wr.withDate("2025-06-05").getWeekCode().getWeekCode(), is("BKM202526"));
+    }
+
+    @Test
+    void testYearPlan2025EarlyShiftdayDueToAscensionDay() {
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        YearPlanResult yearPlan = wr.getYearPlan(2025, true, true);
+
+        // Check size
+        assertThat(yearPlan.size(), is(52));
+
+        // Pentecost and "Grundlovsdag" conflicts with a pinched friday on june 6., where the book cart should be positioned
+        assertThat(yearPlan.getRows().get(22).getColumns().get(1).getContent().contains("ONSDAG"), is(true));     // week 23, first assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(1).getContent().contains("2025-05-28"), is(true)); // week 23, first assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(2).getContent().contains("TIRSDAG"), is(true));     // week 23, last assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(2).getContent().contains("2025-06-03"), is(true)); // week 23, last assignment
+        assertThat(yearPlan.getRows().get(22).getColumns().get(3).getContent().contains("ONSDAG"), is(true));    // week 23, shiftday
+        assertThat(yearPlan.getRows().get(22).getColumns().get(3).getContent().contains("2025-06-04"), is(true)); // week 23, shiftday
+        assertThat(yearPlan.getRows().get(22).getColumns().get(4).getContent().contains("FREDAG"), is(true));    // week 23, book cart
+        assertThat(yearPlan.getRows().get(22).getColumns().get(4).getContent().contains("2025-06-06"), is(true)); // week 23, book cart
+    }
+
+    @Test
+    void Test2025Week51WithEarlyChristmasWeek() {
+        // From: https://dbcjira.atlassian.net/browse/MS-4889
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+
+        assertThat("2025-12-11",wr.withDate("2025-12-11").getWeekCode().getWeekCode(), is("BKM202552"));
+
+        assertThat("2025-12-12",wr.withDate("2025-12-12").getWeekCode().getWeekCode(), is("BKM202603"));
+        assertThat("2025-12-13",wr.withDate("2025-12-13").getWeekCode().getWeekCode(), is("BKM202603"));
+        assertThat("2025-12-14",wr.withDate("2025-12-14").getWeekCode().getWeekCode(), is("BKM202603"));
+        assertThat("2025-12-15",wr.withDate("2025-12-15").getWeekCode().getWeekCode(), is("BKM202603"));
+        assertThat("2025-12-16",wr.withDate("2025-12-16").getWeekCode().getWeekCode(), is("BKM202603"));
+        assertThat("2025-12-17",wr.withDate("2025-12-17").getWeekCode().getWeekCode(), is("BKM202603"));
+        assertThat("2025-12-18",wr.withDate("2025-12-18").getWeekCode().getWeekCode(), is("BKM202603"));
+
+        assertThat("2025-12-19",wr.withDate("2025-12-19").getWeekCode().getWeekCode(), is("BKM202604")); // Notice: regular shiftday due to early christmas week 51
+        assertThat("2025-12-20",wr.withDate("2025-12-20").getWeekCode().getWeekCode(), is("BKM202604"));
+        assertThat("2025-12-23",wr.withDate("2025-12-23").getWeekCode().getWeekCode(), is("BKM202604"));
+        assertThat("2025-12-27",wr.withDate("2025-12-27").getWeekCode().getWeekCode(), is("BKM202604"));
+        assertThat("2025-12-30",wr.withDate("2025-12-30").getWeekCode().getWeekCode(), is("BKM202604"));
+        assertThat("2026-01-02",wr.withDate("2026-01-02").getWeekCode().getWeekCode(), is("BKM202604"));
+        assertThat("2026-01-08",wr.withDate("2026-01-08").getWeekCode().getWeekCode(), is("BKM202604"));
+
+        assertThat("2026-01-09",wr.withDate("2026-01-09").getWeekCode().getWeekCode(), is("BKM202605"));
+    }
+
+    @Test
+    void testYearPlan2025WithEarlyChristmasWeek() {
+        // From: https://dbcjira.atlassian.net/browse/MS-4889
+        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        YearPlanResult yearPlan = wr.getYearPlan(2025, true, true);
+
+        // Check size
+        assertThat(yearPlan.size(), is(52));
+
+        // Check that "BKM Redaktion" is correct in 202603
+        assertThat(yearPlan.getRows().get(50).getColumns().get(0).getContent().contains("202603"), is(true));     // Weekcode
+        assertThat(yearPlan.getRows().get(50).getColumns().get(8).getContent().contains("2026-01-07"), is(true)); // week 03, BKM redaktion
+        assertThat(yearPlan.getRows().get(50).getColumns().get(9).getContent().contains("2026-01-09"), is(true)); // week 03, publishing date
+
+        // Check that the first weeks of 2026 has collapsed correctly
+        assertThat(yearPlan.getRows().get(51).getColumns().get(0).getContent().contains("202604"), is(true));     // Weekcode
+        assertThat(yearPlan.getRows().get(51).getColumns().get(1).getContent().contains("2025-12-19"), is(true)); // week 04, first assignment
+        assertThat(yearPlan.getRows().get(51).getColumns().get(2).getContent().contains("2026-01-08"), is(true)); // week 04, last assignment
+        assertThat(yearPlan.getRows().get(51).getColumns().get(3).getContent().contains("2026-01-09"), is(true)); // week 04, shiftday
+        assertThat(yearPlan.getRows().get(51).getColumns().get(4).getContent().contains("2026-01-12"), is(true)); // week 04, book cart
+        assertThat(yearPlan.getRows().get(51).getColumns().get(10).getContent().contains("52 + 1 + 2"), is(true)); // contained week numbers
     }
 }

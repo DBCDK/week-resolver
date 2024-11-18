@@ -26,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolverResourceIT.class);
+    private static final WeekResolverConnector weekResolverConnector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
 
     @Test
     void openapi() {
@@ -112,78 +113,27 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
 
     @Test
     void test2021CompleteCheck() throws IOException, WeekResolverConnectorException {
-        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
-        String[] actualCsv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2021).split("\n");
-
-        String content = Files.readString(
-                Path.of(Objects.requireNonNull(
-                        getClass().getClassLoader().getResource("2021.csv")).getPath()));
-        assertThat(content, is(notNullValue()));
-        String[] expectedCsv = content.split("\n");
-
-        assertThat(expectedCsv.length, is(actualCsv.length));
-
-        // Make sure that the year plan for 2023 does not change when modifying output for other years
-        for (int i = 0; i < actualCsv.length; i++) {
-            assertThat(actualCsv[i], is(expectedCsv[i]));
-        }
+        assertCsvYearPlan("2021");
     }
 
     @Test
     void test2022CompleteCheck() throws IOException, WeekResolverConnectorException {
-        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
-        String[] actualCsv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2022).split("\n");
-
-        String content = Files.readString(
-                Path.of(Objects.requireNonNull(
-                        getClass().getClassLoader().getResource("2022.csv")).getPath()));
-        assertThat(content, is(notNullValue()));
-        String[] expectedCsv = content.split("\n");
-
-        assertThat(expectedCsv.length, is(actualCsv.length));
-
-        // Make sure that the year plan for 2023 does not change when modifying output for other years
-        for (int i = 0; i < actualCsv.length; i++) {
-            assertThat(actualCsv[i], is(expectedCsv[i]));
-        }
+        assertCsvYearPlan("2022");
     }
 
     @Test
     void test2023CompleteCheck() throws IOException, WeekResolverConnectorException {
-        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
-        String[] actualCsv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2023).split("\n");
-
-        String content = Files.readString(
-                Path.of(Objects.requireNonNull(
-                        getClass().getClassLoader().getResource("2023.csv")).getPath()));
-        assertThat(content, is(notNullValue()));
-        String[] expectedCsv = content.split("\n");
-
-        assertThat(expectedCsv.length, is(actualCsv.length));
-
-        // Make sure that the year plan for 2023 does not change when modifying output for other years
-        for (int i = 0; i < actualCsv.length; i++) {
-            assertThat(actualCsv[i], is(expectedCsv[i]));
-        }
+        assertCsvYearPlan("2023");
     }
 
     @Test
     void test2024CompleteCheck() throws IOException, WeekResolverConnectorException {
-        WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
-        String[] actualCsv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2024).split("\n");
+        assertCsvYearPlan("2024");
+    }
 
-        String content = Files.readString(
-                Path.of(Objects.requireNonNull(
-                        getClass().getClassLoader().getResource("2024.csv")).getPath()));
-        assertThat(content, is(notNullValue()));
-        String[] expectedCsv = content.split("\n");
-
-        assertThat(expectedCsv.length, is(actualCsv.length));
-
-        // Make sure that the year plan for 2024 does not change when modifying output for other years
-        for (int i = 0; i < actualCsv.length; i++) {
-            assertThat(actualCsv[i], is(expectedCsv[i]));
-        }
+    @Test
+    void test2025CompleteCheck() throws IOException, WeekResolverConnectorException {
+        assertCsvYearPlan("2025");
     }
 
     @Test
@@ -214,5 +164,24 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
 
         WeekCodeFulfilledResult result = connector.getWeekCodeFulfilled(future);
         assertThat(result.getIsFulfilled(), is(false));
+    }
+
+    private String[] getCsvYearPlan(String year) throws IOException {
+        String content = Files.readString(
+                Path.of(Objects.requireNonNull(
+                        getClass().getClassLoader().getResource(year + ".csv")).getPath()));
+        assertThat(content, is(notNullValue()));
+        return content.split("\n");
+    }
+
+    private void assertCsvYearPlan(String year) throws WeekResolverConnectorException, IOException {
+        String[] actualCsv = weekResolverConnector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", Integer.parseInt(year)).split("\n");
+        String[] expectedCsv = getCsvYearPlan(year);
+
+        assertThat(expectedCsv.length, is(actualCsv.length));
+
+        for (int i = 0; i < actualCsv.length; i++) {
+            assertThat(actualCsv[i], is(expectedCsv[i]));
+        }
     }
 }

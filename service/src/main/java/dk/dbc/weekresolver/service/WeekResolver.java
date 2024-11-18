@@ -14,7 +14,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 import dk.dbc.weekresolver.model.WeekCodeConfiguration;
 import dk.dbc.weekresolver.model.WeekDescription;
@@ -24,6 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import jakarta.ws.rs.BadRequestException;
+import org.slf4j.spi.LocationAwareLogger;
 
 public class WeekResolver {
     private static final Logger LOGGER = LoggerFactory.getLogger(WeekResolver.class);
@@ -385,12 +388,6 @@ public class WeekResolver {
         //   step 3: Otherwise check if we are on or before shiftday
 
         if (!configuration.getIgnoreClosingDays()) {
-            /*if (isClosingDay(expectedDate, true)) {
-                // Move forward to next production day, but stop at sunday since we should return the following week, not any later week
-                while (isClosingDay(expectedDate, true) && expectedDate.getDayOfWeek() != DayOfWeek.SUNDAY) {
-                    expectedDate = expectedDate.plusDays(1);
-                }
-            }*/
 
             // Check if we have passed the shiftday. There is no adjustments and no checks for closing
             // days, since we just want the code for the actual day.
@@ -420,12 +417,18 @@ public class WeekResolver {
 
         // Iterate through all mondays and get the description of each week
         DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
-        List<WeekResolverResult> results = new ArrayList<>();
+        ArrayList<WeekResolverResult> results = new ArrayList<>();
         do {
+            if (results.size() == 51) {
+                LOGGER.debug("STOP");
+            }
             WeekResolverResult result = getWeekCode(currentDate);
             results.add(result);
             currentDate = currentDate.plusWeeks(1);
-        } while (currentDate.getYear() <= year || (currentDate.getYear() == year + 1 && Integer.parseInt(currentDate.format(weekCodeFormatter)) < 2));
+
+        } while (currentDate.getYear() <= year // Run from last weeks of previous year, through the entire requested year
+                || (currentDate.getYear() == year + 1 && Integer.parseInt(currentDate.format(weekCodeFormatter)) < 2) // Include first weeks of next year
+                || results.get(results.size() - 1).getDescription().getNoProduction()); // Never stop the yearplan with a non-production year
 
         // Add rows with week descriptions. Check if we can merge some rows (typical the first/last weeks)
         WeekResolverResult previousResult = results.get(0);
@@ -468,6 +471,13 @@ public class WeekResolver {
         LOGGER.debug("Checking if {} is in the pentecost week", expectedDate);
         if( isPentecostWeek(expectedDate) && shiftDay == DayOfWeek.FRIDAY ) {
             LOGGER.debug("Sunday this week is pentecost and shiftday is friday. Move shiftday to thursday");
+
+            // Pentecost may conflict with "Grundlovsdag", in which case the shiftday must move back another day
+            LocalDate shiftdayCandidate = getFriday(expectedDate).minusDays(1);
+            if (isClosingDay(shiftdayCandidate, false)) {
+                LOGGER.debug("{} minus 1 day (thursday) is a closing day, move back to wednesday", expectedDate);
+                return DayOfWeek.WEDNESDAY;
+            }
             return DayOfWeek.THURSDAY;
         }
         // 3: If the expected date falls in the week before may 1st. or "Grundlovsdag", then move
@@ -492,11 +502,13 @@ public class WeekResolver {
             LOGGER.debug("Moving shiftday back 1 day to {}", dateOfShiftDay);
         }
 
-        //  If the next week is week 52 (or 53), Christmas weeks, then move the shiftday back 1 day
-        LOGGER.debug("Checking if next day {} is start of the Christmas days", dateOfShiftDay.plusDays(1));
+        // If the next week is week 52 (or 53), Christmas weeks, then move the shiftday back 1 day.
+        // Although .... *sigh* .... in the case were the week before Christmas is early, empirical defined
+        // as "shiftday falls before december 20."
+        LOGGER.debug("Checking if next week from {} is start of the Christmas days", dateOfShiftDay);
         DateTimeFormatter weekCodeFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
         int weekOfShiftDay = Integer.parseInt(dateOfShiftDay.format(weekCodeFormatter));
-        if (weekOfShiftDay >= 51 && dateOfShiftDay.getDayOfWeek() != DayOfWeek.MONDAY) {
+        if (weekOfShiftDay >= 51 && dateOfShiftDay.getDayOfWeek() != DayOfWeek.MONDAY && dateOfShiftDay.getDayOfMonth() >= 20) {
             dateOfShiftDay = dateOfShiftDay.minusDays(1);
             LOGGER.debug("Shiftday adjusted to {} due to next week being Christmas week", dateOfShiftDay);
         }
@@ -524,10 +536,6 @@ public class WeekResolver {
             LOGGER.debug("{} is 1. may", expectedDate);
             return true;
         }
-        if( expectedDate.getMonth() == Month.MAY && expectedDate.getDayOfMonth() == 2 && expectedDate.getDayOfWeek() == DayOfWeek.FRIDAY ) {
-            LOGGER.debug("{} is pinched friday after 1. may", expectedDate);
-            return true;
-        }
 
         // Grundlovsdag and pinched friday
         if( expectedDate.getMonth() == Month.JUNE  && expectedDate.getDayOfMonth() == 5 ) {
@@ -551,7 +559,7 @@ public class WeekResolver {
             return true;
         }
 
-        // Check for week 52 and 53, which is never used!
+        // Check for week 52 and 53, which is never used! or week 1 with too few working days
         if( allowEndOfYearWeeks ) {
             // New years eve
             if (expectedDate.getMonth() == Month.DECEMBER && expectedDate.getDayOfMonth() == 31) {
@@ -577,6 +585,16 @@ public class WeekResolver {
                         return true;
                     }
                 } else {
+                    return true;
+                }
+            }
+
+            // Check for week 1 with too few working days
+            if (isWeek(expectedDate, 1)) {
+                int numberOfWorkingDays = numberOfWorkingDaysInWeekOf(expectedDate);
+                LOGGER.debug("{} is within week 01 and has {} working days", expectedDate, numberOfWorkingDays);
+                if (numberOfWorkingDays < 3) {
+                    LOGGER.debug("Not allowing week 01 due to empirical rule: There is less than 3 coherent working days");
                     return true;
                 }
             }
@@ -854,9 +872,17 @@ public class WeekResolver {
         LOGGER.debug("WEEKCODE_LAST = {}", description.getWeekCodeLast());
 
         // Book cart the next working day after shiftday. Here we ignore Christmas weeks since
-        // the book cart can be handled on working days in the Christmas weeks
+        // the book cart can be handled on working days in the Christmas weeks. Also the book cart
+        // is allowed on the pinched friday after "Grundlovsdag", when pentecost is in that weekend
+        // (and "Grundlovsdag" is a thursday)
         LocalDate bookCart = fromDate(description.getShiftDay());
         do {
+            // Exception: If "Grundlovsdag" and pentecost conflicts, such that
+            // we have a pinced friday after "Grundlovsdag". Place the book cart here
+            if (bookCart.getMonth() == Month.JUNE && bookCart.getDayOfMonth() == 6 && bookCart.getDayOfWeek() == DayOfWeek.FRIDAY) {
+                LOGGER.debug("Book cart is allowed to run on pinched friday {} between pentecost and \"Grundlovsdag\"", bookCart);
+                break;
+            }
             bookCart = bookCart.plusDays(1);
         } while (isClosingDay(bookCart, true));
         description.setBookCart(fromLocalDate(bookCart));
@@ -875,9 +901,12 @@ public class WeekResolver {
         description.setProof(fromLocalDate(proof));
         LOGGER.debug("PROOF = {}", description.getProof());
 
-        // Proof must be completed by tuesday in the next week at 17.00. (No adjustments). Same as proof
-        description.setProofTo(description.getProof());
-        LOGGER.debug("PROOF_TO = {}", description.getProofTo());
+        // Proof must be completed by tuesday in the next week at 17.00., same as 'proof' (No adjustments unless proof is earlier than tuesday, due to christmas etc.)
+        while (proof.getDayOfWeek().getValue() < DayOfWeek.TUESDAY.getValue()) {
+            proof = proof.plusDays(1);
+        }
+        description.setProofTo(fromLocalDate(proof));
+        LOGGER.debug("PROOF_TO = {}", fromLocalDate(proof));
 
         // BKM-red. Wednesday in the next week., the day after proof ended
         // Make sure that BKM-red does not end up on a closing day

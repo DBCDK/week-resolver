@@ -1,3 +1,5 @@
 .idea/
 target/
 weekresolver.iml
+
+scripts/.*
