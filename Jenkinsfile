@@ -1,5 +1,8 @@
 #!groovy
 def workerNode = "devel11"
+def teamSlackNotice = 'team-x-notice'
+def teamSlackWarning = 'team-x-warning'
+
 pipeline {
     agent { label workerNode }
     tools {
@@ -10,6 +13,7 @@ pipeline {
         GITLAB_PRIVATE_TOKEN = credentials("metascrum-gitlab-api-token")
     }
     triggers {
+        cron(env.BRANCH_NAME == 'main' ? "H 3 * * 17" : "")
         githubPush()
         upstream('/Docker-payara6-bump-trigger')
     }
@@ -87,6 +91,42 @@ pipeline {
                 }
             }
         }
+    }
+    post {
+        always {
+            archiveArtifacts 'e2e/cypress/screenshots/*, e2e/cypress/videos/*, logs/*'
+        }
 
+        success {
+            script {
+                if (BRANCH_NAME == 'main') {
+                    def dockerImageName = readFile(file: 'docker.out')
+                    slackSend(channel: teamSlackNotice,
+                            color: 'good',
+                            message: "${JOB_NAME} #${BUILD_NUMBER} completed, and pushed ${dockerImageName} to artifactory.",
+                            tokenCredentialId: 'slack-global-integration-token')
+                }
+            }
+        }
+        fixed {
+            script {
+                if ("${env.BRANCH_NAME}" == 'main') {
+                    slackSend(channel: teamSlackNotice,
+                            color: 'good',
+                            message: "${env.JOB_NAME} #${env.BUILD_NUMBER} back to normal: ${env.BUILD_URL}",
+                            tokenCredentialId: 'slack-global-integration-token')
+                }
+            }
+        }
+        failure {
+            script {
+                if ("${env.BRANCH_NAME}".equals('main')) {
+                    slackSend(channel: teamSlackWarning,
+                        color: 'warning',
+                        message: "${env.JOB_NAME} #${env.BUILD_NUMBER} failed and needs attention: ${env.BUILD_URL}",
+                        tokenCredentialId: 'slack-global-integration-token')
+                }
+            }
+        }
     }
 }
