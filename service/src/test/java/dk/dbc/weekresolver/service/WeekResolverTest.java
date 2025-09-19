@@ -24,11 +24,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WeekResolverTest {
-    final static String zone = "Europe/Copenhagen";
+    static final String ZONE = "Europe/Copenhagen";
 
     @Test
     void TestInvalidCatalogueCode() {
-        WeekResolver wr = new WeekResolver(zone)
+        WeekResolver wr = new WeekResolver(ZONE)
                 .withDate("2019-11-29")
                 .withCatalogueCode("qxz");
         assertThrows(UnsupportedOperationException.class, wr::getWeekCode);
@@ -36,13 +36,14 @@ class WeekResolverTest {
 
     @Test
     void TestInvalidDates() {
-        assertThrows(DateTimeParseException.class, () -> new WeekResolver(zone).withDate("2019-13-29"));
-        assertThrows(DateTimeParseException.class, () -> new WeekResolver(zone).withDate("11-29"));
+        WeekResolver wr = new WeekResolver(ZONE);
+        assertThrows(DateTimeParseException.class, () -> wr.withDate("2019-13-29"));
+        assertThrows(DateTimeParseException.class, () -> wr.withDate("11-29"));
     }
 
     @Test
     void TestValidCatalogueCodeLowerCase() {
-        WeekResolver wr = new WeekResolver(zone)
+        WeekResolver wr = new WeekResolver(ZONE)
                 .withDate("2019-11-29");
         assertDoesNotThrow(() -> wr.withCatalogueCode("dpf").getWeekCode());
         assertDoesNotThrow(() -> wr.withCatalogueCode("DPF").getWeekCode());
@@ -50,7 +51,7 @@ class WeekResolverTest {
 
     @Test
     void TestCatalogueCodeDPF() {
-        WeekResolver wr = new WeekResolver(zone)
+        WeekResolver wr = new WeekResolver(ZONE)
                 .withCatalogueCode("dpf");
 
         assertDoesNotThrow(() -> wr.withDate("2019-11-22").getWeekCode());
@@ -67,7 +68,7 @@ class WeekResolverTest {
         assertThat(result.getCatalogueCode(), is("DPF"));
         assertThat(result.getWeekCode(), is("DPF202003"));
         LocalDate localDate = LocalDate.of(2020, 1, 13);
-        Date d = Date.from(localDate.atStartOfDay(ZoneId.of(zone)).toInstant());
+        Date d = Date.from(localDate.atStartOfDay(ZoneId.of(ZONE)).toInstant());
         assertThat(result.getDate(), is(d));
     }
 
@@ -76,7 +77,7 @@ class WeekResolverTest {
 
         // This test uses the DPF cataloguecode to test the generic logic handling easter (and other closingdays).
         // DPF should add 3 weeks and uses friday as shiftday
-        WeekResolver wr = new WeekResolver(zone)
+        WeekResolver wr = new WeekResolver(ZONE)
                 .withCatalogueCode("DPF");
 
         // take date
@@ -116,7 +117,7 @@ class WeekResolverTest {
     void TestCatalogueCodeFPF() {
 
         // This code has the same configuration as DPF, so just check that the code is accepted
-        WeekResolver wr = new WeekResolver(zone)
+        WeekResolver wr = new WeekResolver(ZONE)
                 .withCatalogueCode("FPF");
 
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
@@ -127,7 +128,7 @@ class WeekResolverTest {
     void TestCatalogueCodeGPF() {
 
         // This code has the same configuration as DPF, so just check that the code is accepted
-        WeekResolver wr = new WeekResolver(zone)
+        WeekResolver wr = new WeekResolver(ZONE)
                 .withCatalogueCode("GPF");
 
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
@@ -144,7 +145,7 @@ class WeekResolverTest {
         //   - Shiftday is friday
         //   - No handling of closing days
         //   - Allow end of year weeks
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMO");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("EMO");
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
         assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMO201950")); // saturday, week 47 = 50 (after shiftday)
         assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMO201950")); // sunday, week 47 = 50 (after shiftday)
@@ -162,7 +163,7 @@ class WeekResolverTest {
         //   - Shiftday is friday
         //   - No handling of closing days
         //   - Allow end of year weeks
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMS");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("EMS");
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
         assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMS201950")); // saturday, week 47 = 50 (after shiftday)
         assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMS201950")); // sunday, week 47 = 50 (after shiftday)
@@ -180,7 +181,7 @@ class WeekResolverTest {
         //   - Shiftday is friday
         //   - No handling of closing days
         //   - Allow end of year weeks
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMK");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("EMK");
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
         assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMK201950")); // saturday, week 47 = 50 (after shiftday)
         assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMK201950")); // sunday, week 47 = 50 (after shiftday)
@@ -198,7 +199,7 @@ class WeekResolverTest {
         //   - Shiftday is friday
         //   - No handling of closing days
         //   - Allow end of year weeks
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("EMM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("EMM");
         assertDoesNotThrow(() -> wr.withDate("2019-11-29").getWeekCode());
         assertThat(wr.withDate("2019-11-23").getWeekCode().getWeekCode(), is("EMM201950")); // saturday, week 47 = 50 (after shiftday)
         assertThat(wr.withDate("2019-11-24").getWeekCode().getWeekCode(), is("EMM201950")); // sunday, week 47 = 50 (after shiftday)
@@ -216,7 +217,7 @@ class WeekResolverTest {
         //   - No shiftday
         //   - No handling of closing days
         //   - Allow end of year weeks
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("ACC");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("ACC");
         assertDoesNotThrow(() -> wr.withDate("2019-12-26").getWeekCode());
         assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("ACC201952"));
     }
@@ -226,7 +227,7 @@ class WeekResolverTest {
 
         // Codes DBT, SDT should return a fixed code since they are used for retro updates
         // and since we dont have the record data, we cannot set the correct weekcode
-        WeekResolver wr = new WeekResolver(zone);
+        WeekResolver wr = new WeekResolver(ZONE);
         assertDoesNotThrow(() -> wr.withCatalogueCode("DBT").withDate("2019-12-26").getWeekCode());
         assertThat(wr.withCatalogueCode("DBT").withDate("2019-12-26").getWeekCode().getWeekCode(), is("DBT999999"));
 
@@ -237,7 +238,7 @@ class WeekResolverTest {
     @Test
     void TestLocaleParameter() {
         WeekResolver wr1 = new WeekResolver().withCatalogueCode("EMS");
-        WeekResolver wr2 = new WeekResolver(zone, new Locale("da", "DK")).withCatalogueCode("EMS");
+        WeekResolver wr2 = new WeekResolver(ZONE, new Locale("da", "DK")).withCatalogueCode("EMS");
         WeekResolver wr3 = new WeekResolver().withCatalogueCode("EMS").withLocale(new Locale("da", "DK"));
         WeekResolver wr4 = new WeekResolver().withCatalogueCode("EMS").withLocale(new Locale("en", "US")); // Uses sunday as week begin
 
@@ -257,20 +258,20 @@ class WeekResolverTest {
 
     @Test
     void TestBkm() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         assertThat(wr.withDate("2020-05-05").getWeekCode().getWeekCode(), is("BKM202021"));
     }
 
     @Test
     void TestYearEnd() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         assertThat(wr.withDate("2019-12-03").getWeekCode().getWeekCode(), is("BKM201951"));
         assertThat(wr.withDate("2019-12-10").getWeekCode().getWeekCode(), is("BKM201952"));
     }
 
     @Test
     void TestAllCodes() {
-        WeekResolver wr = new WeekResolver(zone);
+        WeekResolver wr = new WeekResolver(ZONE);
 
         // +0 weeks
         assertThat(wr.withCatalogueCode("ACC").withDate("2020-04-22").getWeekCode().getWeekCode(), is("ACC202017"));
@@ -350,7 +351,7 @@ class WeekResolverTest {
 
     @Test
     void TestSpecialCases() {
-        WeekResolver wr = new WeekResolver(zone);
+        WeekResolver wr = new WeekResolver(ZONE);
 
         // "Fredag 27.03.20 afsluttes DBC+BKM202015. Fredag morgen skal koden være 202017"
         assertThat(wr.withCatalogueCode("DBF").withDate("2020-03-27").getWeekCode().getWeekCode(), is("DBF202017"));
@@ -395,7 +396,7 @@ class WeekResolverTest {
 
     @Test
     void TestFirstWeekOfYear() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         assertThat(wr.withDate("2022-12-01").getWeekCode().getWeekCode(), is("BKM202250"));
         assertThat(wr.withDate("2022-12-05").getWeekCode().getWeekCode(), is("BKM202251"));
         assertThat(wr.withDate("2022-12-15").getWeekCode().getWeekCode(), is("BKM202252"));
@@ -404,7 +405,7 @@ class WeekResolverTest {
 
     @Test
     void TestCurrentWeekCode() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         // (Pseudo)Random days in december
         assertThat(wr.withDate("2022-12-01").getCurrentWeekCode().getWeekCode(), is("BKM202248"));
@@ -436,13 +437,13 @@ class WeekResolverTest {
 
     @Test
     void testCurrentWeekCodeAllWeeksOf2023() {
-        WeekResolver resolverWithShiftday = new WeekResolver(zone).withCatalogueCode("BKM");
-        WeekResolver resolverWithoutShiftday = new WeekResolver(zone).withCatalogueCode("ACC");
+        WeekResolver resolverWithShiftday = new WeekResolver(ZONE).withCatalogueCode("BKM");
+        WeekResolver resolverWithoutShiftday = new WeekResolver(ZONE).withCatalogueCode("ACC");
 
         Calendar.getInstance().setFirstDayOfWeek(Calendar.MONDAY);
         Calendar.getInstance().setMinimalDaysInFirstWeek(7);
 
-        final ZoneId zoneId = ZoneId.of(zone);
+        final ZoneId zoneId = ZoneId.of(ZONE);
         final Locale locale = new Locale("da", "DK");
         final DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", locale).withZone(zoneId);
         final DateTimeFormatter weekFormatter = DateTimeFormatter.ofPattern("w", locale).withZone(zoneId);
@@ -479,7 +480,7 @@ class WeekResolverTest {
 
     @Test
     void TestChristmas2022() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         assertThat(wr.withDate("2022-12-16").getWeekCode().getWeekCode(), is("BKM202302"));
         assertThat(wr.withDate("2022-12-19").getWeekCode().getWeekCode(), is("BKM202302"));
@@ -493,7 +494,7 @@ class WeekResolverTest {
 
     @Test
     void testGetYearPlan2022() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         YearPlanResult yearPlan = wr.getYearPlan(2022, true, true);
 
         // Check size
@@ -522,7 +523,7 @@ class WeekResolverTest {
 
     @Test
     void testGetYearPlan2023() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         YearPlanResult yearPlan = wr.getYearPlan(2023, true, true);
 
         // Check size
@@ -633,7 +634,7 @@ class WeekResolverTest {
 
     @Test
     void testGetYearPlanWithWeek2024() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         YearPlanResult yearPlan = wr.getYearPlan(2024, true, true);
 
         // Check size
@@ -728,7 +729,7 @@ class WeekResolverTest {
 
     @Test
     void testGetYearPlanWithWeek2025() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         YearPlanResult yearPlan = wr.getYearPlan(2025, true, true);
 
         // Check size
@@ -741,7 +742,7 @@ class WeekResolverTest {
 
     @Test
     void test2022To2023() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         LocalDate monday = LocalDate.parse("2022-12-05", DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
         List<WeekResolverResult> results = new ArrayList<>();
@@ -793,7 +794,7 @@ class WeekResolverTest {
 
     @Test
     void TestStoreBededag() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         // 2023
         assertThat(wr.withDate("2023-05-03").getWeekCode().getWeekCode(), is("BKM202320"));
@@ -847,7 +848,7 @@ class WeekResolverTest {
 
     @Test
     void TestEaster2023() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         // Week before the Easter week
         assertThat(wr.withDate("2023-03-24").getWeekCode().getWeekCode(), is("BKM202316"));
@@ -879,7 +880,7 @@ class WeekResolverTest {
 
     @Test
     void TestYearChange2023To2024() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         assertThat(wr.withDate("2023-12-01").getWeekCode().getWeekCode(), is("BKM202351"));
         assertThat(wr.withDate("2023-12-08").getWeekCode().getWeekCode(), is("BKM202352"));
@@ -894,7 +895,7 @@ class WeekResolverTest {
 
     @Test
     void testYearPlanAndWeekCodeCrossCheck() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         // Check year plan and code for the previous year, up to 2 years into the future.
         // This (almost certainly) ensures that an automatic build breaks at least a year
@@ -949,7 +950,7 @@ class WeekResolverTest {
 
     @Test
     void Test2025SkipWeek02() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         assertThat(wr.withDate("2024-12-12").getWeekCode().getWeekCode(), is("BKM202452"));
         assertThat(wr.withDate("2024-12-13").getWeekCode().getWeekCode(), is("BKM202503"));
@@ -965,7 +966,7 @@ class WeekResolverTest {
 
     @Test
     void TestCatalogueCodeDAN_DAR_SBA_KBA() {
-        WeekResolver wr = new WeekResolver(zone);
+        WeekResolver wr = new WeekResolver(ZONE);
 
         Set.of("DAN", "DAR", "SBA", "KBA").forEach(code -> {
             assertThat(wr.withCatalogueCode(code).withDate("2023-04-23").getWeekCode().getWeekCode(), is(code + "202317"));
@@ -982,7 +983,7 @@ class WeekResolverTest {
 
     @Test
     void TestCatalogueCodeARK() {
-        WeekResolver wr = new WeekResolver(zone);
+        WeekResolver wr = new WeekResolver(ZONE);
 
         assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-23").getWeekCode().getWeekCode(), is("ARK202317"));
         assertThat(wr.withCatalogueCode("ARK").withDate("2023-04-24").getWeekCode().getWeekCode(), is("ARK202318"));
@@ -997,7 +998,7 @@ class WeekResolverTest {
 
     @Test
     void TestCatalogueCodeVPT() {
-        WeekResolver wr = new WeekResolver(zone);
+        WeekResolver wr = new WeekResolver(ZONE);
 
         assertThat(wr.withCatalogueCode("VPT").withDate("2023-06-12").getWeekCode().getWeekCode(), is("VPT202326"));
         assertThat(wr.withCatalogueCode("VPT").withDate("2023-06-13").getWeekCode().getWeekCode(), is("VPT202326"));
@@ -1018,7 +1019,7 @@ class WeekResolverTest {
         // From: https://dbcjira.atlassian.net/browse/MS-4889
         // This change reverses a previous decision that a thursday following may 1.
         // should move the shiftday
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         assertThat("2025-04-23", wr.withDate("2025-04-23").getWeekCode().getWeekCode(), is("BKM202519"));
         assertThat("2025-04-24", wr.withDate("2025-04-24").getWeekCode().getWeekCode(), is("BKM202519"));
@@ -1039,7 +1040,7 @@ class WeekResolverTest {
     @Test
     void Test2025EarlyShiftdayDueToAscensionDay() {
         // From: https://dbcjira.atlassian.net/browse/MS-4889
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         assertThat("2025-05-22",wr.withDate("2025-05-22").getWeekCode().getWeekCode(), is("BKM202523"));
 
@@ -1063,7 +1064,7 @@ class WeekResolverTest {
 
     @Test
     void testYearPlan2025EarlyShiftdayDueToAscensionDay() {
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         YearPlanResult yearPlan = wr.getYearPlan(2025, true, true);
 
         // Check size
@@ -1083,7 +1084,7 @@ class WeekResolverTest {
     @Test
     void Test2025Week51WithEarlyChristmasWeek() {
         // From: https://dbcjira.atlassian.net/browse/MS-4889
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
 
         assertThat("2025-12-11",wr.withDate("2025-12-11").getWeekCode().getWeekCode(), is("BKM202552"));
 
@@ -1109,7 +1110,7 @@ class WeekResolverTest {
     @Test
     void testYearPlan2025WithEarlyChristmasWeek() {
         // From: https://dbcjira.atlassian.net/browse/MS-4889
-        WeekResolver wr = new WeekResolver(zone).withCatalogueCode("BKM");
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
         YearPlanResult yearPlan = wr.getYearPlan(2025, true, true);
 
         // Check size
