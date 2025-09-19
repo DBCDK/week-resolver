@@ -514,7 +514,7 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(51).getColumns().get(4).getContent().contains("2022-12-30"), is(true)); // Book cart
         assertThat(yearPlan.getRows().get(51).getColumns().get(4).getContent().contains("FREDAG"), is(true)); // Weekcode last
         assertThat(yearPlan.getRows().get(51).getColumns().get(5).getContent(), is("\"2022-12-30\"")); // Proof starts
-        assertThat(yearPlan.getRows().get(51).getColumns().get(6).getContent(), is("\"2023-01-02\"")); // Proof
+        assertThat(yearPlan.getRows().get(51).getColumns().get(6).getContent(), is("\"2023-01-03\"")); // Proof
         assertThat(yearPlan.getRows().get(51).getColumns().get(7).getContent(), is("\"2023-01-03\"")); // Proof ends
         assertThat(yearPlan.getRows().get(51).getColumns().get(8).getContent().contains("2023-01-04"), is(true)); // BKM-red.
         assertThat(yearPlan.getRows().get(51).getColumns().get(9).getContent(), is("\"2023-01-06\"")); // Publish
@@ -738,6 +738,22 @@ class WeekResolverTest {
         // Check alignment
         assertThat(yearPlan.getRows().get(1).getColumns().get(0).getContent(), is("202503"));
         assertThat(yearPlan.getRows().get(51).getColumns().get(0).getContent(), is("202604"));
+    }
+
+    @Test
+    void testGetYearPlanWithWeek2026() {
+        WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("BKM");
+        YearPlanResult yearPlan = wr.getYearPlan(2026, true, true);
+
+        // Check size
+        assertThat(yearPlan.size(), is(51));
+
+        // Check alignment
+        assertThat(yearPlan.getRows().get(1).getColumns().get(0).getContent(), is("202604"));
+        assertThat(yearPlan.getRows().get(50).getColumns().get(0).getContent(), is("202703"));
+
+        // Check that proof in week 51 is 5. january (tuesday)
+        assertThat(yearPlan.getRows().get(49).getColumns().get(6).getContent(), is("\"2027-01-05\""));
     }
 
     @Test

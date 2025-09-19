@@ -137,6 +137,11 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     }
 
     @Test
+    void test2026CompleteCheck() throws IOException, WeekResolverConnectorException {
+        assertCsvYearPlan("2026");
+    }
+
+    @Test
     void getPastWeekCodeFulfilled() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
 
