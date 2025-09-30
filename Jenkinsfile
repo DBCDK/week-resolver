@@ -1,5 +1,5 @@
 #!groovy
-def workerNode = "devel11"
+def workerNode = "devel12"
 def teamSlackNotice = 'team-x-notice'
 def teamSlackWarning = 'team-x-warning'
 
@@ -10,6 +10,11 @@ pipeline {
     }
     environment {
         GITLAB_PRIVATE_TOKEN = credentials("metascrum-gitlab-api-token")
+        SONAR_SCANNER_HOME = tool 'SonarQube Scanner from Maven Central'
+        SONAR_SCANNER = "$SONAR_SCANNER_HOME/bin/sonar-scanner"
+        SONAR_PROJECT_KEY = "week-resolver"
+        SONAR_SOURCES = "service/src"
+        SONAR_TESTS = "service/test"
     }
     triggers {
         cron(env.BRANCH_NAME == 'main' ? "H 3 * * 17" : "")
@@ -52,6 +57,29 @@ pipeline {
                       failedTotalAll: "10"])
             }
         }
+        stage("sonarqube") {
+            steps {
+                withSonarQubeEnv(installationName: 'sonarqube.dbc.dk') {
+                    script {
+                        def status = 0
+
+                        def sonarOptions = "-Dsonar.branch.name=${BRANCH_NAME}"
+                        if (env.BRANCH_NAME != 'master') {
+                            sonarOptions += " -Dsonar.newCode.referenceBranch=master"
+                        }
+
+                        // Do sonar via maven
+                        status += sh returnStatus: true, script: """
+                            mvn -B $sonarOptions sonar:sonar
+                        """
+
+                        if (status != 0) {
+                            error("build failed")
+                        }
+                    }
+                }
+            }
+        }
         stage("deploy") {
             when {
               branch "master"
@@ -92,10 +120,6 @@ pipeline {
         }
     }
     post {
-        always {
-            archiveArtifacts 'e2e/cypress/screenshots/*, e2e/cypress/videos/*, logs/*'
-        }
-
         success {
             script {
                 if (BRANCH_NAME == 'main') {
