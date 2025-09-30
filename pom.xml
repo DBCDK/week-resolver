@@ -27,4 +27,9 @@
         <module>connector</module>
     </modules>
 
+    <properties>
+        <sonar.projectKey>week-resolver</sonar.projectKey>
+        <sonar.moduleKey>${project.artifactId}</sonar.moduleKey>
+    </properties>
+
 </project>
