@@ -897,7 +897,7 @@ public class WeekResolver {
         LocalDate proof = fromDate(description.getProofFrom());
         do {
             proof = proof.plusDays(1);
-        } while (isClosingDay(proof, configuration.getAllowEndOfYear()) || isBetweenChristmasAndNewYearsEve(proof) || isEasterWeek(proof));
+        } while (isClosingDay(proof, configuration.getAllowEndOfYear()) || isBetweenChristmasAndNewYearsEve(proof) || isEasterWeek(proof) || (proof.getYear() > date.getYear() && proof.getDayOfWeek() != DayOfWeek.TUESDAY));
         description.setProof(fromLocalDate(proof));
         LOGGER.debug("PROOF = {}", description.getProof());
 
@@ -985,7 +985,8 @@ public class WeekResolver {
                 rowContentFromDate(isSpecialDay(result.getDescription().getBookCart(), DayOfWeek.MONDAY),
                         result.getDescription().getBookCart(), true, showAbnormalDayNames, true),
                 rowContentFromDate(result.getDescription().getProofFrom(), true, displayAllDays),
-                rowContentFromDate(result.getDescription().getProof(), true, true),
+                rowContentFromDate(isSpecialDay(result.getDescription().getProof(), DayOfWeek.TUESDAY),
+                        result.getDescription().getProof(), true, showAbnormalDayNames, true),
                 rowContentFromDate(result.getDescription().getProofTo(), true, displayAllDays),
                 rowContentFromDate(isSpecialDay(result.getDescription().getBkm(), DayOfWeek.WEDNESDAY),
                         result.getDescription().getBkm(), true, showAbnormalDayNames, true),

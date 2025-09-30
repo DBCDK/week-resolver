@@ -34,10 +34,11 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
                 .withBaseUrl(weekresolverServiceBaseUrl)
                 .withPathElements("openapi");
 
-        final Response response = httpClient.execute(httpGet);
-        assertThat("status code", response.getStatus(), is(200));
-        final String openapi = response.readEntity(String.class);
-        assertThat("openapi", openapi, containsString("Provides weekcode calculations"));
+        try (final Response response = httpClient.execute(httpGet)) {
+            assertThat("status code", response.getStatus(), is(200));
+            final String openapi = response.readEntity(String.class);
+            assertThat("openapi", openapi, containsString("Provides weekcode calculations"));
+        }
     }
 
     @Test
@@ -83,8 +84,7 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     @Test
     void getYearPlanForThisYearJson() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
-        YearPlanResult y = connector.getYearPlanForCode(YearPlanFormat.JSON, "BKM");
-        System.out.println(y);
+        YearPlanResult y = connector.getYearPlanForCodeAndYear(YearPlanFormat.JSON, "BKM", 2024);
         assertThat(y.getRows().size(), is(51));
     }
 
@@ -99,7 +99,7 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     @Test
     void getYearPlanForThisYearCsv() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
-        String csv = connector.getYearPlanCsvForCode(YearPlanFormat.CSV, "BKM");
+        String csv = connector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", 2024);
         assertThat(csv.split("\n").length, is(51));
     }
 
@@ -134,6 +134,11 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     @Test
     void test2025CompleteCheck() throws IOException, WeekResolverConnectorException {
         assertCsvYearPlan("2025");
+    }
+
+    @Test
+    void test2026CompleteCheck() throws IOException, WeekResolverConnectorException {
+        assertCsvYearPlan("2026");
     }
 
     @Test
