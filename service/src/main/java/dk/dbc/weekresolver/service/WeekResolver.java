@@ -97,11 +97,11 @@ public class WeekResolver {
         CODES.put("LIT", new WeekCodeConfiguration().addWeeks(2).withShiftDay(DayOfWeek.FRIDAY).allowEndOfYear().ignoreClosingDays());
 
         // No shiftday , add 1 week
-        CODES.put("DAN", new WeekCodeConfiguration().addWeeks(1));
-        CODES.put("DAR", new WeekCodeConfiguration().addWeeks(1));
-        CODES.put("KBA", new WeekCodeConfiguration().addWeeks(1));
-        CODES.put("SBA", new WeekCodeConfiguration().addWeeks(1));
-        CODES.put("ABU", new WeekCodeConfiguration().addWeeks(1)); // Deprecated 201834, but apparently still used by dbckat ??
+        CODES.put("DAN", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+        CODES.put("DAR", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+        CODES.put("KBA", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+        CODES.put("SBA", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());
+        CODES.put("ABU", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays()); // Deprecated 201834, but apparently still used by dbckat ??
 
         // No shiftday, add 1 week, allowing end-of-year and closingdays
         CODES.put("ARK", new WeekCodeConfiguration().addWeeks(1).allowEndOfYear().ignoreClosingDays());

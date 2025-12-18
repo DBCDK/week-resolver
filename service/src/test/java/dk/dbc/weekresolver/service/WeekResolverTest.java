@@ -1145,4 +1145,17 @@ class WeekResolverTest {
         assertThat(yearPlan.getRows().get(51).getColumns().get(4).getContent().contains("2026-01-12"), is(true)); // week 04, book cart
         assertThat(yearPlan.getRows().get(51).getColumns().get(10).getContent().contains("52 + 1 + 2"), is(true)); // contained week numbers
     }
+
+    @Test
+    void TestArticleCodes() {
+
+        List<String> articleCodes = List.of("DAR", "DAN", "SBA", "KBA", "ABU");
+
+        articleCodes.forEach(code -> {
+            WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode(code);
+            assertDoesNotThrow(() -> wr.withDate("2025-12-18").getWeekCode());
+            assertThat(wr.withDate("2025-12-18").getWeekCode().getCatalogueCode(), is(code));
+            assertThat(wr.withDate("2025-12-18").getWeekCode().getWeekCode(), is(code + "202552"));
+        });
+    }
 }
