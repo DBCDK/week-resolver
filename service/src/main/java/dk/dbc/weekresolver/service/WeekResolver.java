@@ -269,10 +269,13 @@ public class WeekResolver {
 
         // Step 3: If the week after the one we are currently in, are totally closed (christmas, easter),
         //         then there is no way to handle BKM. and proof, so shift forward
+        // Note:   This ONLY applies as long as we are in fact honoring closing days!
         LOGGER.debug("======================== BEGIN WEEKCODE CALCULATION ==================================");
-        while (isWithinClosingWeek(expectedDate.plusWeeks(1), configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate.plusWeeks(1))) {
-            expectedDate = getMonday(expectedDate.plusWeeks(1));
-            LOGGER.debug("Date shifted to monday next week due to date within a closed week to {}", expectedDate);
+        if (!configuration.getIgnoreClosingDays()) {
+            while (isWithinClosingWeek(expectedDate.plusWeeks(1), configuration.getAllowEndOfYear()) || isEasterWeek(expectedDate.plusWeeks(1))) {
+                expectedDate = getMonday(expectedDate.plusWeeks(1));
+                LOGGER.debug("Date shifted to monday next week due to date within a closed week to {}", expectedDate);
+            }
         }
 
         // Step 4: add the selected number of weeks
