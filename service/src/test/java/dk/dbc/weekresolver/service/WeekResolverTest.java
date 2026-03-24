@@ -220,6 +220,51 @@ class WeekResolverTest {
         WeekResolver wr = new WeekResolver(ZONE).withCatalogueCode("ACC");
         assertDoesNotThrow(() -> wr.withDate("2019-12-26").getWeekCode());
         assertThat(wr.withDate("2019-12-26").getWeekCode().getWeekCode(), is("ACC201952"));
+
+        // 2026, week 11
+        assertThat(wr.withDate("2026-03-09").getWeekCode().getWeekCode(), is("ACC202611"));
+        assertThat(wr.withDate("2026-03-10").getWeekCode().getWeekCode(), is("ACC202611"));
+        assertThat(wr.withDate("2026-03-11").getWeekCode().getWeekCode(), is("ACC202611"));
+        assertThat(wr.withDate("2026-03-12").getWeekCode().getWeekCode(), is("ACC202611"));
+        assertThat(wr.withDate("2026-03-13").getWeekCode().getWeekCode(), is("ACC202611"));
+        assertThat(wr.withDate("2026-03-14").getWeekCode().getWeekCode(), is("ACC202611"));
+        assertThat(wr.withDate("2026-03-15").getWeekCode().getWeekCode(), is("ACC202611"));
+
+        // 2026, week 12
+        assertThat(wr.withDate("2026-03-16").getWeekCode().getWeekCode(), is("ACC202612"));
+        assertThat(wr.withDate("2026-03-17").getWeekCode().getWeekCode(), is("ACC202612"));
+        assertThat(wr.withDate("2026-03-18").getWeekCode().getWeekCode(), is("ACC202612"));
+        assertThat(wr.withDate("2026-03-19").getWeekCode().getWeekCode(), is("ACC202612"));
+        assertThat(wr.withDate("2026-03-20").getWeekCode().getWeekCode(), is("ACC202612"));
+        assertThat(wr.withDate("2026-03-21").getWeekCode().getWeekCode(), is("ACC202612"));
+        assertThat(wr.withDate("2026-03-22").getWeekCode().getWeekCode(), is("ACC202612"));
+
+        // 2026, week 13 - ACC ignores closing days and thus should never skip the week before a full closing week (Christmas, easter)
+        assertThat(wr.withDate("2026-03-23").getWeekCode().getWeekCode(), is("ACC202613"));
+        assertThat(wr.withDate("2026-03-24").getWeekCode().getWeekCode(), is("ACC202613"));
+        assertThat(wr.withDate("2026-03-25").getWeekCode().getWeekCode(), is("ACC202613"));
+        assertThat(wr.withDate("2026-03-26").getWeekCode().getWeekCode(), is("ACC202613"));
+        assertThat(wr.withDate("2026-03-27").getWeekCode().getWeekCode(), is("ACC202613"));
+        assertThat(wr.withDate("2026-03-28").getWeekCode().getWeekCode(), is("ACC202613"));
+        assertThat(wr.withDate("2026-03-29").getWeekCode().getWeekCode(), is("ACC202613"));
+
+        // 2026, week 14
+        assertThat(wr.withDate("2026-03-30").getWeekCode().getWeekCode(), is("ACC202614"));
+        assertThat(wr.withDate("2026-03-31").getWeekCode().getWeekCode(), is("ACC202614"));
+        assertThat(wr.withDate("2026-04-01").getWeekCode().getWeekCode(), is("ACC202614"));
+        assertThat(wr.withDate("2026-04-02").getWeekCode().getWeekCode(), is("ACC202614"));
+        assertThat(wr.withDate("2026-04-03").getWeekCode().getWeekCode(), is("ACC202614"));
+        assertThat(wr.withDate("2026-04-04").getWeekCode().getWeekCode(), is("ACC202614"));
+        assertThat(wr.withDate("2026-04-05").getWeekCode().getWeekCode(), is("ACC202614"));
+
+        // 2026, week 15
+        assertThat(wr.withDate("2026-04-06").getWeekCode().getWeekCode(), is("ACC202615"));
+        assertThat(wr.withDate("2026-04-07").getWeekCode().getWeekCode(), is("ACC202615"));
+        assertThat(wr.withDate("2026-04-08").getWeekCode().getWeekCode(), is("ACC202615"));
+        assertThat(wr.withDate("2026-04-09").getWeekCode().getWeekCode(), is("ACC202615"));
+        assertThat(wr.withDate("2026-04-10").getWeekCode().getWeekCode(), is("ACC202615"));
+        assertThat(wr.withDate("2026-04-11").getWeekCode().getWeekCode(), is("ACC202615"));
+        assertThat(wr.withDate("2026-04-12").getWeekCode().getWeekCode(), is("ACC202615"));
     }
 
     @Test
