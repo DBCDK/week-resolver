@@ -1,5 +1,6 @@
 package dk.dbc.weekresolver.connector;
 
+import dk.dbc.commons.useragent.UserAgent;
 import dk.dbc.httpclient.FailSafeHttpClient;
 import dk.dbc.httpclient.HttpGet;
 import dk.dbc.invariant.InvariantUtil;
@@ -41,6 +42,7 @@ public class WeekResolverConnector {
                     || response.getStatus() == 502)
             .withDelay(Duration.ofSeconds(5))
             .withMaxRetries(3);
+    private static final UserAgent USER_AGENT = new UserAgent("WeekResolverConnector");
 
     private final FailSafeHttpClient failSafeHttpClient;
     private final String baseUrl;
@@ -48,7 +50,7 @@ public class WeekResolverConnector {
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     public WeekResolverConnector(Client httpClient, String baseUrl) {
-        this(FailSafeHttpClient.create(httpClient, RETRY_POLICY), baseUrl);
+        this(FailSafeHttpClient.create(httpClient, USER_AGENT, RETRY_POLICY), baseUrl);
     }
 
     /**

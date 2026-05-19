@@ -1,5 +1,6 @@
 package dk.dbc.weekresolver.service;
 
+import dk.dbc.commons.useragent.UserAgent;
 import dk.dbc.httpclient.FailSafeHttpClient;
 import dk.dbc.httpclient.HttpClient;
 import jakarta.ws.rs.core.Response;
@@ -18,6 +19,7 @@ public abstract class AbstractWeekResolverServiceContainerTest {
     static final GenericContainer<?> weekresolverServiceContainer;
     static final String weekresolverServiceBaseUrl;
     static final FailSafeHttpClient httpClient;
+    private static final UserAgent USER_AGENT = new UserAgent("AbstractWeekResolverServiceContainerTest");
 
     static {
         //noinspection resource
@@ -33,7 +35,7 @@ public abstract class AbstractWeekResolverServiceContainerTest {
         weekresolverServiceContainer.start();
         weekresolverServiceBaseUrl = "http://" + weekresolverServiceContainer.getHost() +
                 ":" + weekresolverServiceContainer.getMappedPort(8080);
-        httpClient = FailSafeHttpClient.create(HttpClient.newClient(), new RetryPolicy<Response>().withMaxRetries(0));
+        httpClient = FailSafeHttpClient.create(HttpClient.newClient(), USER_AGENT, new RetryPolicy<Response>().withMaxRetries(0));
     }
 
 }
