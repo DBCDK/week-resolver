@@ -142,6 +142,11 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     }
 
     @Test
+    void test2027CompleteCheck() throws IOException, WeekResolverConnectorException {
+        assertCsvYearPlan("2027");
+    }
+
+    @Test
     void getPastWeekCodeFulfilled() throws WeekResolverConnectorException {
         WeekResolverConnector connector = new WeekResolverConnector(httpClient, weekresolverServiceBaseUrl);
 
@@ -180,6 +185,8 @@ class WeekResolverResourceIT extends AbstractWeekResolverServiceContainerTest {
     }
 
     private void assertCsvYearPlan(String year) throws WeekResolverConnectorException, IOException {
+        // Fetch csv with:
+        // http://weekresolver.metascrum-prod.svc.cloud.dbc.dk/api/v1/year/CSV/bkm/<year>?days=ON&display=ALL
         String[] actualCsv = weekResolverConnector.getYearPlanCsvForCodeAndYear(YearPlanFormat.CSV, "BKM", Integer.parseInt(year)).split("\n");
         String[] expectedCsv = getCsvYearPlan(year);
 
