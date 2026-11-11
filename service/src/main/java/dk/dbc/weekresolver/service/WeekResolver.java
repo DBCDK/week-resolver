@@ -157,6 +157,7 @@ public class WeekResolver {
         CODES.put("DIG", new WeekCodeConfiguration().withFixedWeekCode("198507"));
         CODES.put("FFK", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         CODES.put("FSF", new WeekCodeConfiguration().withFixedWeekCode("999999"));
+        CODES.put("OVE", new WeekCodeConfiguration().withFixedWeekCode("999999"));
         CODES.put("HOB", new WeekCodeConfiguration().withFixedWeekCode("197300"));
     }
 
